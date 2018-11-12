@@ -1,0 +1,80 @@
+:root {
+  --nso-blue: rgb(4, 159, 217);
+  --nso-green: rgb(20, 167, 146);
+  --nso-red: rgb(207, 32, 48);
+  --nso-background-grey: rgb(245, 247, 250);
+  --nso-very-light-grey: rgb(232, 235, 241);
+  --nso-border-grey: rgb(204, 204, 204);
+  --nso-light-grey: rgb(182, 185, 187);
+  --nso-shadow-grey: rgb(136, 136, 136);
+  --nso-medium-grey: rgb(88, 88, 91);
+  --nso-dark-grey: rgb(57, 57, 59);
+}
+
+@font-face {
+  font-family: CiscoSansLight;
+  src: url(CiscoSansTTLight.ttf) format("truetype");
+}
+
+body {
+    background-color: var(--nso-background-grey);
+    font-family: CiscoSansLight, Helvetica, sans-serif;
+    margin: 0px;
+    width: 100%;
+}
+
+
+.loading__overlay {
+  background: rgba(255, 255, 255, 0.8);
+  height: 100%;
+  min-height: 155px;
+  pointer-events: none;
+  position: absolute;
+  width: 100%;
+  top: 0px;
+  transition: opacity 500ms ease;
+  z-index: 100;
+}
+
+.loading__text {
+  position: absolute;
+  text-align: center;
+  top: 50%;
+  width: 100%;
+}
+
+.loading__lines {
+  line-height: 1rem;
+  position: relative;
+  padding: 1rem;
+  text-align: center;
+  top: 50%;
+  transform: translate(0, -100%);
+}
+
+.loading__line {
+  background-color: var(--nso-medium-grey);
+  border-radius: 1rem;
+  display: inline-block;
+  height: 1rem;
+  margin: 2px;
+  width: 1rem;
+}
+
+.loading__line:nth-last-child(1) {
+  animation: loading 1.5s 1s infinite;
+}
+
+.loading__line:nth-last-child(2) {
+  animation: loading 1.5s .5s infinite;
+}
+
+.loading__line:nth-last-child(3) {
+  animation: loading 1.5s 0s infinite;
+}
+
+@keyframes loading {
+  0 {width: 1rem;}
+  50% {width: 3rem;}
+  100% {width: 1rem;}
+}

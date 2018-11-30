@@ -7,11 +7,13 @@ import { createStore, applyMiddleware, compose } from 'redux';
 import Modal from 'react-modal';
 
 import thunkMiddleware from 'redux-thunk';
+import cometMiddleware from './middleware/cometMiddleware';
 import jsonRpcMiddleware from './middleware/jsonRpcMiddleware';
 
 import App from './components/App';
 import rootReducer from './reducers';
 import JsonRpc from './utils/JsonRpc';
+import Comet from './utils/Comet';
 
 
 const composeEnhancers = window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__ || compose;
@@ -19,11 +21,12 @@ const composeEnhancers = window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__ || compose;
 const store = createStore(
   rootReducer,
   composeEnhancers(
-    applyMiddleware(jsonRpcMiddleware, thunkMiddleware)
+    applyMiddleware(cometMiddleware, jsonRpcMiddleware, thunkMiddleware)
   )
 );
 
 JsonRpc.setStore(store);
+Comet.start();
 
 const appElement = document.getElementById('app');
 Modal.setAppElement(appElement);

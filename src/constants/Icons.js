@@ -13,7 +13,22 @@ export const BTN_DELETE = 'btn-delete';
 export const BTN_DRAG = 'btn-drag';
 
 // Icon States
-export const DISABLED = "disabled";
+export const DISABLED = 'disabled';
 
 // Other
 export const LABEL_FONT = '0.875em CiscoSansLight';
+
+// Icon name type map
+export const ICON_NAME_TO_TYPE = {
+  'ASA'     : FIREWALL,
+  'FW'      : FIREWALL,
+  'Pen'     : LOAD_BALANCER,
+  'LB'      : LOAD_BALANCER,
+  'Apache'  : WEB_SERVER,
+  'WWW'     : WEB_SERVER,
+  'Web'     : WEB_SERVER,
+  'CSR'     : ROUTER,
+  'Router'  : ROUTER,
+  'PE'      : ROUTER,
+  'CE'      : ROUTER
+};

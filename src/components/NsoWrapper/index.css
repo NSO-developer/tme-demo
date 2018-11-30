@@ -192,12 +192,13 @@
 }
 
 .nso-footer__sc-item {
-  width: 6.25rem;
   background-color: White;
+  cursor: pointer;
   color: var(--nso-blue);
-  text-decoration: none;
-  overflow: hidden;
   display: flex;
+  overflow: hidden;
+  text-decoration: none;
+  width: 6.25rem;
 }
 
 .nso-footer__sc-item--current {

@@ -14,19 +14,19 @@ import { connectionSelected, iconSelected,
 const mapDispatchToProps = { itemDragged, connectionSelected, iconSelected };
 
 const interfaceSource = {
-  beginDrag: ({ connectionId, endpoint, fromIcon, fromDevice, x, y,
+  beginDrag: ({ connection, endpoint, fromIcon, fromDevice, x, y,
     itemDragged, connectionSelected }) => {
-    const item = { connectionId, endpoint, fromIcon, fromDevice, x, y, };
+    const item = { connection, endpoint, fromIcon, fromDevice, x, y };
     itemDragged(item);
     requestAnimationFrame(() => {connectionSelected(undefined);});
     return item;
   },
 
-  endDrag: ({ connectionId, fromIcon,
+  endDrag: ({ connection, fromIcon,
     itemDragged, iconSelected, connectionSelected }, monitor) => {
     itemDragged(undefined);
     if (!monitor.didDrop()) {
-      fromIcon ? iconSelected(fromIcon) : connectionSelected(connectionId);
+      fromIcon ? iconSelected(fromIcon) : connectionSelected(connection);
     }
   },
 
@@ -40,9 +40,8 @@ const interfaceSource = {
 class Interface extends PureComponent {
   render() {
     console.debug('Interface Render');
-    const {
-      connectDragSource, onClick, pcX, pcY, type, size, active, disabled
-    } = this.props;
+    const { connectDragSource, onClick,
+      pcX, pcY, type, size, active, expanded, disabled } = this.props;
 
     return (
       <RoundButton
@@ -53,6 +52,7 @@ class Interface extends PureComponent {
         type={type}
         size={size}
         active={active}
+        expanded={expanded}
         disabled={disabled}
       />
     );

@@ -8,7 +8,7 @@ import classNames from 'classnames';
 
 import { ICON, INTERFACE, ENDPOINT } from '../../constants/ItemTypes';
 import { CIRCLE_ICON_RATIO, LINE_ICON_RATIO,
-         ICON_SPACING } from '../../constants/Layout';
+         ICON_VNF_SPACING, ICON_VM_SPACING } from '../../constants/Layout';
 import { BTN_ADD } from '../../constants/Icons';
 
 import Interface from './Interface';
@@ -48,16 +48,16 @@ function svgStyle(size) {
 // === Mapping functions ======================================================
 
 const mapStateToPropsFactory = (initialState, initialProps) => {
-  const { id } = initialProps;
+  const { name } = initialProps;
   return state => ({
-    ...getIcon(state, id),
-    label: id,
+    ...getIcon(state, name),
+    label: name,
     size: getActualIconSize(state),
-    selected: getSelectedIcon(state) === id,
-    expanded: getIsIconExpanded(state, id),
-    vnfs: getIconVnfs(state, id),
+    selected: getSelectedIcon(state) === name,
+    expanded: getIsIconExpanded(state, name),
+    vnfs: getIconVnfs(state, name),
     connections: getConnections(state),
-    positions: getIconPosition(state, id),
+    positions: getIconPosition(state, name),
     dimensions: getDimensions(state),
     layout: getLayout(state),
     editMode: getEditMode(state)
@@ -74,7 +74,7 @@ const mapDispatchToProps = {
 
 // Standard mode endpoint drag
 const endpointSource = {
-  beginDrag: ({ id }) => ({ iconId: id }),
+  beginDrag: ({ name }) => ({ icon: name }),
   canDrag: ({editMode}) => !editMode
 };
 
@@ -84,37 +84,37 @@ const iconTarget = {
     { device, nsInfo, connectionSelected, addConnection, moveConnection },
     monitor
   ) => {
-    const { connectionId, fromDevice, endpoint } = monitor.getItem();
+    const { connection, fromDevice, endpoint } = monitor.getItem();
 
     if (fromDevice) {
-      const newConnectionId = `${fromDevice}-${device}`;
-      addConnection(newConnectionId, fromDevice, device);
-      connectionSelected(newConnectionId);
+      const newConnectionName = `${fromDevice}-${device}`;
+      addConnection(newConnectionName, fromDevice, device);
+      connectionSelected(newConnectionName);
 
     } else {
-      moveConnection(connectionId, endpoint, device, nsInfo);
-      connectionSelected(connectionId);
+      moveConnection(connection, endpoint, device, nsInfo);
+      connectionSelected(connection);
     }
   },
 
-  canDrop: ({ id, device, connections }, monitor) => {
-    const { connectionId, fromDevice, endpoint } = monitor.getItem();
+  canDrop: ({ name, device, connections }, monitor) => {
+    const { connection, fromDevice, endpoint } = monitor.getItem();
     const from = fromDevice ? fromDevice :
-      connections[connectionId][`ep${endpoint === 1 ? 2 : 1}Device`];
+      connections[connection][`ep${endpoint === 1 ? 2 : 1}Device`];
     // Can't drop interface if:
     //  - From icon is the same as the target icon
     //  - From icon is not a device
     //  - Target icon is not a device
     //  - Connection from icon to target already exists (return statement)
-    if (from === id || !from || !device) {
+    if (from === device || !from || !device) {
       return false;
     }
     return (
       Object.keys(connections).findIndex(key => {
         const conn = connections[key];
         return (
-          (conn.ep1Device === from && conn.ep2Device === id) ||
-          (conn.ep1Device === id && conn.ep2Device === from)
+          (conn.ep1Device === from && conn.ep2Device === device) ||
+          (conn.ep1Device === device && conn.ep2Device === from)
         );
       }) === -1
     );
@@ -124,14 +124,14 @@ const iconTarget = {
 // Edit mode icon drag
 const iconSource = {
   beginDrag: ({
-    id, type, container, status, label, size, positions, itemDragged
+    name, type, container, status, label, size, positions, itemDragged
   }) => {
     const img = new Image();
     img.src = `data:image/svg+xml,${encodeURIComponent(renderToStaticMarkup(
       <IconSvg type={type} status={status} size={size} />
     ))}`;
-    const { x, y } = positions[id];
-    const item = { iconId: id, x, y, img, label, container };
+    const { x, y } = positions[name];
+    const item = { icon: name, x, y, img, label, container };
     itemDragged(item);
     return item;
   },
@@ -165,21 +165,21 @@ const iconSource = {
 }))
 class Icon extends PureComponent {
   handleOnClick = () => {
-    const { id, device, editMode,
+    const { name, device, editMode,
       iconSelected, iconExpandToggled } = this.props;
     if (editMode && device ) {
-      iconSelected(id);
+      iconSelected(name);
     } else if (!editMode) {
-      iconExpandToggled(id);
+      iconExpandToggled(name);
     }
   }
 
   moveIcon = (x, y) => {
-    const { id, container, dimensions, layout, moveIcon } = this.props;
+    const { name, container, dimensions, layout, moveIcon } = this.props;
     const { left, top, width, height } = layout[container].pc;
     const { pcX, pcY } =
       pxToPc(restrictPos(x, y, layout[container]), dimensions);
-    moveIcon(id, (pcX - left) / width, (pcY - top) / height);
+    moveIcon(name, (pcX - left) / width, (pcY - top) / height);
   }
 
   componentDidMount() {
@@ -195,7 +195,7 @@ class Icon extends PureComponent {
   render() {
     console.debug('Icon Render');
     const {
-      id,
+      name,
       device,
       type,
       container,
@@ -216,80 +216,96 @@ class Icon extends PureComponent {
       isDragging,
       hoveredIcon
     } = this.props;
-    if (isOver && hoveredIcon.id !== id && canDrop) {
-      hoveredIcon.id = id;
-    } else if (!isOver && hoveredIcon.id === id) {
-      hoveredIcon.id = null;
+    if (isOver && hoveredIcon.name !== name && canDrop) {
+      hoveredIcon.name = name;
+    } else if (!isOver && hoveredIcon.name === name) {
+      hoveredIcon.name = null;
     }
 
     const hasVnfs = vnfs && vnfs.length > 0;
-    const top = positions[hasVnfs ? vnfs[0].id : id];
-    const height = (expanded && hasVnfs) ? vnfs.length : 1;
-    const outlineSize = expanded ? size * ICON_SPACING : size;
+    const top = positions[hasVnfs ? vnfs[0].name : name];
+    const outlineSize = expanded ? size * ICON_VNF_SPACING : size;
     const outlineRadius = outlineSize / 2;
+
+    const height = (expanded && hasVnfs)
+      ? vnfs.length * outlineSize + vnfs.reduce((accumulator, vnf) =>
+          accumulator += (vnf.vmDevices.length - 1) * ICON_VM_SPACING, 0) * size
+      : outlineSize;
 
     return (
       <Fragment>
         <div
           onClick={this.handleOnClick}
-          id={`${id}-outline`}
+          id={`${name}-outline`}
           className={classNames('icon__outline', {
-            'icon__outline--hidden': !expanded
+            'icon__outline--expanded': expanded
           })}
           style={{
             ...positionStyle(top, outlineSize),
             borderRadius: `${outlineRadius}px`,
-            height: `${height * outlineSize}px`,
-            width: `${outlineSize}px`
+            height: `${height}px`,
+            width: `${outlineSize}px`,
           }}
         >
-          <div
-            className="icon__vnf-connection"
-            style={{
-              height: `${(height - 1) * outlineSize}px`,
-              width: `${size * LINE_ICON_RATIO}px`,
-              top: `${outlineRadius}px`
-            }}
-          />
         </div>
-        {vnfs && vnfs.map((vnf, index) =>
-          <div
-            key={vnf.id}
-            id={`${vnf.id}-vnf`}
-            className={classNames('icon__container', {
-              'icon__container--hidden': !expanded
+        {vnfs && vnfs.map((vnf, vnfIndex) =>
+          <Fragment key={vnfIndex}>{
+            vnf.linkToPrevious &&
+              <div
+                className={classNames('icon__vnf-connection', {
+                  'icon__vnf-connection--expanded': expanded
+                })}
+                style={{
+                  height: `${expanded ? outlineSize : 0}px`,
+                  width: `${size * LINE_ICON_RATIO}px`,
+                  left: `${positions[vnf.name].pcX}%`,
+                  bottom: `${100 - positions[vnf.name].pcY}%`
+                }}
+              />}
+            {vnf.vmDevices.map((vm, vmIndex) => {
+              const vnfVmName = `${vnf.name}${vmIndex > 0 ? `-${vmIndex}` : ''}`;
+              return <div
+                key={vnfVmName}
+                id={`${vnfVmName}-vnf-vm`}
+                className={classNames('icon__container', {
+                  'icon__container--expanded': expanded,
+                  'icon__container--hidden': !expanded
+                })}
+                style={positionStyle(positions[vnfVmName], size)}
+              >
+                <div className="icon__svg-wrapper" style={svgStyle(size)} >
+                  <IconSvg type={vnf.type} status={vm.status} size={size} />
+                </div>
+                {vmIndex === Object.keys(vnf.vmDevices).length - 1 &&
+                  <div className="icon__label icon__label--vnf" >
+                    <span className="icon__label-text">{vnf.vnfInfo}</span>
+                  </div>
+                }
+              </div>;
             })}
-            style={positionStyle(positions[vnf.id], size)}
-          >
-            <div className="icon__svg-wrapper" style={svgStyle(size)} >
-              <IconSvg type={vnf.type} status={status} size={size} />
-            </div>
-            <div className="icon__label icon__label--vnf" >
-              <span className="icon__label-text">{vnf.name}</span>
-            </div>
-          </div>
+          </Fragment>
         )}
         <div
           className={classNames('icon__container', {
-            'icon__container--hidden': hoveredIcon.id !== id
+            'icon__container--hidden': hoveredIcon.name !== name
           })}
-          style={positionStyle(positions[id], size*2)}
+          style={positionStyle(positions[name], size*2)}
         >
           <IconHighlight size={size*2}/>
         </div>
         {connectEndpointDragPreview(
           <div
-            id={`${id}-icon`}
+            id={`${name}-icon`}
             className={classNames('icon__container', {
               'icon__container--expanded': expanded,
               'icon__container--dragging': isDragging
             })}
-            style={positionStyle(positions[id], size)}
+            style={positionStyle(positions[name], size)}
           >
             <div
               className="icon__svg-wrapper"
               style={{
-                height: `${(height * outlineSize + size) / 2}px`,
+                height: `${(height + size) / 2}px`,
                 width: `${size}px`
               }}
             />
@@ -309,10 +325,10 @@ class Icon extends PureComponent {
                   >
                     <IconSvg type={type} status={status} size={size}/>
                     <Interface
-                      fromIcon={id}
+                      fromIcon={name}
                       fromDevice={device}
-                      x={positions[id].x}
-                      y={positions[id].y}
+                      x={positions[name].x}
+                      y={positions[name].y}
                       pcX={50}
                       pcY={50}
                       size={size * CIRCLE_ICON_RATIO}

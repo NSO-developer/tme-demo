@@ -1,15 +1,15 @@
 import * as ActionTypes from '../actions/tenants';
-import jsonRpcQueryWrapper from './jsonRpcQueryWrapper';
+import jsonRpcWrapper from './jsonRpcWrapper';
 
 
 // === Selectors ==============================================================
 
-export { getItems, getIsFetching } from './jsonRpcQueryWrapper';
+export { getItems, getIsFetching } from './jsonRpcWrapper';
 
 
 // === Reducer ================================================================
 
-export default jsonRpcQueryWrapper([
+export default jsonRpcWrapper([
   ActionTypes.FETCH_TENANTS_REQUEST,
   ActionTypes.FETCH_TENANTS_SUCCESS,
   ActionTypes.FETCH_TENANTS_FAILURE,

@@ -7,6 +7,7 @@ import classNames from 'classnames';
 import { handleError } from '../../actions/uiState';
 
 import JsonRpc from '../../utils/JsonRpc';
+import Comet from '../../utils/Comet';
 
 
 const mapDispatchToProps = {
@@ -43,7 +44,8 @@ class UserMenu extends PureComponent {
   logout = async () => {
     const { handleError } = this.props;
     try {
-      await JsonRpc.rquest('logout');
+      await Comet.stop();
+      await JsonRpc.request('logout');
       window.location.assign('/login.html');
     } catch(error) {
       handleError('Error logging out', error);

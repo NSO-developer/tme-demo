@@ -20,16 +20,16 @@ import { pointAlongLine, lineLength, lineAngle,
 
 
 const mapStateToProps = (state, props) => {
-  const { id, ep1Icon, ep2Icon } = props;
+  const { name, ep1Icon, ep2Icon } = props;
   const draggedItem = getDraggedItem(state);
   const editMode = getEditMode(state);
   return {
-    dragging: draggedItem &&
-      (draggedItem.connectionId === id ||
-       draggedItem.iconId === ep1Icon ||
-       draggedItem.iconId === ep2Icon),
+    dragging: !!draggedItem &&
+      (draggedItem.connection === name ||
+       draggedItem.icon === ep1Icon ||
+       draggedItem.icon === ep2Icon),
     iconSize: getActualIconSize(state),
-    selected: editMode && getSelectedConnection(state) === id,
+    selected: editMode && getSelectedConnection(state) === name,
     dimensions: getDimensions(state),
     editMode
   };
@@ -45,19 +45,19 @@ class Connection extends PureComponent {
   }
 
   connectionSelected = () => {
-    const { id, editMode, connectionSelected } = this.props;
-    editMode && connectionSelected(id);
+    const { name, editMode, connectionSelected } = this.props;
+    editMode && connectionSelected(name);
   }
 
   delete = () => {
-    const { id, deleteConnection } = this.props;
-    deleteConnection(id);
+    const { name, deleteConnection } = this.props;
+    deleteConnection(name);
   }
 
   render() {
     console.debug('Connection Render');
-    const { id, x1, y1, x2, y2, disabled,
-      dragging, iconSize, selected, dimensions, editMode } = this.props;
+    const { name, x1, y1, x2, y2, disabled, dragging,
+      iconSize, selected, expanded, dimensions, editMode } = this.props;
 
     const iconRadius = iconSize / 2;
     const circleSize = iconSize * CIRCLE_ICON_RATIO;
@@ -83,10 +83,10 @@ class Connection extends PureComponent {
 
     return (
       <div
-        id={id}
+        id={name}
         onClick={this.connectionSelected}
         className={classNames('topology__connection', {
-          'topology__connection--selected': selected,
+          'topology__connection--selected': selected || expanded,
           'topology__connection--disabled': selected && disabled,
           'topology__connection--edit': editMode,
           'topology__connection--dragging': dragging
@@ -96,28 +96,30 @@ class Connection extends PureComponent {
           left: `${pcP1.pcX}%`,
           top: `${pcP1.pcY}%`,
           transform: `rotate(${this.lineAngle}deg) translate(0, -50%)`,
-          width: `${length / dimensions.width * 100}%`,
+          width: `${length / dimensions.width * 100}%`
         }}
       >
         <Interface
-          connectionId={id}
+          connection={name}
           endpoint={1}
           pcX="0"
           pcY="50"
           {...p1}
           size={circleSize}
           active={selected}
+          expanded={expanded}
           disabled={disabled}
           type={IconTypes.BTN_DRAG}
         />
         <Interface
-          connectionId={id}
+          connection={name}
           endpoint={2}
           pcX="100"
           pcY="50"
           {...p2}
           size={circleSize}
           active={selected}
+          expanded={expanded}
           disabled={disabled}
           type={IconTypes.BTN_DRAG}
         />

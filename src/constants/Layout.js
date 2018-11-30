@@ -7,7 +7,8 @@ export const DEVICE_MANAGER_URL = '/webui-one/DeviceManager';
 export const SERVICE_MANAGER_URL = '/webui-one/ServiceManager';
 
 export const ICON_BASE_SIZE = 10;
-export const ICON_SPACING = 1.3;
+export const ICON_VNF_SPACING = 1.3;
+export const ICON_VM_SPACING = 0.6;
 export const CIRCLE_ICON_RATIO = 0.25;
 export const LINE_ICON_RATIO = 0.125;
 
@@ -18,8 +19,8 @@ export const ACCESS = 'access';
 export const CUSTOMER = 'customer';
 
 export const LAYOUT = [
-  { width: 20, title: 'Data Centre', id: DATA_CENTRE },
-  { width: 40, title: 'Provider', id: PROVIDER },
-  { width: 15, title: 'Access', id: ACCESS },
-  { width: 25, title: 'Customer', id: CUSTOMER }
+  { name: DATA_CENTRE, width: 20, title: 'Data Centre' },
+  { name: PROVIDER, width: 40, title: 'Provider' },
+  { name: ACCESS, width: 15, title: 'Access' },
+  { name: CUSTOMER, width: 25, title: 'Customer' }
 ];

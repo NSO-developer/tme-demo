@@ -17,10 +17,10 @@
 }
 
 body {
-    background-color: var(--nso-background-grey);
-    font-family: CiscoSansLight, Helvetica, sans-serif;
-    margin: 0px;
-    width: 100%;
+  background-color: var(--nso-background-grey);
+  font-family: CiscoSansLight, Helvetica, sans-serif;
+  margin: 0px;
+  width: 100%;
 }
 
 

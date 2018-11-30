@@ -20,6 +20,18 @@ export const LABEL_BACKGROUND = 'rgba(255, 255, 255, 0.7)';
 //Icon colours
 export const ROUTER = '#36C6F4';
 export const SERVICE_CHAIN = 'MediumTurquoise';
-export const FIREWALL = 'WhiteSmoke';
 export const FLAME = 'DarkOrange';
-export const DISABLED = 'Silver';
+export const BACKGROUND = 'WhiteSmoke';
+export const FIREWALL = ROUTER;
+export const WEB_SERVER = 'MediumTurquoise';
+export const LOAD_BALANCER = NSO_BLUE;
+export const GENERIC = NSO_BLUE;
+
+//State colour map
+export const STATE_COLOURS = {
+  'disabled'  : NSO_LIGHT_GREY,
+  'init'      : NSO_LIGHT_GREY,
+  'deployed'  : 'DarkKhaki',
+  'ready'     : undefined,
+  'error'     : 'IndianRed'
+};

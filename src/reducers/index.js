@@ -1,4 +1,4 @@
-import { ICON_SPACING } from '../constants/Layout';
+import { ICON_VNF_SPACING, ICON_VM_SPACING } from '../constants/Layout';
 import { combineReducers } from 'redux';
 import { createSelector } from 'reselect';
 
@@ -60,8 +60,8 @@ export const getSelectedIcon = state =>
 export const getExpandedIcons = state =>
   fromUiState.getExpandedIcons(state.uiState);
 
-export const getIsIconExpanded = (state, id) =>
-  fromUiState.getExpandedIcons(state.uiState).includes(id);
+export const getIsIconExpanded = (state, name) =>
+  fromUiState.getExpandedIcons(state.uiState).includes(name);
 
 export const getEditMode = state =>
   fromUiState.getEditMode(state.uiState);
@@ -108,8 +108,8 @@ export const getIcons = state =>
 export const getIsFetchingIcons = state =>
   fromIcons.getIsFetching(state.icons);
 
-export const getIcon = (state, id) =>
-  fromIcons.getIcon(state.icons, id);
+export const getIcon = (state, name) =>
+  fromIcons.getIcon(state.icons, name);
 
 export const getIconsByDevice = state =>
   fromIcons.getIconsByDevice(state.icons);
@@ -127,14 +127,14 @@ export const getIsFetchingVnfs = state =>
   fromVnfs.getIsFetching(state.vnfs);
 
 const getIconVnfsFactory = () =>
-  createSelector([(state, id) => getIcon(state, id).nsInfoId, getVnfs],
+  createSelector([(state, name) => getIcon(state, name).nsInfo, getVnfs],
     fromVnfs.getNsInfoVnfs);
 
-export const getIconVnfs = (state, id) => {
-  if (!iconVnfsSelectors[id]) {
-    iconVnfsSelectors[id] = getIconVnfsFactory();
+export const getIconVnfs = (state, name) => {
+  if (!iconVnfsSelectors[name]) {
+    iconVnfsSelectors[name] = getIconVnfsFactory();
   }
-  return iconVnfsSelectors[id](state, id);
+  return iconVnfsSelectors[name](state, name);
 };
 
 
@@ -146,15 +146,15 @@ export const getConnections = state =>
 export const getIsFetchingConnections = state =>
   fromConnections.getIsFetching(state.connections);
 
-export const getConnection = (state, id) =>
-  fromConnections.getConnection(state.connections, id);
+export const getConnection = (state, name) =>
+  fromConnections.getConnection(state.connections, name);
 
 
 // === Cross-slice selectors ==================================================
 
 const calculateIconPosition =
-  (id, icon, vnfs, dimensions, layout, iconHeightPc, expanded) => {
-  console.debug(`Reselect iconPosition ${id}`);
+  (name, icon, vnfs, dimensions, layout, iconHeightPc, expanded) => {
+  console.debug(`Reselect iconPosition ${name}`);
   if (!dimensions) {
     return null;
   }
@@ -163,38 +163,51 @@ const calculateIconPosition =
   const pcX = left + x * width;
   const pcY = top + y * height;
   const ret = {
-    [id]: {
+    [name]: {
       pcX,
       pcY,
       x: Math.round(pcX * dimensions.width / 100),
-      y: Math.round(pcY * dimensions.height / 100)
+      y: Math.round(pcY * dimensions.height / 100),
+      expanded: expanded
   }};
-  const vnfOffset = vnfs && (vnfs.length + 1) * (iconHeightPc * ICON_SPACING) / 2;
-  vnfs && vnfs.forEach((vnf, index) => {
-    const vnfPcX = pcX;
-    const vnfPcY = ( expanded && vnfs.length > 1 )
-      ? pcY + (index + 1) * (iconHeightPc * ICON_SPACING) - vnfOffset : pcY;
-    ret[vnf.id] = {
-      pcX: vnfPcX,
-      pcY: vnfPcY,
-      x: Math.round(vnfPcX * dimensions.width / 100),
-      y: Math.round(vnfPcY * dimensions.height / 100)
-    };
-  });
+  if (vnfs) {
+    const vnfOffset = ((vnfs.length + 1) * ICON_VNF_SPACING +
+      vnfs.reduce((accumulator, vnf) => accumulator +=
+        (vnf.vmDevices.length - 1) * ICON_VM_SPACING, 0)) * iconHeightPc / 2;
+
+    let vmOffset = 0;
+    vnfs && vnfs.forEach((vnf, vnfIndex) => {
+      vnf.vmDevices.forEach((vm, vmIndex) => {
+        if (vmIndex > 0) { vmOffset++; }
+        const vnfPcX = pcX;
+        const vnfPcY = (expanded && vnfs.length > 1)
+          ? pcY + ((vnfIndex + 1) * ICON_VNF_SPACING +
+            vmOffset * ICON_VM_SPACING) * iconHeightPc  - vnfOffset
+          : pcY;
+        ret[`${vnf.name}${vmIndex > 0 ? `-${vmIndex}` : ''}`] = {
+          pcX: vnfPcX,
+          pcY: vnfPcY,
+          x: Math.round(vnfPcX * dimensions.width / 100),
+          y: Math.round(vnfPcY * dimensions.height / 100),
+          expanded: expanded
+        };
+      });
+    });
+  }
   return ret;
 };
 
 const getIconPositionFactory = () =>
   createSelector(
-    [(state, id) => id, getIcon, getIconVnfs, getDimensions,
+    [(state, name) => name, getIcon, getIconVnfs, getDimensions,
       getLayout, getIconHeightPc, getIsIconExpanded],
     calculateIconPosition);
 
-export const getIconPosition = (state, id) => {
-  if (!iconPositionSelectors[id]) {
-    iconPositionSelectors[id] = getIconPositionFactory();
+export const getIconPosition = (state, name) => {
+  if (!iconPositionSelectors[name]) {
+    iconPositionSelectors[name] = getIconPositionFactory();
   }
-  return iconPositionSelectors[id](state, id);
+  return iconPositionSelectors[name](state, name);
 };
 
 export const getIconPositions = createSelector(
@@ -222,61 +235,65 @@ export const getIconPositions = createSelector(
 // when dragging.
 export const calculateConnectionPositions = (
   connections, iconsByDevice, iconsByNsInfo, iconPositions, vnfs, fromIcon
-) => Object.keys(connections).reduce((accumulator, key) => {
+) => {
   console.debug('Reselect connectionPositions');
-  const processEndpoint = (device, nsInfoId, cp, includeVnfs) => {
-    if (device) { return [ iconsByDevice[device] ]; }
+  return Object.keys(connections).reduce((accumulator, key) => {
+    const processEndpoint = (device, nsInfo, cp, includeVnfs) => {
+      if (device) { return [ iconsByDevice[device] ]; }
 
-    if (nsInfoId) {
-      return includeVnfs ? Object.values(vnfs).filter(vnf =>
-          vnf.nsInfoId === nsInfoId && vnf.connectionPoints.includes(cp)
-        ).map(({ id }) => id) : [ iconsByNsInfo[nsInfoId] ];
-    }
-
-    console.error(`Connection ${key} has a missing endpoint!`);
-    return [];
-  };
-
-  const { ep1Device, ep1NsInfo, ep1Cp,
-          ep2Device, ep2NsInfo, ep2Cp } = connections[key];
-
-  processEndpoint(
-    ep1Device, ep1NsInfo, ep1Cp, fromIcon === undefined
-  ).forEach((ep1Icon, idx1) => {
-    processEndpoint(
-      ep2Device, ep2NsInfo, ep2Cp, fromIcon === undefined
-    ).forEach((ep2Icon, idx2)=> {
-      if (fromIcon && (fromIcon === ep1Icon || fromIcon === ep2Icon)) {
-        accumulator.push({
-          id: key,
-          from: iconPositions[fromIcon === ep1Icon ? ep2Icon : ep1Icon]
-        });
-      } else if (!fromIcon) {
-        if (!(ep1Icon in iconPositions)) {
-          console.error(`Skipping connection ${key
-            }. Failed to find icon (or calculate position) for endpoint 1`);
-        } else if (!(ep2Icon in iconPositions)) {
-          console.error(`Skipping connection ${key
-            }. Failed to find icon (or calculate position) for endpoint 2`);
-        } else {
-          accumulator.push({
-            key: key + (idx1 + idx2 > 0 ? `-${(idx1 + 1) * (idx2 + 1)}` : ''),
-            id: key,
-            x1: iconPositions[ep1Icon].x,
-            y1: iconPositions[ep1Icon].y,
-            x2: iconPositions[ep2Icon].x,
-            y2: iconPositions[ep2Icon].y,
-            ep1Icon,
-            ep2Icon,
-            disabled: ep1NsInfo || ep2NsInfo
-          });
-        }
+      if (nsInfo) {
+        return includeVnfs ? Object.values(vnfs).filter(vnf =>
+            vnf.nsInfo === nsInfo && vnf.sapds.includes(cp)
+          ).map(({ name }) => name) : [ iconsByNsInfo[nsInfo] ];
       }
-    });
-  });
 
-  return accumulator;
-}, []);
+      console.error(`Connection ${key} has a missing endpoint!`);
+      return [];
+    };
+
+    const { ep1Device, ep1NsInfo, ep1Cp,
+            ep2Device, ep2NsInfo, ep2Cp } = connections[key];
+
+    processEndpoint(
+      ep1Device, ep1NsInfo, ep1Cp, fromIcon === undefined
+    ).forEach((ep1Icon, idx1) => {
+      processEndpoint(
+        ep2Device, ep2NsInfo, ep2Cp, fromIcon === undefined
+      ).forEach((ep2Icon, idx2)=> {
+        if (fromIcon && (fromIcon === ep1Icon || fromIcon === ep2Icon)) {
+          accumulator.push({
+            name: key,
+            from: iconPositions[fromIcon === ep1Icon ? ep2Icon : ep1Icon]
+          });
+        } else if (!fromIcon) {
+          if (!(ep1Icon in iconPositions)) {
+            console.error(`Skipping connection ${key
+              }. Failed to find icon (or calculate position) for endpoint 1`);
+          } else if (!(ep2Icon in iconPositions)) {
+            console.error(`Skipping connection ${key
+              }. Failed to find icon (or calculate position) for endpoint 2`);
+          } else {
+            accumulator.push({
+              key: key + (idx1 + idx2 > 0 ? `-${(idx1 + 1) * (idx2 + 1)}` : ''),
+              name: key,
+              x1: iconPositions[ep1Icon].x,
+              y1: iconPositions[ep1Icon].y,
+              x2: iconPositions[ep2Icon].x,
+              y2: iconPositions[ep2Icon].y,
+              expanded: iconPositions[ep1Icon].expanded ||
+                        iconPositions[ep2Icon].expanded,
+              ep1Icon,
+              ep2Icon,
+              disabled: !!(ep1NsInfo || ep2NsInfo)
+            });
+          }
+        }
+      });
+    });
+
+    return accumulator;
+  }, []);
+};
 
 export const getConnectionPositions = createSelector([
   getConnections, getIconsByDevice, getIconsByNsInfo, getIconPositions, getVnfs

@@ -11,6 +11,7 @@ import BtnConfirmIcon from '../icons/BtnConfirm';
 
 import { handleError } from '../../actions/uiState';
 import JsonRpc from '../../utils/JsonRpc';
+import Comet from '../../utils/Comet';
 
 
 const mapDispatchToProps = { handleError };
@@ -43,7 +44,7 @@ class NewItem extends PureComponent {
         await this.processDefaults(th, keyPath, defaults || []);
         this.setState({ value: '' });
         close();
-        window.location.assign(CONFIGURATION_EDITOR_URL + keyPath);
+        Comet.stopThenGoToUrl(CONFIGURATION_EDITOR_URL + keyPath);
       } catch (error) {
         handleError(`Error creating ${value}`, error);
       }

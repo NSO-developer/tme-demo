@@ -1,5 +1,5 @@
 import * as ActionTypes from '../actions/connections';
-import jsonRpcQueryWrapper, { getItems } from './jsonRpcQueryWrapper';
+import jsonRpcWrapper, { getItems } from './jsonRpcWrapper';
 
 
 // === Helpers ================================================================
@@ -10,34 +10,32 @@ const endpointNsInfoKey = endpoint => `ep${endpoint}NsInfo`;
 
 // === Selectors ==============================================================
 
-export { getItems, getIsFetching } from './jsonRpcQueryWrapper';
-export const getConnection = (state, id) => getItems(state)[id];
+export { getItems, getIsFetching } from './jsonRpcWrapper';
+export const getConnection = (state, name) => getItems(state)[name];
 
 
 // === Reducer ================================================================
 
-export default jsonRpcQueryWrapper([
+export default jsonRpcWrapper([
   ActionTypes.FETCH_CONNECTIONS_REQUEST,
   ActionTypes.FETCH_CONNECTIONS_SUCCESS,
   ActionTypes.FETCH_CONNECTIONS_FAILURE,
-  ActionTypes.CONNECTION_DELETED
+  ActionTypes.CONNECTION_DELETED,
+  ActionTypes.CONNECTION_ADDED
 ],
 (state = [], action) => {
-  const { type, id } = action;
+  const { type, name, endpoint, device, nsInfo } = action;
   switch (type) {
 
-    case ActionTypes.CONNECTION_ADDED: {
-      const { ep1Device, ep2Device } = action;
-      return { ...state, [id]: { ep1Device, ep2Device } };
-    }
-
-    case ActionTypes.CONNECTION_MOVED: {
-      const { endpoint, device, nsInfo } = action;
-      const newState = { ...state };
-      newState[id][endpointDeviceKey(endpoint)] = device;
-      newState[id][endpointNsInfoKey(endpoint)] = nsInfo;
-      return newState;
-    }
+    case ActionTypes.CONNECTION_MOVED:
+      return {
+        ...state,
+        [name]: {
+          ...state[name],
+          [endpointDeviceKey(endpoint)]: device,
+          [endpointNsInfoKey(endpoint)]: nsInfo
+        }
+      };
 
     default:
       return state;

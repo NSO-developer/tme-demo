@@ -13,9 +13,9 @@
  *
  */
 
-import { fetchIcons } from './icons';
-import { fetchConnections } from './connections';
-import { fetchVnfs } from './vnfs';
+import { fetchIcons, subscribeIcons } from './icons';
+import { fetchConnections, subscribeConnections } from './connections';
+import { fetchVnfs, subscribeVnfs } from './vnfs';
 
 import { fetchTenants } from './tenants';
 import { fetchEndpoints } from './endpoints';
@@ -38,4 +38,10 @@ export const fetchSidebarData = () => dispatch => {
 export const fetchAll = () => dispatch => {
   dispatch(fetchTopologyData());
   dispatch(fetchSidebarData());
+};
+
+export const subscribeTopologyData = () => dispatch => {
+  dispatch(subscribeIcons());
+  dispatch(subscribeConnections());
+  dispatch(subscribeVnfs());
 };

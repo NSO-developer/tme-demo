@@ -15,7 +15,7 @@ const mapStateToProps = state => ({
 
 function Container(props) {
   console.debug('Container Render');
-  const { idx, id, width, iconSize, draggedItem, length } = props;
+  const { index, name, width, iconSize, draggedItem, length } = props;
   const shadow = Math.round(iconSize / 4);
   return (
     <div
@@ -27,20 +27,20 @@ function Container(props) {
       <div
         className="container__layer"
         style={{
-          boxShadow: (idx === (length - 1))
+          boxShadow: (index === (length - 1))
             ? `${shadow}px 0px 0px 0px ${Colours.BACKGROUND_1} inset, ${
                 shadow + 1}px 0px 0px 0px darkgray inset`
-            : (idx % 2)
+            : (index % 2)
               ? `0px 0px 0px ${shadow}px ${Colours.BACKGROUND_1
                 } inset, 0px 0px 0px ${shadow + 1}px darkgray inset`
               : 'none',
-          background: idx % 2 ? Colours.BACKGROUND_2 : Colours.BACKGROUND_1
+          background: index % 2 ? Colours.BACKGROUND_2 : Colours.BACKGROUND_1
         }}
       />
       <div className={classNames(
         'container__layer', 'container__layer-overlay', {
         'container__layer-overlay--visible':
-          draggedItem && draggedItem.container === id
+          draggedItem && draggedItem.container === name
       })}
         style={{
           boxShadow: `0px 0px ${shadow / 2}px ${shadow}px white inset`
@@ -49,7 +49,7 @@ function Container(props) {
       <div className={classNames('container__layer',
         'container__layer-overlay', 'container__layer-overlay-disabled', {
         'container__layer-overlay--visible':
-          draggedItem && draggedItem.iconId && draggedItem.container !== id
+          draggedItem && draggedItem.icon && draggedItem.container !== name
         })}
       />
     </div>

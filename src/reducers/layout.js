@@ -47,7 +47,7 @@ export const getLayout = createSelector(
     const { width, height } = dimensions;
     const ratio = width / height;
     let x = -iconWidthPc / 2;
-    return LAYOUT.reduce((acc, container) => {
+    return LAYOUT.reduce((accumulator, container) => {
       const pc = {
         left: x += iconWidthPc,
         right: x += container.width - iconWidthPc,
@@ -56,7 +56,7 @@ export const getLayout = createSelector(
         width: container.width - iconWidthPc,
         height: 100 - iconHeightPc * 1.5
       };
-      acc[container.id] = {
+      accumulator[container.name] = {
         pc,
         px: {
           left: Math.round(pc.left * width / 100),
@@ -65,7 +65,7 @@ export const getLayout = createSelector(
           bottom: Math.round(pc.bottom * height / 100)
         }
       };
-      return acc;
+      return accumulator;
     }, {});
   }
 );

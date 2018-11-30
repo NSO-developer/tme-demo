@@ -16,7 +16,7 @@ class JsonRpc {
   }
 
   async request(method, params) {
-    const response = await fetch(`/jsonrpc/{method}`, {
+    const response = await fetch(`/jsonrpc/${method}`, {
       method: 'post',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
@@ -28,7 +28,7 @@ class JsonRpc {
     });
 
     if (!response.ok) {
-      throw new Error(`Json-Rpc fetch failed: Status [${response.status
+      throw new Error(`Json-Rpc request failed: Status [${response.status
         }] ${response.statusText}`);
     }
 
@@ -44,6 +44,31 @@ class JsonRpc {
     }
 
     return json.result;
+  }
+
+  async exists(path) {
+    const th = await this.read();
+    const params = { th, path };
+    const result = await this.request('exists', params);
+    return result.exists;
+  }
+
+  async getValue(path) {
+    const th = await this.read();
+    const params = { th, path };
+    return this.request('get_value', params);
+  }
+
+  async getValues(params) {
+    const th = await this.read();
+    params = { th: th, ...params };
+    return this.request('get_values', params);
+  }
+
+  async getListKeys(params) {
+    const th = await this.read();
+    params = { th: th, ...params };
+    return this.request('get_list_keys', params);
   }
 
   async query(params) {

@@ -31,14 +31,14 @@ const mapStateToProps = state => {
   const iconPositions = getIconPositions(state);
   let overlayConnections = undefined;
   if (draggedItem) {
-    const { iconId, fromIcon, connectionId, endpoint } = draggedItem;
-    overlayConnections = iconId
+    const { icon, fromIcon, connection, endpoint } = draggedItem;
+    overlayConnections = icon
         ? calculateConnectionPositions(connections, iconsByDevice,
-            iconsByNsInfo, iconPositions, undefined, iconId)
+            iconsByNsInfo, iconPositions, undefined, icon)
         : [ {
-            id: connectionId,
+            name: connection,
             from: iconPositions[fromIcon ? fromIcon : getEndpointIcon(
-              connections[connectionId], endpoint === 1 ? 2 : 1,
+              connections[connection], endpoint === 1 ? 2 : 1,
                 iconsByDevice, iconsByNsInfo)]
           } ];
   }
@@ -152,7 +152,7 @@ class CustomDragLayer extends PureComponent {
         );
 
         Object.keys(overlayConnections).forEach(key => {
-          const { id, from } = overlayConnections[key];
+          const { from } = overlayConnections[key];
           const p1 = pointAlongLine(x, y, from.x, from.y, iconRadius);
           const p2 = pointAlongLine(from.x, from.y, x, y, iconRadius);
           this.drawConnection(p1, p2);
@@ -166,11 +166,11 @@ class CustomDragLayer extends PureComponent {
       case INTERFACE: {
         const conn = overlayConnections[0];
         let from = conn.from;
-        let to = hoveredIcon.id
-          ? iconPositions[hoveredIcon.id]
+        let to = hoveredIcon.name
+          ? iconPositions[hoveredIcon.name]
           : { x: item.x, y: item.y };
 
-        if (hoveredIcon.id) {
+        if (hoveredIcon.name) {
           to = pointAlongLine(to.x, to.y, from.x, from.y, iconRadius);
         } else {
           to.x += offsetDifference.x;

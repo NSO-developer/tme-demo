@@ -1,8 +1,9 @@
 import React from 'react';
-import { STROKE, ROUTER } from '../../constants/Colours';
+import { STROKE, LOAD_BALANCER, BACKGROUND } from '../../constants/Colours';
 
 export default function({ size, colour }) {
-  const background = colour ? colour : ROUTER;
+  const background = colour ? colour : BACKGROUND;
+  const foreground = colour ? 'White' : LOAD_BALANCER;
   return (
     <svg
       xmlns="http://www.w3.org/2000/svg"
@@ -33,23 +34,22 @@ export default function({ size, colour }) {
         stroke={STROKE} strokeWidth="10" fill={background}
         cx="200" cy="200" r="195"
       />
-      <g fill="White">
+      <g fill={foreground}>
         <use
           href="#arrow"
-          transform="translate(50, 50) rotate(315, 80, 80)"
+          transform="translate(120, 20) rotate(45, 80, 180)"
         />
         <use
           href="#arrow"
-          transform="translate(190, 50) rotate(225, 80, 80)"
+          transform="translate(120, 20) rotate(135, 80, 180)"
         />
-        <use
-          href="#arrow"
-          transform="translate(190, 190) rotate(135, 80, 80)"
-        />
-        <use
-          href="#arrow"
-          transform="translate(50, 190) rotate(45, 80, 80)"
-        />
+        <circle cx="80" cy="200" r="30"/>
+      </g>
+      <g stroke={foreground} strokeWidth="30">
+        <circle fill="none" cx="200" cy="200" r="40" />
+        <line x1="80" y1="200" x2="150" y2="200"/>
+        <line x1="80" y1="100" x2="80" y2="160"/>
+        <line x1="80" y1="240" x2="80" y2="300"/>
       </g>
     </svg>
   );

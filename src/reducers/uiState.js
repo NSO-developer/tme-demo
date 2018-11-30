@@ -21,7 +21,7 @@ export default function(state = {
   expandedIcons: [],
   editMode: false
 }, action) {
-  const { type, item, id,
+  const { type, item, name,
           editMode, hasWriteTransaction, bodyOverlayVisible, error } = action;
   switch (type) {
 
@@ -31,23 +31,23 @@ export default function(state = {
     case ActionTypes.CONNECTION_SELECTED:
       return {
         ...state,
-        selectedConnection: state.selectedConnection === id ? null : id,
+        selectedConnection: state.selectedConnection === name ? null : name,
         selectedIcon: null
       };
 
     case ActionTypes.ICON_SELECTED:
       return {
         ...state,
-        selectedIcon: state.selectedIcon === id ? null : id,
+        selectedIcon: state.selectedIcon === name ? null : name,
         selectedConnection: null
       };
 
     case ActionTypes.ICON_EXPAND_TOGGLED:
       return {
         ...state,
-        expandedIcons: state.expandedIcons.includes(id)
-            ? state.expandedIcons.filter(icon => icon !== id)
-            : [ ...state.expandedIcons, id ]
+        expandedIcons: state.expandedIcons.includes(name)
+            ? state.expandedIcons.filter(icon => icon !== name)
+            : [ ...state.expandedIcons, name ]
       };
 
     case ActionTypes.EDIT_MODE_TOGGLED:

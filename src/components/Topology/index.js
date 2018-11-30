@@ -20,7 +20,7 @@ import { getIcons, getConnectionPositions, getActualIconSize, getDimensions,
          getIsFetchingIcons, getIsFetchingVnfs, getIsFetchingConnections,
          getEditMode } from '../../reducers';
 
-import { fetchTopologyData } from '../../actions';
+import { fetchTopologyData, subscribeTopologyData } from '../../actions';
 import { dimensionsChanged } from '../../actions/layout';
 
 
@@ -35,7 +35,9 @@ const mapStateToProps = state => ({
   editMode: getEditMode(state)
 });
 
-const mapDispatchToProps = { dimensionsChanged, fetchTopologyData };
+const mapDispatchToProps = {
+  dimensionsChanged, fetchTopologyData, subscribeTopologyData
+};
 
 
 class Topology extends PureComponent {
@@ -43,7 +45,7 @@ class Topology extends PureComponent {
     super(props);
     this.ref = createRef();
     this.canvasRef = createRef();
-    this.hoveredIcon = { id: null };
+    this.hoveredIcon = { name: null };
   }
 
   resize() {
@@ -55,8 +57,9 @@ class Topology extends PureComponent {
   componentDidMount() {
     this.resize();
     window.addEventListener('resize', this.resize.bind(this));
-    const { fetchTopologyData } = this.props;
+    const { fetchTopologyData, subscribeTopologyData } = this.props;
     fetchTopologyData();
+    subscribeTopologyData();
   }
 
   render() {
@@ -70,11 +73,11 @@ class Topology extends PureComponent {
         'topology__container--edit-mode': editMode
       })}>
         <div className="topology__layer topology__layer--background">
-          {LAYOUT.map((container, idx) =>
+          {LAYOUT.map((container, index) =>
             <Container
-              key={idx}
-              idx={idx}
-              id={container.id}
+              key={index}
+              index={index}
+              name={container.name}
               width={container.width}
               length={LAYOUT.length}
             />
@@ -82,13 +85,13 @@ class Topology extends PureComponent {
         </div>
         <div className="topology__layer topology__layer--foreground">
           <div className="topology__header">
-            {LAYOUT.map((container, idx) =>
+            {LAYOUT.map((container, index) =>
               <div
-                key={idx}
+                key={index}
                 className="container__title-text"
                 style={{
                   width: `${container.width}%`,
-                  paddingLeft: (idx === 0 || idx === LAYOUT.length - 1) &&
+                  paddingLeft: (index === 0 || index === LAYOUT.length - 1) &&
                     `${Math.round(iconSize / 4)}px`
               }}>
                 {container.title}
@@ -102,7 +105,7 @@ class Topology extends PureComponent {
                   <Connection key={connection.key} {...connection}/>
                 )}
                 {Object.keys(icons).map(key =>
-                  <Icon key={key} id={key} hoveredIcon={this.hoveredIcon}/>
+                  <Icon key={key} name={key} hoveredIcon={this.hoveredIcon}/>
                 )}
                 <DragLayerCanvas
                   dimensions={dimensions}

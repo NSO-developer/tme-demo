@@ -16,13 +16,14 @@ import BtnRedeployIcon from '../icons/BtnRedeploy';
 
 import { bodyOverlayToggled } from '../../actions/uiState';
 import { deleteTenant } from '../../actions/tenants';
+import Comet from '../../utils/Comet';
 
 
 const mapDispatchToProps = { deleteTenant, bodyOverlayToggled };
 
 const dropTarget = {
   drop(props, monitor, component) {
-    component.dropDevice(monitor.getItem().iconId);
+    component.dropDevice(monitor.getItem().icon);
   },
   canDrop(props, monitor) {
     return true;
@@ -118,12 +119,12 @@ class Tenant extends PureComponent {
 
   goTo = (event) => {
     event.stopPropagation();
-    window.location.assign(CONFIGURATION_EDITOR_URL + this.keyPath);
+    Comet.stopThenGoToUrl(CONFIGURATION_EDITOR_URL + this.keyPath);
   }
 
   redeploy = (event) => {
     event.stopPropagation();
-    window.location.assign(
+    Comet.stopThenGoToUrl(
       `${CONFIGURATION_EDITOR_URL}${this.keyPath}/re-deploy`);
   }
 

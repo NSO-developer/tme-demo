@@ -3,7 +3,7 @@ export const getItems = state => state.items;
 
 export default (types, wrappedReducer) => {
   const [ queryRequestType, querySuccessType, queryFailureType,
-          deleteItemType ] = types;
+          itemDeletedType, itemAddedType ] = types;
 
   return (state = {
     isFetching: false,
@@ -29,21 +29,26 @@ export default (types, wrappedReducer) => {
           isFetching: false,
           error: action.error
         };
-      case deleteItemType:
-        if (deleteItemType) {
-          return {
-            ...state,
-            items: Array.isArray(state.items)
-              ? state.items.filter(item => item.name !== action.name)
-              : Object.keys(state.items).reduce((accumulator, current) => {
-                  if (current !== action.name) {
-                    accumulator[current] = state.items[current];
-                  }
-                  return accumulator;
-                }, {})
-          };
-        }
-        // falls through
+      case itemDeletedType:
+        return {
+          ...state,
+          items: Array.isArray(state.items)
+            ? state.items.filter(item => item.name !== action.name)
+            : Object.keys(state.items).reduce((accumulator, current) => {
+                if (current !== action.name) {
+                  accumulator[current] = state.items[current];
+                }
+                return accumulator;
+              }, {})
+        };
+      case itemAddedType:
+        return {
+          ...state,
+          items: {
+            ...state.items,
+            [action.name]: action.item
+          }
+        };
       default: {
         if (wrappedReducer) {
           const items = wrappedReducer(state.items, action);

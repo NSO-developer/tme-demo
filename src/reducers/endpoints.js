@@ -1,15 +1,15 @@
 import * as ActionTypes from '../actions/endpoints';
-import jsonRpcQueryWrapper from './jsonRpcQueryWrapper';
+import jsonRpcWrapper from './jsonRpcWrapper';
 
 
 // === Selectors ==============================================================
 
-export { getItems, getIsFetching } from './jsonRpcQueryWrapper';
+export { getItems, getIsFetching } from './jsonRpcWrapper';
 
 
 // === Reducer ================================================================
 
-export default jsonRpcQueryWrapper([
+export default jsonRpcWrapper([
   ActionTypes.FETCH_ENDPOINTS_REQUEST,
   ActionTypes.FETCH_ENDPOINTS_SUCCESS,
   ActionTypes.FETCH_ENDPOINTS_FAILURE,

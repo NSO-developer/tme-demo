@@ -16,16 +16,16 @@ export const itemDragged = item => ({
   type: ITEM_DRAGGED, item
 });
 
-export const connectionSelected = id => ({
-  type: CONNECTION_SELECTED, id
+export const connectionSelected = name => ({
+  type: CONNECTION_SELECTED, name
 });
 
-export const iconSelected = id => ({
-  type: ICON_SELECTED, id
+export const iconSelected = name => ({
+  type: ICON_SELECTED, name
 });
 
-export const iconExpandToggled = (id, override) => ({
-  type: ICON_EXPAND_TOGGLED, id, override
+export const iconExpandToggled = (name, override) => ({
+  type: ICON_EXPAND_TOGGLED, name, override
 });
 
 export const editModeToggled = editMode => ({

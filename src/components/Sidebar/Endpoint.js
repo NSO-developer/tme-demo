@@ -3,7 +3,7 @@ import { PureComponent, createRef } from 'react';
 import { connect } from 'react-redux';
 import classNames from 'classnames';
 
-import { CONFIGURATION_EDITOR } from '../../constants/Layout';
+import { CONFIGURATION_EDITOR_URL } from '../../constants/Layout';
 
 import BtnDeleteIcon from '../icons/BtnDelete';
 import BtnGoToIcon from '../icons/BtnGoTo';
@@ -29,7 +29,7 @@ class Endpoint extends PureComponent {
 
   goTo = (event) => {
     event.stopPropagation();
-    window.location.assign(CONFIGURATION_EDITOR + this.keyPath);
+    window.location.assign(CONFIGURATION_EDITOR_URL + this.keyPath);
   }
 
   render() {

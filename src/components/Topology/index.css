@@ -56,14 +56,15 @@
   background: var(--nso-blue);
   opacity: 1;
   position: absolute;
-  transition: all 500ms ease;
+  transition-property: left, top, width, transform, background, z-index;
+  transition-duration: 500ms, 500ms, 500ms, 500ms, 250ms, 0ms;
   transform-origin: 0 0;
   z-index: 1;
 }
 
 .topology__connection--selected {
   background: var(--nso-green);
-  z-index: 3
+  z-index: 4
 }
 
 .topology__connection--disabled {
@@ -79,25 +80,27 @@
 }
 
 .topology__svg-icon {
-  transition: height 500ms ease, width 500ms ease;
 }
 
+.topology__svg-icon-circle {
+  transition: fill 500ms ease;
+}
+
+
 .topology__round-btn {
-  background: inherit;
+  background: var(--nso-blue);
   color: White;
   display: block;
   opacity: 1;
+  pointer-events: none;
   position: absolute;
   transform: translate(-50%, -50%);
-  transition: all 250ms ease;
+  transition-property: width, height, background, border-radius;
+  transition-duration: 250ms;
 }
 
 .topology__round-btn--add {
   background: var(--nso-green);
-}
-
-.topology__round-btn--delete {
-  background: IndianRed;
 }
 
 .topology__round-btn--hidden {
@@ -105,15 +108,33 @@
 }
 
 .topology__round-btn--enabled {
+  background: var(--nso-green);
+  pointer-events: auto;
   cursor: pointer;
 }
 
 .topology__round-btn--disabled {
-  pointer-events: none;
+  background: var(--nso-light-grey);
+}
+
+.topology__round-btn--expanded {
+  background: var(--nso-green);
+}
+
+.topology__round-btn--delete {
+  background: IndianRed;
+}
+
+.topology__round-btn-svg-container {
+  position: absolute;
+  transition-property: padding, opacity;
+  transition-duration: inherit;
 }
 
 .topology__body .round-btn__svg-icon {
   display: block;
+  transition-property: height, width;
+  transition-duration: inherit;
 }
 
 
@@ -131,7 +152,7 @@
 }
 
 .container__layer {
-  transition: opacity 250ms linear;
+  transition: opacity 250ms;
   position: absolute;
   width: 100%;
   height: 100%;
@@ -168,27 +189,38 @@
   border: solid Teal 0.125rem;
   box-sizing: border-box;
   cursor: pointer;
+  opacity: 0;
   position: absolute;
-  transition: all 500ms ease;
+  transition-property: height, width, top, transform, opacity, border-radius, z-index;
+  transition-duration: 500ms, 500ms, 500ms, 500ms, 500ms, 500ms, 0ms;
 }
 
-.icon__outline--hidden {
-  opacity: 0;
+.icon__outline--expanded {
+  opacity: 1;
+  z-index: 3;
 }
 
 .icon__vnf-connection {
   background: Teal;
-  left: 50%;
-  position: relative;
-  transition: height 500ms ease;
+  opacity: 0;
+  position: absolute;
+  pointer-events: none;
+  transition-property: bottom, height, opacity;
+  transition-duration: 500ms, 500ms, 0ms;
   transform: translateX(-50%);
+  z-index: 3;
+}
+
+.icon__vnf-connection--expanded {
+  opacity: 1;
 }
 
 .icon__container {
   opacity: 1;
   pointer-events: none;
   position: absolute;
-  transition: all 500ms ease;
+  transition-property: left, top, opacity, z-index;
+  transition-duration: 500ms, 500ms, 500ms, 0ms;
   z-index: 2;
 }
 
@@ -201,7 +233,7 @@
 }
 
 .icon__container--expanded {
-  z-index: 3;
+  z-index: 4;
 }
 
 .icon__svg-wrapper {
@@ -210,7 +242,8 @@
   opacity: 1;
   position: relative;
   transform: translateX(-50%);
-  transition: height 500ms ease, width 500ms ease, opacity 500ms ease;
+  transition-property: height, opacity;
+  transition-duration: 500ms;
 }
 
 .icon__svg-wrapper--hidden {

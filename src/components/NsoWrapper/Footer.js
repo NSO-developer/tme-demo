@@ -1,6 +1,7 @@
 import React from 'react';
 import { PureComponent } from 'react';
 import classNames from 'classnames';
+import Comet from '../../utils/Comet';
 
 
 class Footer extends PureComponent {
@@ -38,7 +39,7 @@ class Footer extends PureComponent {
           {applications.map(({ href, title, abb }) =>
             <a key={abb} className={classNames('nso-footer__sc-item', {
               'nso-footer__sc-item--current': title === current
-            })} href={href}>
+            })} onClick={() => { Comet.stopThenGoToUrl(href); }}>
               <div className="nso-footer__sc-letter">{abb +
                 (abb === 'C' && hasWriteTransaction ? '*' : '')}</div>
               <div className="nso-footer__sc-text">{title}</div>

@@ -11,10 +11,12 @@ import BtnDragIcon from '../icons/BtnDrag';
 
 
 export default forwardRef((props, ref) => {
-  const { onClick, pcX, pcY, type, size, active, disabled } = props;
+  const { onClick, pcX, pcY, type, size, active, expanded, disabled } = props;
   const iconScale = type === IconTypes.BTN_DRAG ? 0.5 : 0.66;
   const actualSize = size * (active && !disabled ? 2 : 1);
 
+  // It would be easier to inherit the background colour from the connection,
+  // but this doesn't work well in Chrome with transitions
   return (
     <div
       className={classNames('topology__round-btn', {
@@ -22,7 +24,8 @@ export default forwardRef((props, ref) => {
         'topology__round-btn--delete': type === IconTypes.BTN_DELETE,
         'topology__round-btn--hidden': type !== IconTypes.BTN_DRAG && !active,
         'topology__round-btn--enabled': active && !disabled,
-        'topology__round-btn--disbled': !active || disabled
+        'topology__round-btn--disabled': active && disabled,
+        'topology__round-btn--expanded': expanded
       })}
       ref={ref}
       onClick={onClick}
@@ -35,10 +38,10 @@ export default forwardRef((props, ref) => {
       }}
     >
       <div
+        className="topology__round-btn-svg-container"
         style={{
           opacity: (active && !disabled) | 0,
           padding: actualSize * (1 - iconScale) / 2,
-          transition: active && 'opacity 250ms 100ms',
         }}
       >
        {type === IconTypes.BTN_ADD &&

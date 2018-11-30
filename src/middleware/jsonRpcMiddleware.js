@@ -2,8 +2,34 @@ import JsonRpc from '../utils/JsonRpc';
 import { handleError } from '../actions/uiState';
 
 export default store => next => async action => {
-  const { jsonRpcSetValues, jsonRpcDelete, jsonRpcQuery,
+  const { jsonRpcGetValues, jsonRpcSetValues, jsonRpcDelete, jsonRpcQuery,
           types, actions, errorMessage } = action;
+
+  if (jsonRpcGetValues) {
+    const { name, path, leafs, resultKeys } = jsonRpcGetValues;
+    const [ requestType, successType, failureType ] = types;
+
+    next({ type: requestType, name });
+
+    try {
+      const json = await JsonRpc.getValues({ path, leafs });
+      const values = json && json.values ? json.values : [];
+      const result = values.reduce((accumulator, current, index) => {
+        accumulator[resultKeys[index]] = current.value ? current.value : '';
+        return accumulator;
+      }, {});
+
+      return next({
+        type: successType,
+        name: name,
+        item: result,
+        receivedAt: Date.now()
+      });
+    } catch(exception) {
+      return next(handleError(errorMessage ||
+        `Failed to get values from ${path}`, exception, failureType));
+    }
+  }
 
   if (jsonRpcSetValues) {
     const [ startAction ] = actions;
@@ -67,8 +93,7 @@ export default store => next => async action => {
           resultAcc.push(item);
         }
         return resultAcc;
-      }, objectKey ? {} : []
-    );
+      }, objectKey ? {} : []);
 
       return next({
         type: successType,

@@ -10,7 +10,7 @@ module.exports = {
   output: {
     filename: '[name].js',
     path: `${__dirname}/dist`,
-    publicPath: '/custom/'
+    publicPath: '/custom/l3vpnui'
   },
   mode: 'development',
   optimization: {

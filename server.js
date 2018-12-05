@@ -16,19 +16,10 @@ app.use(require('webpack-dev-middleware')(compiler, {
 
 app.use(require('webpack-hot-middleware')(compiler));
 
-function respond(req, res) {
-  console.log('   ', req.method, req.url);
-  res.sendFile(path.join(__dirname, 'dist/index.html'));
-}
 
-function respond2(req, res) {
-  console.log('   ', req.method, req.url);
-  res.sendFile(path.join(__dirname, req.url));
-}
-
-app.get('/custom/l3vpnui', respond);
-app.get('/custom/l3vpnui/*', respond);
-//app.get('/custom/*', respond2);
+/*
+ * Proxy NSO related request to NSO at localhost:8080
+ */
 
 function proxy2nso(req, res) {
   console.log('(p)', req.method, req.url);

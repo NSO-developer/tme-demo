@@ -3,14 +3,16 @@ const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 const UglifyJsPlugin = require('uglifyjs-webpack-plugin');
 const OptimizeCSSAssetsPlugin = require('optimize-css-assets-webpack-plugin');
 const exec = require('child_process').exec;
+const webpack = require('webpack');
 
 module.exports = {
-  entry: `${__dirname}/src/index.js`,
+  entry: [`${__dirname}/src/index.js`, 'webpack-hot-middleware/client'],
   output: {
     filename: '[name].js',
-    path: `${__dirname}/dist`
+    path: `${__dirname}/dist`,
+    publicPath: '/custom/'
   },
-  mode: 'production',
+  mode: 'development',
   optimization: {
     usedExports: true,
     splitChunks: {
@@ -34,7 +36,8 @@ module.exports = {
           });
         });
       }
-    }
+    },
+    new webpack.HotModuleReplacementPlugin()
   ],
   module: {
     rules: [
@@ -46,6 +49,7 @@ module.exports = {
           options: {
             presets: ['react', 'env'],
             plugins: [
+              'react-hot-loader/babel',
               'transform-class-properties',
               'transform-decorators-legacy',
               'transform-object-rest-spread',

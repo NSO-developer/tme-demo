@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "build": "webpack",
-    "start": "webpack-dev-server",
+    "start": "node server.js",
     "test": "echo \"Error: no test specified\" && exit 1",
     "watch": "webpack --watch"
   },
@@ -12,15 +12,19 @@
   "license": "ISC",
   "dependencies": {
     "classnames": "^2.2.6",
+    "http-proxy": "^1.17.0",
     "react": "^16.6.1",
     "react-dnd": "^6.0.0",
     "react-dnd-html5-backend": "^6.0.0",
     "react-dom": "^16.6.1",
+    "react-hot-api": "^0.5.0",
+    "react-hot-loader": "^4.3.12",
     "react-modal": "^3.5.1",
     "react-redux": "^5.1.1",
     "redux": "^4.0.0",
     "redux-thunk": "^2.3.0",
-    "reselect": "^4.0.0"
+    "reselect": "^4.0.0",
+    "webpack-hot-middleware": "^2.24.3"
   },
   "devDependencies": {
     "babel-core": "^6.26.3",

@@ -2,7 +2,7 @@ import React from 'react';
 import { PureComponent } from 'react';
 import { DragDropContext } from 'react-dnd';
 import HTML5Backend from 'react-dnd-html5-backend';
-
+import { hot } from 'react-hot-loader';
 import Sidebar from './Sidebar';
 import Topology from './Topology';
 import NsoWrapper from './NsoWrapper';
@@ -20,4 +20,4 @@ class App extends PureComponent {
   }
 }
 
-export default App;
+export default hot(module)(App);

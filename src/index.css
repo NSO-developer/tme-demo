@@ -23,6 +23,19 @@ body {
   width: 100%;
 }
 
+.tooltip {
+  font-size: 0.875rem;
+  text-align: left;
+  line-height: 1;
+}
+
+table.tooltip > tbody > tr > td {
+  padding-right: 1em;
+}
+
+.round-btn__svg-icon {
+  outline: none;
+}
 
 .loading__overlay {
   background: rgba(255, 255, 255, 0.8);

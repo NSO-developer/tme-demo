@@ -4,9 +4,9 @@ import { connect } from 'react-redux';
 import classNames from 'classnames';
 
 import { CONFIGURATION_EDITOR_URL } from '../../constants/Layout';
+import * as IconTypes from '../../constants/Icons';
 
-import BtnDeleteIcon from '../icons/BtnDelete';
-import BtnGoToIcon from '../icons/BtnGoTo';
+import Btn from '../icons/BtnWithTooltip';
 
 import { deleteEndpoint } from '../../actions/endpoints';
 
@@ -46,13 +46,16 @@ class Endpoint extends PureComponent {
             className="sidebar__round-btn sidebar__round-btn--go-to"
             onClick={this.goTo}
           >
-            <BtnGoToIcon/>
+            <Btn
+              type={IconTypes.BTN_GOTO}
+              tooltip="View Endpoint in Configuration Editor"
+            />
           </div>
           <div
             className="sidebar__round-btn sidebar__round-btn--delete"
             onClick={this.delete}
           >
-            <BtnDeleteIcon/>
+            <Btn type={IconTypes.BTN_DELETE} tooltip="Delete Endpoint"/>
           </div>
         </div>
         <div

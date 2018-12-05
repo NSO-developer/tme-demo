@@ -4,10 +4,10 @@ import { connect } from 'react-redux';
 import classNames from 'classnames';
 
 import { CONFIGURATION_EDITOR_URL } from '../../constants/Layout';
+import * as IconTypes from '../../constants/Icons';
 
 import Tenant from './Tenant';
-import BtnDeleteIcon from '../icons/BtnDelete';
-import BtnConfirmIcon from '../icons/BtnConfirm';
+import Btn from '../icons/BtnWithTooltip';
 
 import { handleError } from '../../actions/uiState';
 import JsonRpc from '../../utils/JsonRpc';
@@ -77,7 +77,7 @@ class NewItem extends PureComponent {
             className="sidebar__round-btn sidebar__round-btn--delete"
             onClick={close}
           >
-            <BtnDeleteIcon/>
+            <Btn type={IconTypes.BTN_DELETE} tooltip="Cancel"/>
           </div>
           <label className="new-item__label">{label}</label>
           <input
@@ -91,7 +91,7 @@ class NewItem extends PureComponent {
             'sidebar__round-btn--confirm-active': value !== '',
             'sidebar__round-btn--confirm-inactive': value === ''
           })} onClick={this.create}>
-            <BtnConfirmIcon/>
+            <Btn type={IconTypes.BTN_CONFIRM} tooltip="Create"/>
           </div>
         </form>
       </div>

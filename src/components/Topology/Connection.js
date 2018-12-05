@@ -110,6 +110,7 @@ class Connection extends PureComponent {
           expanded={expanded}
           disabled={disabled}
           type={IconTypes.BTN_DRAG}
+          tooltip="Move Connection (drag me)"
         />
         <Interface
           connection={name}
@@ -122,6 +123,7 @@ class Connection extends PureComponent {
           expanded={expanded}
           disabled={disabled}
           type={IconTypes.BTN_DRAG}
+          tooltip="Move Connection (drag me)"
         />
         {!disabled && <RoundButton
           onClick={this.delete}
@@ -132,6 +134,7 @@ class Connection extends PureComponent {
           size={circleSize}
           active={selected}
           type={IconTypes.BTN_DELETE}
+          tooltip="Delete Connection"
         />}
       </div>
     );

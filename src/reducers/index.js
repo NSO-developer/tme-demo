@@ -10,6 +10,7 @@ import networkServices, * as fromNetworkServices from './networkServices.js';
 import icons, * as fromIcons from './icons.js';
 import vnfs, * as fromVnfs from './vnfs.js';
 import connections, * as fromConnections from './connections.js';
+import devices, * as fromDevices from './devices.js';
 
 export default combineReducers({
   layout,
@@ -19,7 +20,8 @@ export default combineReducers({
   networkServices,
   icons,
   vnfs,
-  connections
+  connections,
+  devices
 });
 
 const iconPositionSelectors = [];
@@ -148,6 +150,12 @@ export const getIsFetchingConnections = state =>
 
 export const getConnection = (state, name) =>
   fromConnections.getConnection(state.connections, name);
+
+
+// === Devices selectors ==================================================
+
+export const getDevice = (state, name) =>
+  fromDevices.getDevice(state.devices, name);
 
 
 // === Cross-slice selectors ==================================================

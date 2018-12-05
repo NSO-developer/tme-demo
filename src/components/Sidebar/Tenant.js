@@ -6,13 +6,11 @@ import classNames from 'classnames';
 
 import { ENDPOINT } from '../../constants/ItemTypes';
 import { CONFIGURATION_EDITOR_URL } from '../../constants/Layout';
+import * as IconTypes from '../../constants/Icons';
 
 import Endpoint from './Endpoint';
 import NewItem from './NewItem';
-import BtnAddIcon from '../icons/BtnAdd';
-import BtnDeleteIcon from '../icons/BtnDelete';
-import BtnGoToIcon from '../icons/BtnGoTo';
-import BtnRedeployIcon from '../icons/BtnRedeploy';
+import Btn from '../icons/BtnWithTooltip';
 
 import { bodyOverlayToggled } from '../../actions/uiState';
 import { deleteTenant } from '../../actions/tenants';
@@ -147,19 +145,22 @@ class Tenant extends PureComponent {
             className="sidebar__round-btn sidebar__round-btn--go-to"
             onClick={this.goTo}
           >
-            <BtnGoToIcon/>
+            <Btn
+              type={IconTypes.BTN_GOTO}
+              tooltip="View Tenant in Configuration Editor"
+            />
           </div>
           <div
             className="sidebar__round-btn sidebar__round-btn--redeploy"
             onClick={this.redeploy}
           >
-            <BtnRedeployIcon/>
+            <Btn type={IconTypes.BTN_REDEPLOY} tooltip="Re-Deploy" />
           </div>
           <div
             className="sidebar__round-btn sidebar__round-btn--delete"
             onClick={this.delete}
           >
-            <BtnDeleteIcon/>
+            <Btn type={IconTypes.BTN_DELETE} tooltip="Delete Tenant" />
           </div>
         </div>
         <div
@@ -180,7 +181,7 @@ class Tenant extends PureComponent {
               className="sidebar__round-btn sidebar__round-btn--add"
               onClick={this.openNewItem}
             >
-              <BtnAddIcon/>
+              <Btn type={IconTypes.BTN_ADD} tooltip="Add New Endpoint" />
             </div>
             <NewItem
               path={`${this.keyPath}/endpoint`}

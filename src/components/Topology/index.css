@@ -240,6 +240,8 @@
   cursor: pointer;
   left: 50%;
   opacity: 1;
+  outline: none;
+  pointer-events: auto;
   position: relative;
   transform: translateX(-50%);
   transition-property: height, opacity;
@@ -248,11 +250,11 @@
 
 .icon__svg-wrapper--hidden {
   opacity: 0;
+  pointer-events: none;
 }
 
 .icon__svg-wrapper-absolute {
   position: absolute;
-  pointer-events: auto;
   top: 0;
 }
 

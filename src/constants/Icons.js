@@ -10,10 +10,10 @@ export const GENERIC = 'generic';
 // Button icons
 export const BTN_ADD = 'btn-add';
 export const BTN_DELETE = 'btn-delete';
+export const BTN_GOTO = 'btn-goto';
+export const BTN_REDEPLOY = 'btn-redeploy';
+export const BTN_CONFIRM = 'btn-confirm';
 export const BTN_DRAG = 'btn-drag';
-
-// Icon States
-export const DISABLED = 'disabled';
 
 // Other
 export const LABEL_FONT = '0.875em CiscoSansLight';

@@ -5,13 +5,12 @@ import classNames from 'classnames';
 import * as IconTypes from '../../constants/Icons';
 import * as Colours from '../../constants/Colours';
 
-import BtnAddIcon from '../icons/BtnAdd';
-import BtnDeleteIcon from '../icons/BtnDelete';
-import BtnDragIcon from '../icons/BtnDrag';
+import Btn from '../icons/BtnWithTooltip';
 
 
 export default forwardRef((props, ref) => {
-  const { onClick, pcX, pcY, type, size, active, expanded, disabled } = props;
+  const { onClick, pcX, pcY, type, size,
+    active, expanded, disabled, tooltip } = props;
   const iconScale = type === IconTypes.BTN_DRAG ? 0.5 : 0.66;
   const actualSize = size * (active && !disabled ? 2 : 1);
 
@@ -44,15 +43,7 @@ export default forwardRef((props, ref) => {
           padding: actualSize * (1 - iconScale) / 2,
         }}
       >
-       {type === IconTypes.BTN_ADD &&
-         <BtnAddIcon size={actualSize * iconScale}/>
-       }
-       {type === IconTypes.BTN_DELETE &&
-         <BtnDeleteIcon size={actualSize * iconScale}/>
-       }
-       {type === IconTypes.BTN_DRAG &&
-         <BtnDragIcon size={actualSize * iconScale}/>
-       }
+       <Btn type={type} size={actualSize * iconScale} tooltip={tooltip}/>
       </div>
     </div>
   );

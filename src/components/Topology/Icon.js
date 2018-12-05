@@ -5,6 +5,7 @@ import { DragSource, DropTarget } from 'react-dnd';
 import { renderToStaticMarkup } from 'react-dom/server';
 import { getEmptyImage } from 'react-dnd-html5-backend';
 import classNames from 'classnames';
+import Tippy from '@tippy.js/react';
 
 import { ICON, INTERFACE, ENDPOINT } from '../../constants/ItemTypes';
 import { CIRCLE_ICON_RATIO, LINE_ICON_RATIO,
@@ -16,7 +17,7 @@ import IconHighlight from '../icons/IconHighlight';
 import IconSvg from '../icons/IconSvg';
 
 import { getIcon, getActualIconSize, getSelectedIcon, getIsIconExpanded,
-         getIconVnfs, getConnections, getIconPosition,
+         getIconVnfs, getConnections, getIconPosition, getDevice,
          getDimensions, getLayout, getEditMode } from '../../reducers';
 
 import { iconSelected, connectionSelected,
@@ -44,24 +45,27 @@ function svgStyle(size) {
   };
 }
 
-
 // === Mapping functions ======================================================
 
 const mapStateToPropsFactory = (initialState, initialProps) => {
   const { name } = initialProps;
-  return state => ({
-    ...getIcon(state, name),
-    label: name,
-    size: getActualIconSize(state),
-    selected: getSelectedIcon(state) === name,
-    expanded: getIsIconExpanded(state, name),
-    vnfs: getIconVnfs(state, name),
-    connections: getConnections(state),
-    positions: getIconPosition(state, name),
-    dimensions: getDimensions(state),
-    layout: getLayout(state),
-    editMode: getEditMode(state)
-  });
+  return state => {
+    const icon = getIcon(state, name);
+    return {
+      ...icon,
+      label: name,
+      size: getActualIconSize(state),
+      selected: getSelectedIcon(state) === name,
+      expanded: getIsIconExpanded(state, name),
+      vnfs: getIconVnfs(state, name),
+      connections: getConnections(state),
+      deviceInfo: icon.device ? getDevice(state, icon.device) : undefined,
+      positions: getIconPosition(state, name),
+      dimensions: getDimensions(state),
+      layout: getLayout(state),
+      editMode: getEditMode(state)
+    };
+  };
 };
 
 const mapDispatchToProps = {
@@ -182,6 +186,51 @@ class Icon extends PureComponent {
     moveIcon(name, (pcX - left) / width, (pcY - top) / height);
   }
 
+  tooltipContent = (status, vnfIndex) => {
+    const { name, device, nsInfo, vnfs, deviceInfo } = this.props;
+    if (device) {
+      return (
+        <table className="tooltip">
+          <tbody>
+            <tr><td>Device:</td><td>{device}</td></tr>
+            <tr><td>Status:</td><td>{status}</td></tr>
+            {status === 'reachable' &&
+              <Fragment>
+                <tr><td>Platform:</td><td>{deviceInfo.platform}</td></tr>
+                <tr><td>Version:</td><td>{deviceInfo.version}</td></tr>
+                <tr><td>Model:</td><td>{deviceInfo.model}</td></tr>
+              </Fragment>
+            }
+          </tbody>
+        </table>
+      );
+    } else if (nsInfo) {
+      if (!Number.isInteger(vnfIndex)) {
+        return (
+          <table className="tooltip">
+            <tbody>
+              <tr><td>NS Info:</td><td>{nsInfo}</td></tr>
+              <tr><td>VNF Count:</td><td>{vnfs.length}</td></tr>
+            </tbody>
+          </table>
+        );
+      } else {
+        const vnf = vnfs[vnfIndex];
+        return (
+          <table className="tooltip">
+            <tbody>
+              <tr><td>VNF Info:</td><td>{vnf.vnfInfo}</td></tr>
+              <tr><td>VDU:</td><td>{vnf.vdu}</td></tr>
+              <tr><td>Status:</td><td>{status}</td></tr>
+            </tbody>
+          </table>
+        );
+      }
+    } else {
+      return name;
+    }
+  }
+
   componentDidMount() {
     // Use empty image as a drag preview so browsers don't draw it
     // and we can draw whatever we want on the custom drag layer instead.
@@ -197,14 +246,15 @@ class Icon extends PureComponent {
     const {
       name,
       device,
+      nsInfo,
       type,
       container,
-      status,
       label,
       size,
       selected,
       expanded,
       vnfs,
+      deviceInfo,
       positions,
       editMode,
       connectEndpointDragPreview,
@@ -221,6 +271,10 @@ class Icon extends PureComponent {
     } else if (!isOver && hoveredIcon.name === name) {
       hoveredIcon.name = null;
     }
+
+    let status = device
+      ? deviceInfo && deviceInfo.platform ? 'reachable' : 'unreachable'
+      : nsInfo ? vnfs.length > 0 ? 'ready' : 'init' : undefined;
 
     const hasVnfs = vnfs && vnfs.length > 0;
     const top = positions[hasVnfs ? vnfs[0].name : name];
@@ -264,6 +318,12 @@ class Icon extends PureComponent {
               />}
             {vnf.vmDevices.map((vm, vmIndex) => {
               const vnfVmName = `${vnf.name}${vmIndex > 0 ? `-${vmIndex}` : ''}`;
+              if (vm.status === 'error') {
+                status = 'error';
+              } else if (vm.status !== 'ready' && status !== 'error') {
+                status = 'not-ready';
+              }
+
               return <div
                 key={vnfVmName}
                 id={`${vnfVmName}-vnf-vm`}
@@ -273,9 +333,20 @@ class Icon extends PureComponent {
                 })}
                 style={positionStyle(positions[vnfVmName], size)}
               >
-                <div className="icon__svg-wrapper" style={svgStyle(size)} >
-                  <IconSvg type={vnf.type} status={vm.status} size={size} />
-                </div>
+                <Tippy
+                  placement="left"
+                  delay="250"
+                  content={this.tooltipContent(vm.status, vnfIndex)}
+                  isEnabled={!editMode}
+                >
+                  <div
+                    onClick={this.handleOnClick}
+                    className="icon__svg-wrapper"
+                    style={svgStyle(size)}
+                  >
+                    <IconSvg type={vnf.type} status={vm.status} size={size} />
+                  </div>
+                </Tippy>
                 {vmIndex === Object.keys(vnf.vmDevices).length - 1 &&
                   <div className="icon__label icon__label--vnf" >
                     <span className="icon__label-text">{vnf.vnfInfo}</span>
@@ -303,7 +374,7 @@ class Icon extends PureComponent {
             style={positionStyle(positions[name], size)}
           >
             <div
-              className="icon__svg-wrapper"
+              className="icon__svg-wrapper icon__svg-wrapper--hidden"
               style={{
                 height: `${(height + size) / 2}px`,
                 width: `${size}px`
@@ -312,33 +383,42 @@ class Icon extends PureComponent {
             <div className="icon__label">
               <span className="icon__label-text">{label}</span>
             </div>
-            {connectEndpointDragSource(
-              connectIconDropTarget(
-                connectIconDragSource(
-                  <div
-                    onClick={this.handleOnClick}
-                    className={classNames('icon__svg-wrapper',
-                      'icon__svg-wrapper-absolute', {
-                      'icon__svg-wrapper--hidden': expanded && vnfs.length > 0
-                    })}
-                    style={svgStyle(size)}
-                  >
-                    <IconSvg type={type} status={status} size={size}/>
-                    <Interface
-                      fromIcon={name}
-                      fromDevice={device}
-                      x={positions[name].x}
-                      y={positions[name].y}
-                      pcX={50}
-                      pcY={50}
-                      size={size * CIRCLE_ICON_RATIO}
-                      active={selected && editMode}
-                      type={BTN_ADD}
-                    />
-                  </div>
+            <Tippy
+              placement="left"
+              delay="250"
+              content={this.tooltipContent(status)}
+              isEnabled={!editMode}
+            >
+              {connectEndpointDragSource(
+                connectIconDropTarget(
+                  connectIconDragSource(
+                    <div
+                      onClick={this.handleOnClick}
+                      className={classNames('icon__svg-wrapper',
+                        'icon__svg-wrapper-absolute', {
+                        'icon__svg-wrapper--hidden': expanded && vnfs.length > 0
+                      })}
+                      style={svgStyle(size)}
+                    >
+                      <IconSvg type={type} status={status} size={size}
+                      />
+                      <Interface
+                        fromIcon={name}
+                        fromDevice={device}
+                        x={positions[name].x}
+                        y={positions[name].y}
+                        pcX={50}
+                        pcY={50}
+                        size={size * CIRCLE_ICON_RATIO}
+                        active={selected && editMode}
+                        type={BTN_ADD}
+                        tooltip="Add Connection (drag me)"
+                      />
+                    </div>
+                  )
                 )
-              )
-            )}
+              )}
+            </Tippy>
           </div>
         )}
       </Fragment>

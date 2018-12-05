@@ -4,7 +4,8 @@ import { connect } from 'react-redux';
 
 import Tenant from './Tenant';
 import NewItem from './NewItem';
-import BtnAddIcon from '../icons/BtnAdd';
+import Btn from '../icons/BtnWithTooltip';
+import { BTN_ADD } from '../../constants/Icons';
 import LoadingOverlay from '../common/LoadingOverlay';
 
 import { getTenants, getEndpoints, getNetworkServices,
@@ -69,7 +70,7 @@ class Tenants extends PureComponent {
             className="sidebar__round-btn sidebar__round-btn--add"
             onClick={this.openNewItem}
           >
-            <BtnAddIcon/>
+            <Btn type={BTN_ADD} tooltip="Add New Tenant" />
           </div>
             <NewItem
               path="/l3vpn:vpn/l3vpn"

@@ -40,8 +40,8 @@ const interfaceSource = {
 class Interface extends PureComponent {
   render() {
     console.debug('Interface Render');
-    const { connectDragSource, onClick,
-      pcX, pcY, type, size, active, expanded, disabled } = this.props;
+    const { connectDragSource, onClick, pcX, pcY,
+      type, size, active, expanded, disabled, tooltip } = this.props;
 
     return (
       <RoundButton
@@ -54,6 +54,7 @@ class Interface extends PureComponent {
         active={active}
         expanded={expanded}
         disabled={disabled}
+        tooltip={tooltip}
       />
     );
   }

@@ -29,9 +29,12 @@ export const GENERIC = NSO_BLUE;
 
 //State colour map
 export const STATE_COLOURS = {
-  'disabled'  : NSO_LIGHT_GREY,
-  'init'      : NSO_LIGHT_GREY,
-  'deployed'  : 'DarkKhaki',
-  'ready'     : undefined,
-  'error'     : 'IndianRed'
+  'unreachable' : NSO_LIGHT_GREY,
+  'reachable'   : undefined,
+  'not-ready'   : 'DarkKhaki',
+  'init'        : NSO_LIGHT_GREY,
+  'deployed'    : 'DarkKhaki',
+  'recovering'  : 'DarkKhaki',
+  'ready'       : undefined,
+  'error'       : 'IndianRed'
 };

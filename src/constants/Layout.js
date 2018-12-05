@@ -20,7 +20,7 @@ export const CUSTOMER = 'customer';
 
 export const LAYOUT = [
   { name: DATA_CENTRE, width: 20, title: 'Data Centre' },
-  { name: PROVIDER, width: 40, title: 'Provider' },
+  { name: PROVIDER, width: 40, title: 'Transport' },
   { name: ACCESS, width: 15, title: 'Access' },
-  { name: CUSTOMER, width: 25, title: 'Customer' }
+  { name: CUSTOMER, width: 25, title: 'Branch' }
 ];

@@ -5,6 +5,7 @@ export const CONFIGURATION_EDITOR_URL = '/webui-one/ConfigurationEditor';
 export const DASHBOARD_URL = '/webui-one/Dashboard';
 export const DEVICE_MANAGER_URL = '/webui-one/DeviceManager';
 export const SERVICE_MANAGER_URL = '/webui-one/ServiceManager';
+export const LOGIN_URL = '/login.html';
 
 export const ICON_BASE_SIZE = 10;
 export const ICON_VNF_SPACING = 1.3;

@@ -4,6 +4,7 @@ import { connect } from 'react-redux';
 import Modal from 'react-modal';
 import classNames from 'classnames';
 
+import { LOGIN_URL } from '../../constants/Layout';
 import { handleError } from '../../actions/uiState';
 
 import JsonRpc from '../../utils/JsonRpc';
@@ -46,7 +47,7 @@ class UserMenu extends PureComponent {
     try {
       await Comet.stop();
       await JsonRpc.request('logout');
-      window.location.assign('/login.html');
+      window.location.assign(LOGIN_URL);
     } catch(error) {
       handleError('Error logging out', error);
     }

@@ -1,4 +1,4 @@
-import { COMMIT_MANAGER_URL } from '../constants/Layout';
+import { COMMIT_MANAGER_URL, LOGIN_URL } from '../constants/Layout';
 import { writeTransactionToggled, handleError } from '../actions/uiState';
 import { fetchAll } from '../actions';
 
@@ -35,11 +35,17 @@ class JsonRpc {
     const json = await response.json();
 
     if (json.error) {
-      if (json.error.message === 'Validation failed') {
+      const error = json.error;
+      if (typeof error.type === 'string' &&
+          error.type === 'session.invalid_sessionid') {
+        window.location.assign(LOGIN_URL);
+
+      } else if ( error.message === 'Validation failed') {
         window.location.assign(COMMIT_MANAGER_URL);
+
       } else {
-        throw new Error(`Json-Rpc response error: ${json.error.message +
-          (json.error.data ? `\n${JSON.stringify(json.error.data)}` : '')}`);
+        throw new Error(`Json-Rpc response error: ${error.message +
+          (error.data ? `\n${JSON.stringify(error.data)}` : '')}`);
       }
     }
 

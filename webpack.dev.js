@@ -1,42 +1,23 @@
 const HTMLWebpackPlugin = require('html-webpack-plugin');
-const MiniCssExtractPlugin = require('mini-css-extract-plugin');
-const UglifyJsPlugin = require('uglifyjs-webpack-plugin');
-const OptimizeCSSAssetsPlugin = require('optimize-css-assets-webpack-plugin');
-const exec = require('child_process').exec;
 const webpack = require('webpack');
 
 module.exports = {
-  entry: [`${__dirname}/src/index.js`, 'webpack-hot-middleware/client'],
+  entry: [
+    `${__dirname}/src/index.js`,
+    'webpack-hot-middleware/client'
+  ],
   output: {
     filename: '[name].js',
     path: `${__dirname}/dist`,
     publicPath: '/custom/l3vpnui'
   },
   mode: 'development',
-  optimization: {
-    usedExports: true,
-    splitChunks: {
-      chunks: 'all'
-    },
-  },
   plugins: [
     new HTMLWebpackPlugin({
       template: `${__dirname}/src/index.html`,
       filename: 'index.html',
       inject: 'body'
     }),
-    new MiniCssExtractPlugin(),
-    {
-      apply: (compiler) => {
-        compiler.hooks.afterEmit.tap('AfterEmitPlugin', (compilation) => {
-          exec('echo "request packages package l3vpnui redeploy" | ' +
-               'ncs_cli -u admin', (err, stdout, stderr) => {
-            if (stdout) process.stdout.write(stdout);
-            if (stderr) process.stderr.write(stderr);
-          });
-        });
-      }
-    },
     new webpack.HotModuleReplacementPlugin()
   ],
   module: {
@@ -59,13 +40,14 @@ module.exports = {
               }]
             ]
           }
-        }
+        },
+      }, {
+        test: /\.js$/,
+        use: [ 'source-map-loader' ],
+        enforce: 'pre'
       }, {
         test: /\.css$/,
-        use: [
-          { loader: MiniCssExtractPlugin.loader },
-          'css-loader'
-        ]
+        use: [ 'style-loader', 'css-loader' ]
       }, {
         test: /\.(svg|ttf)$/,
         use: {

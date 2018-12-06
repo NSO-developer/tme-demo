@@ -8,6 +8,7 @@ import Topology from './Topology';
 import NsoWrapper from './NsoWrapper';
 
 @DragDropContext(HTML5Backend, { window })
+@hot(module)
 class App extends PureComponent {
   render() {
     console.debug('App Render');
@@ -20,4 +21,4 @@ class App extends PureComponent {
   }
 }
 
-export default hot(module)(App);
+export default App;

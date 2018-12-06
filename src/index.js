@@ -38,3 +38,9 @@ ReactDOM.render(
   </Provider>,
   appElement
 );
+
+if (module.hot) {
+  module.hot.accept('./reducers', () =>
+      store.replaceReducer(require('./reducers').default)
+  );
+}

@@ -3,8 +3,18 @@ var webpack = require('webpack');
 var express = require('express');
 var config = require('./webpack.dev.js');
 var httpProxy = require('http-proxy');
+var http = require('http');
+var zlib = require('zlib')
 var readline = require('readline')
 var boxen = require('boxen');
+var chalk = require('chalk');
+var bodyParser = require('body-parser')
+
+/*
+ * Flags
+ */
+var fPayload = false;
+
 
 var app = express();
 var compiler = webpack(config);
@@ -20,12 +30,75 @@ app.use(
 
 app.use(require('webpack-hot-middleware')(compiler));
 
+function logReqRes(req, res, next) {
+  const oldWrite = res.write;
+  const oldEnd = res.end;
+
+  const chunks = [];
+
+  res.write = (...restArgs) => {
+    chunks.push(new Buffer(restArgs[0]));
+    oldWrite.apply(res, restArgs);
+  };
+
+  res.end = (...restArgs) => {
+    if (restArgs[0]) {
+      chunks.push(new Buffer(restArgs[0]));
+    }
+    const body = Buffer.concat(chunks);
+    var json = body;
+
+    console.log('(p)', req.method, req.url);
+    if (fPayload) {
+      console.log(chalk.red('  request payload =>'), req.body);
+
+      if (req.url.startsWith("/jsonrpc/")) {
+        const x = new http.OutgoingMessage();
+        const outHeadersKey = Object.getOwnPropertySymbols(x)[1];
+        var headers = res[outHeadersKey];
+
+        var encoding = headers['content-encoding']
+        var length = headers['content-length']
+        if (encoding && encoding.indexOf('gzip') >= 0) {
+          var dezipped = zlib.gunzipSync(body);
+          var json_string = dezipped.toString('utf-8');
+          json = JSON.parse(json_string);
+          json = JSON.stringify(json, null, 4);
+        }
+        console.log(chalk.red("  response payload =>"), json);
+      }
+    }
+
+    oldEnd.apply(res, restArgs);
+  };
+
+  next();
+}
+
+app.use(logReqRes);
+
+// parse application/json
+app.use(bodyParser.json())
+app.use(bodyParser.urlencoded({extended: true}));
+
+
+// Restream parsed body before proxying
+apiProxy.on('proxyReq', function(proxyReq, req, res, options) {
+  if(req.body) {
+    let bodyData = JSON.stringify(req.body);
+    // In case if content-type is application/x-www-form-urlencoded -> we need to change to application/json
+    proxyReq.setHeader('Content-Type','application/json');
+    proxyReq.setHeader('Content-Length', Buffer.byteLength(bodyData));
+    // Stream the content
+    proxyReq.write(bodyData);
+  }
+});
+
 /*
  * Proxy NSO related request to NSO at localhost:8080
  */
 
 function proxy2nso(req, res) {
-  console.log('(p)', req.method, req.url);
   apiProxy.web(req, res, { target: nsoTarget });
 }
 
@@ -37,8 +110,6 @@ app.all('/webui-one', proxy2nso);
 app.all('/webui-one/*', proxy2nso);
 app.all('/dist/*', proxy2nso);
 app.all('/login/*', proxy2nso);
-//app.all("/custom/l3vpnui", proxy2nso);
-//app.all("/custom/l3vpnui/*", proxy2nso);
 
 app.listen(3000, function(err) {
   if (err) {
@@ -64,15 +135,16 @@ process.stdin.on('keypress', (str, key) => {
     usage();
   } else if (!key.shift && !key.ctrl && key.name === 'p') {
     togglePayload();
+  } else if (!key.shift && !key.ctrl && key.name === 'return') {
+    console.log();
   } else {
-    console.log(`You pressed the "${str}" key`);
-    console.log();
-    console.log(key);
-    console.log();
+//    console.log(`You pressed the "${str}" key`);
+//    console.log();
+//    console.log(key);
+//    console.log();
   }
 });
 
-var fPayload = false;
 function togglePayload() {
     fPayload = !fPayload;
     if (fPayload)
@@ -86,7 +158,7 @@ function usage() {
   usage_text += "\n";
   usage_text += "Key shortcuts:\n";
   usage_text += "  h      - Show usage\n";
-  usage_text += "  p      - Enable jsonrpc payload printouts (to be impl.)\n";
+  usage_text += "  p      - Enable jsonrpc payload printouts\n";
   usage_text += "  ctrl-c - Quit";
   console.log(boxen(usage_text, {padding: 1, margin: 1, borderStyle: 'double'}));
   console.log();

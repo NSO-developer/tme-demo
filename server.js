@@ -16,6 +16,7 @@ var bodyParser = require('body-parser')
 var fPayload = false;
 
 
+
 var app = express();
 var compiler = webpack(config);
 var apiProxy = httpProxy.createProxyServer();
@@ -31,14 +32,14 @@ app.use(
 app.use(require('webpack-hot-middleware')(compiler));
 
 function logReqRes(req, res, next) {
-  const oldWrite = res.write;
-  const oldEnd = res.end;
+  const oldResWrite = res.write;
+  const oldResEnd = res.end;
 
   const chunks = [];
 
   res.write = (...restArgs) => {
     chunks.push(new Buffer(restArgs[0]));
-    oldWrite.apply(res, restArgs);
+    oldResWrite.apply(res, restArgs);
   };
 
   res.end = (...restArgs) => {
@@ -48,28 +49,24 @@ function logReqRes(req, res, next) {
     const body = Buffer.concat(chunks);
     var json = body;
 
-    console.log('(p)', req.method, req.url);
-    if (fPayload) {
-      console.log(chalk.red('  request payload =>'), req.body);
+    if (fPayload && req.url.startsWith("/jsonrpc/")) {
+      const x = new http.OutgoingMessage();
+      const outHeadersKey = Object.getOwnPropertySymbols(x)[1];
+      var headers = res[outHeadersKey];
 
-      if (req.url.startsWith("/jsonrpc/")) {
-        const x = new http.OutgoingMessage();
-        const outHeadersKey = Object.getOwnPropertySymbols(x)[1];
-        var headers = res[outHeadersKey];
-
-        var encoding = headers['content-encoding']
-        var length = headers['content-length']
-        if (encoding && encoding.indexOf('gzip') >= 0) {
-          var dezipped = zlib.gunzipSync(body);
-          var json_string = dezipped.toString('utf-8');
-          json = JSON.parse(json_string);
-          json = JSON.stringify(json, null, 4);
-        }
-        console.log(chalk.red("  response payload =>"), json);
+      var encoding = headers['content-encoding']
+      var length = headers['content-length']
+      if (encoding && encoding.indexOf('gzip') >= 0) {
+        var dezipped = zlib.gunzipSync(body);
+        var json_string = dezipped.toString('utf-8');
+        json = JSON.parse(json_string);
       }
+      var id = json.id>0?chalk.yellow(req.body.id)+' -':'-';
+      console.log(chalk.red('RESPONSE <=='), id, req.method, req.url);
+      console.dir(json, {depth: 4, colors: true});
     }
 
-    oldEnd.apply(res, restArgs);
+    oldResEnd.apply(res, restArgs);
   };
 
   next();
@@ -99,6 +96,13 @@ apiProxy.on('proxyReq', function(proxyReq, req, res, options) {
  */
 
 function proxy2nso(req, res) {
+  var req_str = chalk.red('REQUEST ==>');
+  req_str += req.body.id>0?' '+chalk.yellow(req.body.id)+' -':'';
+  console.log(req_str, req.method, req.url);
+  if (fPayload && req.url.startsWith("/jsonrpc/")) {
+      console.dir(req.body, {depth: 4, colors: true});
+  }
+
   apiProxy.web(req, res, { target: nsoTarget });
 }
 
@@ -147,10 +151,12 @@ process.stdin.on('keypress', (str, key) => {
 
 function togglePayload() {
     fPayload = !fPayload;
+    console.log();
     if (fPayload)
         console.log("Payload printouts enabled");
     else
         console.log("Payload printouts disabled");
+    console.log();
 }
 
 function usage() {

@@ -8,6 +8,7 @@ export const getSelectedConnection = state => state.selectedConnection;
 export const getSelectedIcon = state => state.selectedIcon;
 export const getExpandedIcons = state => state.expandedIcons;
 
+export const getOpenTenant = state => state.openTenant;
 export const getEditMode = state => state.editMode;
 export const getHasWriteTransaction = state => state.hasWriteTransaction;
 export const getBodyOverlayVisible = state => state.bodyOverlayVisible;
@@ -48,6 +49,12 @@ export default function(state = {
         expandedIcons: state.expandedIcons.includes(name)
             ? state.expandedIcons.filter(icon => icon !== name)
             : [ ...state.expandedIcons, name ]
+      };
+
+    case ActionTypes.TENANT_TOGGLED:
+      return {
+        ...state,
+        openTenant: state.openTenant === name ? null : name
       };
 
     case ActionTypes.EDIT_MODE_TOGGLED:

@@ -9,26 +9,31 @@ export default store => next => async action => {
 
   if (subscribe) {
     const { path, cdbOper } = subscribe;
-    const [ getAction, deleteAction ] = actions;
-    const regex = new RegExp(`${path}{(.+)}$`);
+    const [ getAction, deleteAction, modifyAction ] = actions;
+    const regex = new RegExp(`${path}{([^{]+?)}$`);
 
     next(subscriptionRequest(path, cdbOper));
     try {
       await Comet.subscribe({
         path, cdbOper,
-        skipLocalChanges: false,
+        skipLocalChanges: true,
         callback : evt => {
           evt.changes.forEach(change => {
             const { keypath, op } = change;
             const match = regex.exec(keypath);
 
-            if (match)
+            if (match) {
               next(subscriptionEvent(keypath, op));
-              if (op === 'created') {
+              if (op === 'created' && typeof getAction === 'function') {
                 store.dispatch(getAction(match[1]));
-              } else if (op === 'deleted') {
+              } else if (op === 'deleted' &&
+                  typeof deleteAction === 'function') {
                 store.dispatch(deleteAction(match[1]));
+              } else if (op === 'modified' &&
+                  typeof modifyAction === 'function') {
+                store.dispatch(modifyAction(match[1]));
               }
+            }
           });
         }
       });

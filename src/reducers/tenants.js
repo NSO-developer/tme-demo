@@ -1,10 +1,13 @@
 import * as ActionTypes from '../actions/tenants';
-import jsonRpcWrapper from './jsonRpcWrapper';
+import jsonRpcWrapper, { getItems } from './jsonRpcWrapper';
 
 
 // === Selectors ==============================================================
 
 export { getItems, getIsFetching } from './jsonRpcWrapper';
+export const getTenant = (state, name) => getItems(state).find(
+  tenant => tenant.name === name
+);
 
 
 // === Reducer ================================================================

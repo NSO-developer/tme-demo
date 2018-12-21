@@ -1,4 +1,3 @@
-import { handleError } from '../actions/uiState';
 import JsonRpc from './JsonRpc';
 
 class Comet {
@@ -35,16 +34,20 @@ class Comet {
         });
       } catch(exception) {
         this.polling = false;
-        handleError('Comet polling error', exception);
+        throw exception;
       }
     }
   }
 
   stop = async () => {
-    console.log(this.callbacks);
-    await Promise.all(Object.keys(this.callbacks).map(
-      handle => JsonRpc.request('unsubscribe', { handle })
-    ));
+    try {
+      await Promise.all(Object.keys(this.callbacks).map(
+        handle => JsonRpc.request('unsubscribe', { handle })
+      ));
+    } catch (error) {
+      console.error('Failed to stop all subscriptions');
+      console.log(error);
+    }
     this.polling = false;
     this.callbacks = {};
   }
@@ -60,30 +63,25 @@ class Comet {
   }
 
   subscribe = async ({ path, skipLocalChanges, callback, cdbOper }) => {
-    try {
-      const result = cdbOper
-        ? await JsonRpc.request('subscribe_cdboper', {
-            comet_id : this.cometId,
-            path : path,
-          })
-        : await JsonRpc.request('subscribe_changes', {
-            comet_id : this.cometId,
-            path : path,
-            skip_local_changes : skipLocalChanges,
-            leaf_list_as_leaf: true
-          });
+    const result = cdbOper
+      ? await JsonRpc.request('subscribe_cdboper', {
+          comet_id : this.cometId,
+          path : path
+        })
+      : await JsonRpc.request('subscribe_changes', {
+          comet_id : this.cometId,
+          path : path,
+          skip_local_changes : skipLocalChanges
+        });
 
-      const { handle } = result;
-      if (this.callbacks[handle]) {
-        console.error(`Callback handler '${handle}' already set`);
-      } else {
-        this.callbacks[handle] = callback;
-      }
-      await JsonRpc.request('start_subscription', { handle });
-      return handle;
-    } catch(exception) {
-      handleError(`Comet error subscribing to ${path}`, exception);
+    const { handle } = result;
+    if (this.callbacks[handle]) {
+      console.error(`Callback handler '${handle}' already set`);
+    } else {
+      this.callbacks[handle] = callback;
     }
+    await JsonRpc.request('start_subscription', { handle });
+    return handle;
   }
 
   unsubscribeAll = async () => {

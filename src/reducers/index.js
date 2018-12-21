@@ -65,6 +65,9 @@ export const getExpandedIcons = state =>
 export const getIsIconExpanded = (state, name) =>
   fromUiState.getExpandedIcons(state.uiState).includes(name);
 
+export const getOpenTenant = state =>
+  fromUiState.getOpenTenant(state.uiState);
+
 export const getEditMode = state =>
   fromUiState.getEditMode(state.uiState);
 
@@ -85,6 +88,9 @@ export const getTenants = state =>
 
 export const getIsFetchingTenants = state =>
   fromTenants.getIsFetching(state.tenants);
+
+export const getTenant = (state, name) =>
+  fromTenants.getTenant(state.tenants, name);
 
 
 // === Endpoints selectors ====================================================
@@ -159,6 +165,11 @@ export const getDevice = (state, name) =>
 
 
 // === Cross-slice selectors ==================================================
+
+export const getHighlightedDevices = state => {
+  const tenant = getTenant(state, getOpenTenant(state));
+  return tenant && tenant.deviceList ? tenant.deviceList : undefined;
+};
 
 const calculateIconPosition =
   (name, icon, vnfs, dimensions, layout, iconHeightPc, expanded) => {

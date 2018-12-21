@@ -27,7 +27,7 @@ const iconDeleted = name => ({
 
 // === JsonRpc Middleware =====================================================
 
-const path = '/webui:webui/data-stores/static-map/position';
+const path = '/webui:webui/data-stores/l3vpnui:static-map/position';
 const selection = [ 'id',
                     'device',
                     'ns-info-id',
@@ -87,7 +87,7 @@ export const moveIcon = (name, x, y) => ({
 
 export const subscribeIcons = () => ({
   subscribe: {
-    path:  '/webui:webui/data-stores/l3vpnui:static-map/position',
+    path: path,
     cdbOper: false
   },
   actions: [ fetchOneIcon, iconDeleted ]

@@ -3,6 +3,7 @@ export const CONNECTION_SELECTED = 'connection-selected';
 export const ICON_SELECTED = 'icon-selected';
 export const ICON_EXPAND_TOGGLED = 'icon-expand-toggled';
 
+export const TENANT_TOGGLED = 'tenant-toggled';
 export const EDIT_MODE_TOGGLED = 'edit-mode-toggled';
 export const BODY_OVERLAY_TOGGLED = 'body-overlay-toggled';
 export const WRITE_TRANSACTION_TOGGLED = 'write-transaction-toggled';
@@ -26,6 +27,10 @@ export const iconSelected = name => ({
 
 export const iconExpandToggled = (name, override) => ({
   type: ICON_EXPAND_TOGGLED, name, override
+});
+
+export const tenantToggled = name => ({
+  type: TENANT_TOGGLED, name
 });
 
 export const editModeToggled = editMode => ({

@@ -33,15 +33,8 @@ class Tenants extends PureComponent {
   constructor(props) {
     super(props);
     this.state = {
-      openTenantName: undefined,
       newItemOpen: false
     };
-  }
-
-  openTenant(tenantName) {
-    this.setState({ openTenantName: this.state.openTenantName === tenantName
-      ? undefined : tenantName
-    });
   }
 
   openNewItem = () => {
@@ -60,7 +53,7 @@ class Tenants extends PureComponent {
     console.debug('Tenants Render');
     const { tenants, endpoints, networkServices,
             isFetchingTenants, isFetchingEndpoints } = this.props;
-    const { openTenantName, newItemOpen } = this.state;
+    const { newItemOpen } = this.state;
     const isFetching = isFetchingTenants || isFetchingEndpoints;
     return (
       <div className="tenants">
@@ -91,9 +84,6 @@ class Tenants extends PureComponent {
               networkServices={networkServices && networkServices.filter(
                 networkService => networkService.tenant === tenant.name
               )}
-              isOpen={openTenantName === tenant.name}
-              fade={openTenantName !== undefined}
-              toggle={() => {this.openTenant(tenant.name);}}
             />
           )}
           <LoadingOverlay items={[

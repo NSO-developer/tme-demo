@@ -5,19 +5,31 @@ import { DragSource, DropTarget } from 'react-dnd';
 import classNames from 'classnames';
 
 import { ENDPOINT } from '../../constants/ItemTypes';
-import { CONFIGURATION_EDITOR_URL } from '../../constants/Layout';
+import { CONFIGURATION_EDITOR_URL,
+         COMMIT_MANAGER_URL } from '../../constants/Layout';
 import * as IconTypes from '../../constants/Icons';
 
 import Endpoint from './Endpoint';
 import NewItem from './NewItem';
 import Btn from '../icons/BtnWithTooltip';
 
-import { bodyOverlayToggled } from '../../actions/uiState';
+import { getOpenTenant } from '../../reducers';
+import { tenantToggled, bodyOverlayToggled } from '../../actions/uiState';
 import { deleteTenant } from '../../actions/tenants';
+
+import JsonRpc from '../../utils/JsonRpc';
 import Comet from '../../utils/Comet';
 
 
-const mapDispatchToProps = { deleteTenant, bodyOverlayToggled };
+const mapDispatchToProps = { deleteTenant, tenantToggled, bodyOverlayToggled };
+
+const mapStateToPropsFactory = (initialState, initialProps) => {
+  const { name } = initialProps.tenant;
+  return state => ({
+    isOpen: getOpenTenant(state) === name,
+    fade: !!getOpenTenant(state)
+  });
+};
 
 const dropTarget = {
   drop(props, monitor, component) {
@@ -79,20 +91,16 @@ class Tenant extends PureComponent {
     this.keyPath = `/l3vpn:vpn/l3vpn{${props.tenant.name}}`;
   }
 
-  openEndpoint(endpointName) {
+  openEndpoint = endpointName => {
     this.setState({
       openEndpointName: this.state.openEndpointName === endpointName
         ? null : endpointName
     });
-  }
+  };
 
-  dropDevice(deviceName) {
-    const { isOpen, toggle } = this.props;
-    if (!isOpen) {toggle();}
-    requestAnimationFrame(() => {
-      this.setState({ newItemDevice: deviceName });
-      this.openNewItem();
-    });
+  toggle = () => {
+    const { tenantToggled, tenant } = this.props;
+    tenantToggled(tenant.name);
   }
 
   openNewItem = () => {
@@ -110,9 +118,9 @@ class Tenant extends PureComponent {
 
   delete = async (event) => {
     event.stopPropagation();
-    const { isOpen, toggle, deleteTenant, tenant } = this.props;
+    const { isOpen, deleteTenant, tenant } = this.props;
     await deleteTenant(tenant.name);
-    if (isOpen) { toggle(); }
+    if (isOpen) { this.toggle(); }
   }
 
   goTo = (event) => {
@@ -120,18 +128,31 @@ class Tenant extends PureComponent {
     Comet.stopThenGoToUrl(CONFIGURATION_EDITOR_URL + this.keyPath);
   }
 
-  redeploy = (event) => {
+  redeploy = async (event) => {
     event.stopPropagation();
-    Comet.stopThenGoToUrl(
-      `${CONFIGURATION_EDITOR_URL}${this.keyPath}/re-deploy`);
+    const th = await JsonRpc.write();
+    await JsonRpc.request('action', {
+      th: th,
+      path: `${this.keyPath}/touch`,
+    });
+    Comet.stopThenGoToUrl(COMMIT_MANAGER_URL);
   }
+
+  dropDevice = deviceName => {
+    const { isOpen } = this.props;
+    if (!isOpen) { this.toggle(); }
+    requestAnimationFrame(() => {
+      this.setState({ newItemDevice: deviceName });
+      this.openNewItem();
+    });
+  };
 
   render() {
     console.debug('Tenant Render');
-    const { isOpen, fade, toggle, tenant, endpoints, networkServices,
+    const { isOpen, fade, tenant, endpoints, networkServices,
       connectDropTarget, isOver, canDrop } = this.props;
     const { openEndpointName, newItemOpen, newItemDevice } = this.state;
-    const { name, ...rest } = tenant;
+    const { name, deviceList, ...rest } = tenant;
     return (
       connectDropTarget(
       <div className={classNames('accordion accordion--level1', {
@@ -139,7 +160,7 @@ class Tenant extends PureComponent {
         'accordion--closed-fade': !isOpen && fade,
         'accordion--closed': !isOpen
       })}>
-        <div className="accordion__header" onClick={toggle}>
+        <div className="accordion__header" onClick={this.toggle}>
           <span className="sidebar__title-text">{name}</span>
           <div
             className="sidebar__round-btn sidebar__round-btn--go-to"
@@ -154,7 +175,9 @@ class Tenant extends PureComponent {
             className="sidebar__round-btn sidebar__round-btn--redeploy"
             onClick={this.redeploy}
           >
-            <Btn type={IconTypes.BTN_REDEPLOY} tooltip="Re-Deploy" />
+            <Btn
+              type={IconTypes.BTN_REDEPLOY}
+              tooltip="Touch and go to Commit Manager" />
           </div>
           <div
             className="sidebar__round-btn sidebar__round-btn--delete"
@@ -248,4 +271,4 @@ class Tenant extends PureComponent {
   }
 }
 
-export default connect(null, mapDispatchToProps)(Tenant);
+export default connect(mapStateToPropsFactory, mapDispatchToProps)(Tenant);

@@ -97,7 +97,7 @@ export default store => next => async action => {
 
       return next({
         type: successType,
-        items: typeof transform === 'function' ? transform(result) : result,
+        items: typeof transform === 'function' ? await transform(result) : result,
         receivedAt: Date.now()
       });
     } catch(exception) {

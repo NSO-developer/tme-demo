@@ -1,6 +1,7 @@
 import React from 'react';
 import { PureComponent, Fragment } from 'react';
 import { connect } from 'react-redux';
+import { createSelector } from 'reselect';
 import { DragSource, DropTarget } from 'react-dnd';
 import { renderToStaticMarkup } from 'react-dom/server';
 import { getEmptyImage } from 'react-dnd-html5-backend';
@@ -11,14 +12,16 @@ import { ICON, INTERFACE, ENDPOINT } from '../../constants/ItemTypes';
 import { CIRCLE_ICON_RATIO, LINE_ICON_RATIO,
          ICON_VNF_SPACING, ICON_VM_SPACING } from '../../constants/Layout';
 import { BTN_ADD } from '../../constants/Icons';
+import { HIGHLIGHT, HOVER } from '../../constants/Colours';
 
 import Interface from './Interface';
 import IconHighlight from '../icons/IconHighlight';
 import IconSvg from '../icons/IconSvg';
 
 import { getIcon, getActualIconSize, getSelectedIcon, getIsIconExpanded,
-         getIconVnfs, getConnections, getIconPosition, getDevice,
-         getDimensions, getLayout, getEditMode } from '../../reducers';
+         getHighlightedDevices, getIconVnfs, getConnections,
+         getIconPosition, getDevice, getDimensions, getLayout,
+         getEditMode } from '../../reducers';
 
 import { iconSelected, connectionSelected,
          itemDragged, iconExpandToggled } from '../../actions/uiState';
@@ -47,25 +50,36 @@ function svgStyle(size) {
 
 // === Mapping functions ======================================================
 
+const getIconHighlightedDevicesFactory = device => createSelector(
+  [getIconVnfs, getHighlightedDevices], (vnfs, deviceList) => {
+    console.debug('Re-select highlighted devices');
+    const devices = deviceList ? vnfs.flatMap(
+        ({ vmDevices }) => vmDevices.map(({ device }) => device)
+      ).concat([ device ])
+        .filter(device => deviceList.includes(device)) : [];
+    return devices.length == 0 ? undefined : devices;
+  }
+);
+
 const mapStateToPropsFactory = (initialState, initialProps) => {
   const { name } = initialProps;
-  return state => {
-    const icon = getIcon(state, name);
-    return {
-      ...icon,
-      label: name,
-      size: getActualIconSize(state),
-      selected: getSelectedIcon(state) === name,
-      expanded: getIsIconExpanded(state, name),
-      vnfs: getIconVnfs(state, name),
-      connections: getConnections(state),
-      deviceInfo: icon.device ? getDevice(state, icon.device) : undefined,
-      positions: getIconPosition(state, name),
-      dimensions: getDimensions(state),
-      layout: getLayout(state),
-      editMode: getEditMode(state)
-    };
-  };
+  const { device } = getIcon(initialState, name);
+  const getIconHighlightedDevices = getIconHighlightedDevicesFactory(device);
+  return state => ({
+    ...getIcon(state, name),
+    label: name,
+    size: getActualIconSize(state),
+    selected: getSelectedIcon(state) === name,
+    expanded: getIsIconExpanded(state, name),
+    highlightedDevices: getIconHighlightedDevices(state, name),
+    vnfs: getIconVnfs(state, name),
+    connections: getConnections(state),
+    deviceInfo: getDevice(state, device),
+    positions: getIconPosition(state, name),
+    dimensions: getDimensions(state),
+    layout: getLayout(state),
+    editMode: getEditMode(state)
+  });
 };
 
 const mapDispatchToProps = {
@@ -253,6 +267,7 @@ class Icon extends PureComponent {
       size,
       selected,
       expanded,
+      highlightedDevices,
       vnfs,
       deviceInfo,
       positions,
@@ -323,36 +338,47 @@ class Icon extends PureComponent {
               } else if (vm.status !== 'ready' && status !== 'error') {
                 status = 'not-ready';
               }
-
-              return <div
-                key={vnfVmName}
-                id={`${vnfVmName}-vnf-vm`}
-                className={classNames('icon__container', {
-                  'icon__container--expanded': expanded,
-                  'icon__container--hidden': !expanded
-                })}
-                style={positionStyle(positions[vnfVmName], size)}
-              >
-                <Tippy
-                  placement="left"
-                  delay="250"
-                  content={this.tooltipContent(vm.status, vnfIndex)}
-                  isEnabled={!editMode}
+              return <Fragment key={vnfVmName}>
+                <div
+                  className={classNames('icon__container', {
+                    'icon__container--expanded': expanded,
+                    'icon__container--hidden': !expanded ||
+                      editMode || !highlightedDevices ||
+                      !highlightedDevices.includes(vm.device)
+                  })}
+                  style={positionStyle(positions[vnfVmName], size*2)}
                 >
-                  <div
-                    onClick={this.handleOnClick}
-                    className="icon__svg-wrapper"
-                    style={svgStyle(size)}
+                  <IconHighlight size={size*2} colour={HIGHLIGHT}/>
+                </div>
+                <div
+                  id={`${vnfVmName}-vnf-vm`}
+                  className={classNames('icon__container', {
+                    'icon__container--expanded': expanded,
+                    'icon__container--hidden': !expanded
+                  })}
+                  style={positionStyle(positions[vnfVmName], size)}
+                >
+                  <Tippy
+                    placement="left"
+                    delay="250"
+                    content={this.tooltipContent(vm.status, vnfIndex)}
+                    isEnabled={!editMode}
                   >
-                    <IconSvg type={vnf.type} status={vm.status} size={size} />
-                  </div>
-                </Tippy>
-                {vmIndex === Object.keys(vnf.vmDevices).length - 1 &&
-                  <div className="icon__label icon__label--vnf" >
-                    <span className="icon__label-text">{vnf.vnfInfo}</span>
-                  </div>
-                }
-              </div>;
+                    <div
+                      onClick={this.handleOnClick}
+                      className="icon__svg-wrapper"
+                      style={svgStyle(size)}
+                    >
+                      <IconSvg type={vnf.type} status={vm.status} size={size} />
+                    </div>
+                  </Tippy>
+                  {vmIndex === Object.keys(vnf.vmDevices).length - 1 &&
+                    <div className="icon__label icon__label--vnf" >
+                      <span className="icon__label-text">{vnf.vnfInfo}</span>
+                    </div>
+                  }
+                </div>
+              </Fragment>;
             })}
           </Fragment>
         )}
@@ -362,7 +388,17 @@ class Icon extends PureComponent {
           })}
           style={positionStyle(positions[name], size*2)}
         >
-          <IconHighlight size={size*2}/>
+          <IconHighlight size={size*2} colour={HOVER}/>
+        </div>
+        <div
+          className={classNames('icon__container', {
+            'icon__container--expanded': expanded,
+            'icon__container--hidden': editMode || expanded && vnfs.length > 0
+              || !highlightedDevices || highlightedDevices.length == 0
+          })}
+          style={positionStyle(positions[name], size*2)}
+        >
+          <IconHighlight size={size*2} colour={HIGHLIGHT}/>
         </div>
         {connectEndpointDragPreview(
           <div
@@ -426,4 +462,4 @@ class Icon extends PureComponent {
   }
 }
 
-export default connect( mapStateToPropsFactory, mapDispatchToProps)(Icon);
+export default connect(mapStateToPropsFactory, mapDispatchToProps)(Icon);

@@ -104,7 +104,7 @@ export const moveConnection = (name, endpoint, device, nsInfo) => ({
 
 export const subscribeConnections = () => ({
   subscribe: {
-    path: '/l3vpn:topology/connection',
+    path: path,
     cdbOper: false
   },
   actions: [ fetchOneConnection, connectionDeleted ]

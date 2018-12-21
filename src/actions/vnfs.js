@@ -70,7 +70,7 @@ const getVmsScaling = async (tenant, depName, esc, vnfInfo, vdu) => {
                 `/vdu{'${vnfInfo}' '${vdu}'}/vms-scaling`;
 
   if (await JsonRpc.exists(path)) {
-    vmsScaling = await JsonRpc.getValue(`${path}`);
+    vmsScaling = await JsonRpc.getValue(path);
   }
 
   return vmsScaling;

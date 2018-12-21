@@ -151,11 +151,6 @@ class NsoWrapper extends PureComponent {
       </div>
     );
   }
-
-  componentDidCatch(error, info) {
-    const { handleError } = this.props;
-    Error('Rendering error', error);
-  }
 }
 
 export default connect(mapStateToProps, mapDispatchToProps)(NsoWrapper);

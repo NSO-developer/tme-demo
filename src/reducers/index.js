@@ -77,6 +77,9 @@ export const getBodyOverlayVisible = state =>
 export const getHasWriteTransaction = state =>
   fromUiState.getHasWriteTransaction(state.uiState);
 
+export const getCommitInProgress = state =>
+  fromUiState.getCommitInProgress(state.uiState);
+
 export const getError = state =>
   fromUiState.getError(state.uiState);
 

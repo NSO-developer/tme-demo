@@ -11,6 +11,7 @@ export const getExpandedIcons = state => state.expandedIcons;
 export const getOpenTenant = state => state.openTenant;
 export const getEditMode = state => state.editMode;
 export const getHasWriteTransaction = state => state.hasWriteTransaction;
+export const getCommitInProgress = state => state.commitInProgress;
 export const getBodyOverlayVisible = state => state.bodyOverlayVisible;
 
 export const getError = state => state.error;
@@ -22,8 +23,8 @@ export default function(state = {
   expandedIcons: [],
   editMode: false
 }, action) {
-  const { type, item, name,
-          editMode, hasWriteTransaction, bodyOverlayVisible, error } = action;
+  const { type, item, name, editMode, hasWriteTransaction,
+          commitInProgress, bodyOverlayVisible, error } = action;
   switch (type) {
 
     case ActionTypes.ITEM_DRAGGED:
@@ -62,6 +63,9 @@ export default function(state = {
 
     case ActionTypes.WRITE_TRANSACTION_TOGGLED:
       return { ...state, hasWriteTransaction };
+
+    case ActionTypes.COMMIT_IN_PROGRESS_TOGGLED:
+      return { ...state, commitInProgress };
 
     case ActionTypes.BODY_OVERLAY_TOGGLED:
       return { ...state, bodyOverlayVisible };

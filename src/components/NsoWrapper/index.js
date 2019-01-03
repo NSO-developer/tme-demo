@@ -11,7 +11,7 @@ import * as Layout from '../../constants/Layout';
 import Header from './Header';
 import Footer from './Footer';
 
-import { getError, getHasWriteTransaction,
+import { getError, getHasWriteTransaction, getCommitInProgress,
          getBodyOverlayVisible } from '../../reducers';
 import { handleError } from '../../actions/uiState';
 
@@ -21,6 +21,7 @@ import JsonRpc from '../../utils/JsonRpc';
 const mapStateToProps = state => ({
   error: getError(state),
   hasWriteTransaction: getHasWriteTransaction(state),
+  commitInProgress: getCommitInProgress(state),
   bodyOverlayVisible: getBodyOverlayVisible(state)
 });
 
@@ -115,12 +116,13 @@ class NsoWrapper extends PureComponent {
   render() {
     console.debug('NsoWrapper Render');
     const { user, version, applications } = this.state;
-    const { children, error,
-            hasWriteTransaction, bodyOverlayVisible } = this.props;
+    const { children, error, hasWriteTransaction,
+            commitInProgress, bodyOverlayVisible } = this.props;
     return (
       <div className="nso-background">
         <Header
           user={user} version={version} title={Layout.TITLE}
+          commitInProgress={commitInProgress}
           hasWriteTransaction={hasWriteTransaction}
         />
           <div className="nso-body">

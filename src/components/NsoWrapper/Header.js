@@ -7,7 +7,7 @@ import JsonRpc from '../../utils/JsonRpc';
 import '../../cisco.svg';
 
 
-function Header({ user, version, title, hasWriteTransaction }) {
+function Header({ user, version, title, hasWriteTransaction, commitInProgress }) {
   console.debug('NSO Header Render');
   return (
     <div className="nso-header">
@@ -25,14 +25,23 @@ function Header({ user, version, title, hasWriteTransaction }) {
         </div>
         <div className="nso-header__right">
           <div className="nso-header__item">
-          <button onClick={JsonRpc.revert} className={classNames('nso-btn', {
-            'nso-btn--disabled': !hasWriteTransaction
+          <button onClick={JsonRpc.revert} className={classNames('nso-btn',
+            'nso-btn--header', {
+            'nso-btn--disabled': !hasWriteTransaction || commitInProgress
           })}>Revert</button>
           </div>
           <div className="nso-header__item">
-          <button onClick={JsonRpc.apply} className={classNames('nso-btn', {
-              'nso-btn--disabled': !hasWriteTransaction
-          })}>Commit</button>
+          <button onClick={JsonRpc.apply} className={classNames('nso-btn',
+              'nso-btn--header', {
+              'nso-btn--disabled': !hasWriteTransaction || commitInProgress
+          })}>{commitInProgress ?
+            <div>
+              <span className="loading__dot"/>
+              <span className="loading__dot"/>
+              <span className="loading__dot"/>
+            </div>
+            : 'Commit'}
+          </button>
           </div>
           <div className="nso-header__item">
             <UserMenu user={user}/>

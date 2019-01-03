@@ -28,6 +28,10 @@
   color: var(--nso-blue);
 }
 
+.nso-btn--header {
+  width: 6em;
+}
+
 .nso-btn--disabled {
   background: var(--nso-light-grey);
   border: 1px solid var(--nso-light-grey);

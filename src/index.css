@@ -91,3 +91,28 @@ table.tooltip > tbody > tr > td {
   50% {width: 3rem;}
   100% {width: 1rem;}
 }
+
+.loading__dot {
+  animation-duration: 1.4s;
+  animation-iteration-count: infinite;
+  animation-name: loading-dot;
+  background-color: White;
+  border-radius: 50%;
+  display: inline-block;
+  height: 0.6875rem;
+  margin: 0px 0.125rem;
+  width: 0.6875rem;
+}
+
+.loading__dot:nth-last-child(3) {
+  animation-delay: -0.32s;
+}
+
+.loading__dot:nth-last-child(2) {
+  animation-delay: -0.16s;
+}
+
+@keyframes loading-dot {
+  0%, 100%, 80% { transform: scale3d(1, 1, 1); }
+  40% { transform: scale3d(0, 0, 0); }
+}

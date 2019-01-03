@@ -1,5 +1,6 @@
 import { COMMIT_MANAGER_URL, LOGIN_URL } from '../constants/Layout';
-import { writeTransactionToggled, handleError } from '../actions/uiState';
+import { writeTransactionToggled, commitInProgressToggled,
+         handleError } from '../actions/uiState';
 import { fetchAll } from '../actions';
 
 class JsonRpc {
@@ -139,12 +140,15 @@ class JsonRpc {
 
   apply = async () => {
     try {
+      this.store.dispatch(commitInProgressToggled(true));
       await this.request('validate_commit', {th: this.thWrite});
       await this.request('commit', {th: this.thWrite});
       this.thWrite = undefined;
       this.store.dispatch(writeTransactionToggled(false));
+      this.store.dispatch(commitInProgressToggled(false));
     } catch(error) {
       this.store.dispatch(handleError('Error committing transaction', error));
+      this.store.dispatch(commitInProgressToggled(false));
     }
   }
 

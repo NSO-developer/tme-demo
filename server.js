@@ -4,11 +4,11 @@ var express = require('express');
 var config = require('./webpack.dev.js');
 var httpProxy = require('http-proxy');
 var http = require('http');
-var zlib = require('zlib')
-var readline = require('readline')
+var zlib = require('zlib');
+var readline = require('readline');
 var boxen = require('boxen');
 var chalk = require('chalk');
-var bodyParser = require('body-parser')
+var bodyParser = require('body-parser');
 
 /*
  * Flags
@@ -20,6 +20,10 @@ var fPayload = false;
 var app = express();
 var compiler = webpack(config);
 var apiProxy = httpProxy.createProxyServer();
+
+apiProxy.on('error', function(err) {
+    return console.log(err);
+});
 
 var nsoTarget = 'http://localhost:8080';
 
@@ -49,19 +53,19 @@ function logReqRes(req, res, next) {
     const body = Buffer.concat(chunks);
     var json = body;
 
-    if (fPayload && req.url.startsWith("/jsonrpc/")) {
+    if (fPayload && req.url.startsWith('/jsonrpc/')) {
       const x = new http.OutgoingMessage();
       const outHeadersKey = Object.getOwnPropertySymbols(x)[1];
       var headers = res[outHeadersKey];
 
-      var encoding = headers['content-encoding']
-      var length = headers['content-length']
+      var encoding = headers['content-encoding'];
+      var length = headers['content-length'];
       if (encoding && encoding.indexOf('gzip') >= 0) {
         var dezipped = zlib.gunzipSync(body);
         var json_string = dezipped.toString('utf-8');
         json = JSON.parse(json_string);
       }
-      var id = json.id>0?chalk.yellow(req.body.id)+' -':'-';
+      var id = json.id > 0 ? `${chalk.yellow(req.body.id)} -` : '-';
       console.log(chalk.red('RESPONSE <=='), id, req.method, req.url);
       console.dir(json, {depth: 4, colors: true});
     }
@@ -75,7 +79,7 @@ function logReqRes(req, res, next) {
 app.use(logReqRes);
 
 // parse application/json
-app.use(bodyParser.json())
+app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({extended: true}));
 
 
@@ -97,9 +101,9 @@ apiProxy.on('proxyReq', function(proxyReq, req, res, options) {
 
 function proxy2nso(req, res) {
   var req_str = chalk.red('REQUEST ==>');
-  req_str += req.body.id>0?' '+chalk.yellow(req.body.id)+' -':'';
+  req_str += req.body.id > 0 ? ` ${chalk.yellow(req.body.id)} -` : '';
   console.log(req_str, req.method, req.url);
-  if (fPayload && req.url.startsWith("/jsonrpc/")) {
+  if (fPayload && req.url.startsWith('/jsonrpc/')) {
       console.dir(req.body, {depth: 4, colors: true});
   }
 
@@ -153,19 +157,19 @@ function togglePayload() {
     fPayload = !fPayload;
     console.log();
     if (fPayload)
-        console.log("Payload printouts enabled");
+        console.log('Payload printouts enabled');
     else
-        console.log("Payload printouts disabled");
+        console.log('Payload printouts disabled');
     console.log();
 }
 
 function usage() {
-  var usage_text = "NSO package UI hot update web server\n";
-  usage_text += "\n";
-  usage_text += "Key shortcuts:\n";
-  usage_text += "  h      - Show usage\n";
-  usage_text += "  p      - Enable jsonrpc payload printouts\n";
-  usage_text += "  ctrl-c - Quit";
+  var usage_text = 'NSO package UI hot update web server\n';
+  usage_text += '\n';
+  usage_text += 'Key shortcuts:\n';
+  usage_text += '  h      - Show usage\n';
+  usage_text += '  p      - Enable jsonrpc payload printouts\n';
+  usage_text += '  ctrl-c - Quit';
   console.log(boxen(usage_text, {padding: 1, margin: 1, borderStyle: 'double'}));
   console.log();
 }

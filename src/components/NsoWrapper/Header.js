@@ -2,9 +2,9 @@ import React from 'react';
 import classNames from 'classnames';
 
 import UserMenu from './UserMenu';
-
 import JsonRpc from '../../utils/JsonRpc';
-import '../../cisco.svg';
+
+import ciscoImg from '../../cisco.svg';
 
 
 function Header({ user, version, title, hasWriteTransaction, commitInProgress }) {
@@ -14,7 +14,7 @@ function Header({ user, version, title, hasWriteTransaction, commitInProgress })
       <div className="nso-header__inner">
         <a href="/webui-one/" className="nso-header__link">
           <img
-            src="cisco.svg"
+            src={ciscoImg}
             className="nso-header__cisco-logo"
             alt="Cisco"
           />

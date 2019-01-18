@@ -148,7 +148,8 @@ export const fetchVnfs = () => async dispatch => {
     });
 
   } catch(exception) {
-    dispatch(handleError('Failed to fetch vnf-infos', exception));
+    dispatch(handleError('Failed to fetch vnf-infos',
+      exception, FETCH_VNFS_FAILURE));
   }
 };
 
@@ -177,7 +178,8 @@ export const fetchOneVnf =
     });
 
   } catch(exception) {
-    dispatch(handleError('Failed to fetch vnf-info', exception));
+    dispatch(handleError('Failed to fetch vnf-info',
+      exception, FETCH_ONE_VNF_FAILURE));
   }
 };
 

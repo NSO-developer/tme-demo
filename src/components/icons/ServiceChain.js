@@ -12,7 +12,7 @@ export default function({ size, colour }) {
       width={`${size}px`}
       height={`${size}px`}
     >
-      <symbol id="link" width="160" height="160">
+      <symbol id={`link-${background}`} width="160" height="160">
         <rect
           fill="White"
           x="0" y="5" rx="50" ry="50" width="160" height="150"
@@ -28,11 +28,11 @@ export default function({ size, colour }) {
         cx="200" cy="200" r="195"
       />
       <use
-        href="#link"
+        href={`#link-${background}`}
         transform="translate(185, 55) rotate(135, 80, 80)"
       />
       <use
-        href="#link"
+        href={`#link-${background}`}
         transform="translate(55, 185) rotate(135, 80, 80)"
       />
       <rect

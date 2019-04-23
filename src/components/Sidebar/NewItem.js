@@ -26,22 +26,24 @@ class NewItem extends PureComponent {
     this.inputRef = createRef();
   }
 
-  processDefaults = (th, context, defaults) =>
+  processDefaults = (th, context, defaults, value) =>
     Promise.all(defaults.map(val => JsonRpc.request('set_value', {
       th: th,
       path: `${context}/${val.path}`,
-      value: val.value
+      value: `${val.value}${val.prefix ? value : ''}`
     })));
 
   create = async () => {
     const { value } = this.state;
-    const { path, defaults, close, handleError } = this.props;
+    const { path, defaultsPath, defaults, close, handleError } = this.props;
     if (value) {
       const keyPath = `${path}{${value}}`;
+      const defaultsKeyPath = defaultsPath
+        ? `${defaultsPath}{${value}}` : keyPath;
       const th = await JsonRpc.write();
       try {
         await JsonRpc.request('create', { th: th, path: keyPath });
-        await this.processDefaults(th, keyPath, defaults || []);
+        await this.processDefaults(th, defaultsKeyPath, defaults || [],  value);
         this.setState({ value: '' });
         close();
         Comet.stopThenGoToUrl(CONFIGURATION_EDITOR_URL + keyPath);

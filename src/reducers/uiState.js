@@ -8,6 +8,7 @@ export const getSelectedConnection = state => state.selectedConnection;
 export const getSelectedIcon = state => state.selectedIcon;
 export const getExpandedIcons = state => state.expandedIcons;
 
+export const getNewNetworkService = state => state.newNetworkService;
 export const getOpenTenant = state => state.openTenant;
 export const getEditMode = state => state.editMode;
 export const getHasWriteTransaction = state => state.hasWriteTransaction;
@@ -23,12 +24,11 @@ export default function(state = {
   expandedIcons: [],
   editMode: false
 }, action) {
-  const { type, item, name, editMode, hasWriteTransaction,
-          commitInProgress, bodyOverlayVisible, error } = action;
+  const { type, name } = action;
   switch (type) {
 
     case ActionTypes.ITEM_DRAGGED:
-      return { ...state, draggedItem: item };
+      return { ...state, draggedItem: action.item };
 
     case ActionTypes.CONNECTION_SELECTED:
       return {
@@ -52,26 +52,45 @@ export default function(state = {
             : [ ...state.expandedIcons, name ]
       };
 
+    case ActionTypes.NEW_NETWORK_SERVICE_TOGGLED: {
+      const { container, pos } = action;
+      return {
+        ...state,
+        newNetworkService: state.newNetworkService ? null : { container, pos },
+        bodyOverlayVisible: state.newNetworkService ? false : true
+      };
+    }
+
     case ActionTypes.TENANT_TOGGLED:
       return {
         ...state,
         openTenant: state.openTenant === name ? null : name
       };
 
-    case ActionTypes.EDIT_MODE_TOGGLED:
+    case ActionTypes.EDIT_MODE_TOGGLED: {
+      const { editMode } = action;
       return { ...state, expandedIcons: [], editMode };
+    }
 
-    case ActionTypes.WRITE_TRANSACTION_TOGGLED:
+    case ActionTypes.WRITE_TRANSACTION_TOGGLED: {
+      const { hasWriteTransaction } = action;
       return { ...state, hasWriteTransaction };
+    }
 
-    case ActionTypes.COMMIT_IN_PROGRESS_TOGGLED:
+    case ActionTypes.COMMIT_IN_PROGRESS_TOGGLED: {
+      const { commitInProgress } = action;
       return { ...state, commitInProgress };
+    }
 
-    case ActionTypes.BODY_OVERLAY_TOGGLED:
+    case ActionTypes.BODY_OVERLAY_TOGGLED: {
+      const { bodyOverlayVisible } = action;
       return { ...state, bodyOverlayVisible };
+    }
 
-    case ActionTypes.ERROR_RAISED:
+    case ActionTypes.ERROR_RAISED: {
+      const { error } = action;
       return { ...state, error };
+    }
 
     default:
       return state;

@@ -36,3 +36,13 @@ export function restrictPos(x, y, layoutContainer) {
     y: Math.max(top, Math.min(bottom, y))
   };
 }
+
+export const safeRound = (n) =>
+  Math.min(1, Math.max(0, Number.parseFloat(n).toFixed(4))).toString();
+
+export const pxCoordToSafePc = (x, y, layoutContainer, dimensions) => {
+  const { left, top, width, height } = layoutContainer.pc;
+  const { pcX, pcY } = pxToPc(restrictPos(x, y, layoutContainer), dimensions);
+  return { x: safeRound((pcX - left) / width),
+           y: safeRound((pcY - top) / height) };
+};

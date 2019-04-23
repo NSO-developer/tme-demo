@@ -8,12 +8,9 @@ const NSO_DARK_GREY = 'rgb(57, 57, 59)';
 
 
 export const STROKE = NSO_BLUE;
-export const BACKGROUND_1 = NSO_VERY_LIGHT_GREY;
-export const BACKGROUND_2 = NSO_BACKGROUND_GREY;
 export const SELECTED_CONNECTION = NSO_GREEN;
 export const HIGHLIGHT = NSO_BLUE;
 export const HOVER = NSO_GREEN;
-export const DELETE = 'IndianRed';
 export const LABEL_TEXT = NSO_DARK_GREY;
 export const LABEL_BORDER = NSO_BORDER_GREY;
 export const LABEL_BACKGROUND = 'rgba(255, 255, 255, 0.7)';

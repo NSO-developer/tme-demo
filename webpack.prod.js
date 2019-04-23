@@ -35,7 +35,7 @@ module.exports = {
     {
       apply: (compiler) => {
         compiler.hooks.afterEmit.tap('AfterEmitPlugin', (compilation) => {
-          exec('echo "request packages package l3vpnui redeploy" | ' +
+          exec('echo "request packages package tme-demo-ui redeploy" | ' +
                'ncs_cli -u admin', (err, stdout, stderr) => {
             if (stdout) process.stdout.write(stdout);
             if (stderr) process.stderr.write(stderr);

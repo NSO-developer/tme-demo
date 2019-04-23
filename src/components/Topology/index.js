@@ -4,6 +4,7 @@ import React from 'react';
 import { PureComponent, createRef, Fragment } from 'react';
 import { connect } from 'react-redux';
 import classNames from 'classnames';
+import ReactResizeDetector from 'react-resize-detector';
 
 import { LAYOUT } from '../../constants/Layout';
 
@@ -16,9 +17,9 @@ import EditToggle from './EditToggle';
 import IconSizeSlider from './IconSizeSlider';
 import LoadingOverlay from '../common/LoadingOverlay';
 
-import { getIcons, getConnectionPositions, getActualIconSize, getDimensions,
-         getIsFetchingIcons, getIsFetchingVnfs, getIsFetchingConnections,
-         getEditMode } from '../../reducers';
+import { getIcons, getConnectionPositions, getActualIconSize, getLayout,
+         getDimensions, getDraggedItem, getIsFetchingIcons, getIsFetchingVnfs,
+         getIsFetchingConnections, getEditMode } from '../../reducers';
 
 import { fetchTopologyData, subscribeTopologyData } from '../../actions';
 import { dimensionsChanged } from '../../actions/layout';
@@ -28,6 +29,8 @@ const mapStateToProps = state => ({
   icons: getIcons(state),
   connections: getConnectionPositions(state),
   iconSize: getActualIconSize(state),
+  layout: getLayout(state),
+  draggedItem: getDraggedItem(state),
   dimensions: getDimensions(state),
   isFetchingIcons: getIsFetchingIcons(state),
   isFetchingConnections: getIsFetchingConnections(state),
@@ -46,17 +49,19 @@ class Topology extends PureComponent {
     this.ref = createRef();
     this.canvasRef = createRef();
     this.hoveredIcon = { name: null };
+    this.resize = this.resize.bind(this);
   }
 
   resize() {
+    console.debug('Topology Resize');
     const { offsetWidth, offsetHeight } = this.ref.current;
     const { dimensionsChanged } = this.props;
-    dimensionsChanged(offsetWidth, offsetHeight);
+    const { left, top } = this.ref.current.getBoundingClientRect();
+    dimensionsChanged(left, top, offsetWidth, offsetHeight);
   }
 
   componentDidMount() {
     this.resize();
-    window.addEventListener('resize', this.resize.bind(this));
     const { fetchTopologyData, subscribeTopologyData } = this.props;
     fetchTopologyData();
     subscribeTopologyData();
@@ -64,70 +69,82 @@ class Topology extends PureComponent {
 
   render() {
     console.debug('Topology Render');
-    const { icons, connections, iconSize, dimensions,
+    const { icons, connections, iconSize, layout, dimensions, draggedItem,
             isFetchingIcons, isFetchingVnfs, isFetchingConnections,
             editMode } = this.props;
-
     return (
-      <div className={classNames('topology__container', {
-        'topology__container--edit-mode': editMode
+      <div className={classNames('topology', {
+        'topology--edit-mode': editMode
       })}>
-        <div className="topology__layer topology__layer--background">
-          {LAYOUT.map((container, index) =>
-            <Container
-              key={index}
-              index={index}
-              name={container.name}
-              width={container.width}
-              length={LAYOUT.length}
-            />
-          )}
-        </div>
-        <div className="topology__layer topology__layer--foreground">
-          <div className="topology__header">
-            {LAYOUT.map((container, index) =>
-              <div
+        <div className="topology__body">
+          <div className="topology__layer topology__layer--background">
+            {LAYOUT.map(({ name, width }, index) =>
+              <Container
                 key={index}
-                className="container__title-text"
-                style={{
-                  width: `${container.width}%`,
-                  paddingLeft: (index === 0 || index === LAYOUT.length - 1) &&
-                    `${Math.round(iconSize / 4)}px`
-              }}>
-                {container.title}
-              </div>
+                index={index}
+                name={name}
+                width={layout ? layout[name].pc.backgroundWidth : width}
+                length={LAYOUT.length}
+              />
             )}
           </div>
-          <div className="topology__body" ref={this.ref}>
-            {dimensions &&
-              <Fragment>
-                {connections.map(connection =>
-                  <Connection key={connection.key} {...connection}/>
-                )}
-                {Object.keys(icons).map(key =>
-                  <Icon key={key} name={key} hoveredIcon={this.hoveredIcon}/>
-                )}
-                <DragLayerCanvas
-                  dimensions={dimensions}
-                  canvasRef={this.canvasRef}
-                />
-                <CustomDragLayer
-                  hoveredIcon={this.hoveredIcon}
-                  canvasRef={this.canvasRef}
-                />
-                <LoadingOverlay items={[
-                  { isFetching: isFetchingIcons, label: 'Fetching Icons...' },
-                  { isFetching: isFetchingVnfs, label: 'Fetching Vnfs...' },
-                  { isFetching: isFetchingConnections,
-                    label: 'Fetching Connections...' }
-                ]}/>
-              </Fragment>
-            }
+          <div className="topology__layer topology__layer--foreground">
+            <div className="topology__header">
+              {LAYOUT.map(({ name, width, title }, index) =>
+                <div
+                  key={index}
+                  className={classNames('container__title-text', {
+                    'container__background--not-first': index !== 0
+                  })}
+                  style={{
+                    width: `${layout ? layout[name].pc.backgroundWidth : width}%`,
+                }}>
+                  {title}
+                </div>
+              )}
+            </div>
+            <div className="topology__body" ref={this.ref}>
+              <ReactResizeDetector handleWidth handleHeight
+                onResize={this.resize}
+                refreshMode="debounce"
+                refreshRate={500}
+              />
+              {dimensions &&
+                <div className="topology__layer">
+                  {connections.map(connection =>
+                    <Connection key={connection.key} {...connection}/>
+                  )}
+                  {Object.keys(icons).map(key =>
+                    <Icon key={key} name={key} hoveredIcon={this.hoveredIcon}/>
+                  )}
+                  <DragLayerCanvas
+                    dimensions={dimensions}
+                    canvasRef={this.canvasRef}
+                  />
+                  <CustomDragLayer
+                    hoveredIcon={this.hoveredIcon}
+                    canvasRef={this.canvasRef}
+                  />
+                  <LoadingOverlay items={[
+                    { isFetching: isFetchingIcons, label: 'Fetching Icons...' },
+                    { isFetching: isFetchingVnfs, label: 'Fetching Vnfs...' },
+                    { isFetching: isFetchingConnections,
+                      label: 'Fetching Connections...' }
+                  ]}/>
+                </div>
+              }
+            </div>
           </div>
-          <div className="topology__footer">
+        </div>
+        <div className="topology__footer">
+          <div className="topology__footer-content">
             <EditToggle/>
             <IconSizeSlider/>
           </div>
+          <div className={classNames('container__layer', 'container__overlay', {
+            'container__overlay--inactive': draggedItem &&
+              draggedItem.icon !== 'new-network-service'
+          })}/>
         </div>
       </div>
     );

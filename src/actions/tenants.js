@@ -10,6 +10,7 @@ export const FETCH_TENANTS_FAILURE = 'fetch-tenants-failure';
 export const FETCH_ONE_TENANT_REQUEST = 'fetch-one-tenant-request';
 export const FETCH_ONE_TENANT_FAILURE = 'fetch-one-tenant-failure';
 
+export const TENANT_PATH = '/tme-demo:tme-demo/tenant';
 
 // === Action Creators ========================================================
 
@@ -19,13 +20,12 @@ const tenantDeleted = name => ({
 
 // === jsonRpc Middleware =====================================================
 
-const path = '/l3vpn:vpn/l3vpn';
-const selection = ['name', 'as-number'];
-const resultKeys = ['name', 'As Number'];
+const selection = ['name', 'l3vpn/route-distinguisher', 'l3vpn/qos-policy'];
+const resultKeys = ['name', 'Route Distinguisher', 'QoS Policy'];
 
 export const fetchTenants = () => ({
   jsonRpcQuery: {
-    xpathExpr   : path,
+    xpathExpr   : TENANT_PATH,
     selection   : selection,
     resultKeys  : resultKeys,
     transform   : addDeviceList
@@ -41,7 +41,7 @@ export const fetchTenants = () => ({
 export const fetchOneTenant = name => ({
   jsonRpcGetValues: {
     name        : name,
-    path        : `${path}{${name}}`,
+    path        : `${TENANT_PATH}{${name}}`,
     leafs       : selection,
     resultKeys  : resultKeys,
     transform   : addDeviceList
@@ -55,7 +55,7 @@ export const fetchOneTenant = name => ({
 });
 
 export const deleteTenant = (name) => ({
-  jsonRpcDelete: { path, name },
+  jsonRpcDelete: { path: TENANT_PATH, name },
   types: [ TENANT_DELETED ],
   errorMessage: `Failed to delete tenant ${name}`
 });
@@ -63,7 +63,7 @@ export const deleteTenant = (name) => ({
 export const addDeviceList = tenants => Promise.all(
   tenants.map(async tenant => {
     try {
-      const deviceListPath = `${path}{${tenant.name}}/device-list`;
+      const deviceListPath = `${TENANT_PATH}{${tenant.name}}/modified/devices`;
       if (await JsonRpc.exists(deviceListPath)) {
         const deviceList = await JsonRpc.getValue(deviceListPath);
         return { ...tenant, deviceList: deviceList.value };

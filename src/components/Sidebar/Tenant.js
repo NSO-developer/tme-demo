@@ -2,32 +2,42 @@ import React from 'react';
 import { PureComponent, createRef } from 'react';
 import { connect } from 'react-redux';
 import { DragSource, DropTarget } from 'react-dnd';
+import { renderToStaticMarkup } from 'react-dom/server';
 import classNames from 'classnames';
 
-import { ENDPOINT } from '../../constants/ItemTypes';
+import { ENDPOINT, NETWORK_SERVICE } from '../../constants/ItemTypes';
 import { CONFIGURATION_EDITOR_URL,
          COMMIT_MANAGER_URL } from '../../constants/Layout';
 import * as IconTypes from '../../constants/Icons';
 
 import Endpoint from './Endpoint';
+import NetworkService from './NetworkService';
 import NewItem from './NewItem';
 import Btn from '../icons/BtnWithTooltip';
+import IconSvg from '../icons/IconSvg';
 
-import { getOpenTenant } from '../../reducers';
-import { tenantToggled, bodyOverlayToggled } from '../../actions/uiState';
-import { deleteTenant } from '../../actions/tenants';
+import { getActualIconSize, getOpenTenant,
+         getNewNetworkService } from '../../reducers';
+import { tenantToggled, bodyOverlayToggled, itemDragged,
+         newNetworkServiceToggled } from '../../actions/uiState';
+import { TENANT_PATH, deleteTenant } from '../../actions/tenants';
 
 import JsonRpc from '../../utils/JsonRpc';
 import Comet from '../../utils/Comet';
 
 
-const mapDispatchToProps = { deleteTenant, tenantToggled, bodyOverlayToggled };
+const mapDispatchToProps = {
+  deleteTenant, tenantToggled, bodyOverlayToggled,
+  itemDragged, newNetworkServiceToggled
+};
 
 const mapStateToPropsFactory = (initialState, initialProps) => {
   const { name } = initialProps.tenant;
   return state => ({
     isOpen: getOpenTenant(state) === name,
-    fade: !!getOpenTenant(state)
+    fade: !!getOpenTenant(state),
+    newNetworkService: getNewNetworkService(state),
+    iconSize: getActualIconSize(state)
   });
 };
 
@@ -40,40 +50,33 @@ const dropTarget = {
   }
 };
 
-// TODO: Move defaults into the YANG model or read from demo-settings
-const getEndpointDefaults = device => {
-  const defaults = [
-    {path: 'ip-network', value: '10.0.0.0/24'},
-    {path: 'bandwidth', value: '10000000'},
-    {path: 'ce-interface', value: 'GigabitEthernet0/1'},
-  ];
-
-  if (device) {
-    defaults.push({ path: 'ce-device', value: device });
-
-    if (device === 'dci0' || device === 'ce7') {
-      defaults.push({ path: 'virtual/p-device', value: 'p3' });
-      defaults.push({ path: 'virtual/dci-device', value: 'dci0' });
-      defaults.push({ path: 'virtual/vnfm', value: 'esc0' });
-      defaults.push({ path: 'virtual/mgmt-connection-point', value: 'mgmt' });
-
-      if (device === 'dci0') {
-        defaults.push({ path: 'virtual/dci-1-connection-point',
-                        value: 'dci-1' });
-        defaults.push({ path: 'virtual/dci-2-connection-point',
-                        value: 'dci-2' });
-
-      } else if (device === 'ce7') {
-        defaults.push({ path: 'virtual/p-connection-point', value: 'a' });
-        defaults.push({path: 'virtual/ce-connection-point', value: 'z' });
-      }
-    }
+const nsSource = {
+  beginDrag: ({ itemDragged }) => {
+    const item = { icon: 'new-network-service' };
+    itemDragged(item);
+    return item;
+  },
+  endDrag: ({ itemDragged }) => {
+    itemDragged(undefined);
   }
-
-  return defaults;
 };
 
+const getNetworkServiceDefaults = (tenant, { container, pos }) => [
+    { path: 'ns-info', value: `${tenant}-`, prefix: true },
+    { path: 'type', value: IconTypes.SERVICE_CHAIN },
+    { path: 'container', value: container },
+    { path: 'coord/x', value: pos.x },
+    { path: 'coord/y', value: pos.y }
+];
 
+const getEndpointDefaults = device => {
+  return (device ? [{ path: 'ce-device', value: device }] : []);
+};
+
+@DragSource(NETWORK_SERVICE, nsSource, connect => ({
+  connectDragPreview: connect.dragPreview(),
+  connectDragSource: connect.dragSource()
+}))
 @DropTarget(ENDPOINT, dropTarget, (connect, monitor) => ({
   connectDropTarget: connect.dropTarget(),
   isOver: monitor.isOver(),
@@ -84,11 +87,12 @@ class Tenant extends PureComponent {
     super(props);
     this.state = {
       openEndpointName: null,
-      newItemDevice: null,
-      newItemOpen: false
+      newEndpointDevice: null,
+      newEndpointOpen: false,
+      openNetworkServiceName: null,
     };
     this.ref = createRef();
-    this.keyPath = `/l3vpn:vpn/l3vpn{${props.tenant.name}}`;
+    this.keyPath = `${TENANT_PATH}{${props.tenant.name}}`;
   }
 
   openEndpoint = endpointName => {
@@ -98,22 +102,35 @@ class Tenant extends PureComponent {
     });
   };
 
+  openNetworkService = networkServiceName => {
+    this.setState({
+      openNetworkServiceName:
+        this.state.openNetworkServiceName === networkServiceName
+        ? null : networkServiceName
+    });
+  };
+
   toggle = () => {
     const { tenantToggled, tenant } = this.props;
     tenantToggled(tenant.name);
   }
 
-  openNewItem = () => {
+  openNewEndpoint = () => {
     const { bodyOverlayToggled } = this.props;
-    this.setState({ newItemOpen: true });
+    this.setState({ newEndpointOpen: true });
     bodyOverlayToggled(true);
   }
 
-  closeNewItem = () => {
+  closeNewEndpoint = () => {
     const { bodyOverlayToggled } = this.props;
-    this.setState({ newItemOpen: false });
-    this.setState({ newItemDevice: undefined });
+    this.setState({ newEndpointOpen: false });
+    this.setState({ newEndpointDevice: undefined });
     bodyOverlayToggled(false);
+  }
+
+  closeNewNetworkService = () => {
+    const { newNetworkServiceToggled } = this.props;
+    newNetworkServiceToggled();
   }
 
   delete = async (event) => {
@@ -133,7 +150,8 @@ class Tenant extends PureComponent {
     const th = await JsonRpc.write();
     await JsonRpc.request('action', {
       th: th,
-      path: `${this.keyPath}/touch`,
+//      path: `${this.keyPath}/touch`
+      path: `/l3vpn:vpn/l3vpn{${this.props.tenant.name}}/touch`
     });
     Comet.stopThenGoToUrl(COMMIT_MANAGER_URL);
   }
@@ -142,16 +160,29 @@ class Tenant extends PureComponent {
     const { isOpen } = this.props;
     if (!isOpen) { this.toggle(); }
     requestAnimationFrame(() => {
-      this.setState({ newItemDevice: deviceName });
-      this.openNewItem();
+      this.setState({ newEndpointDevice: deviceName });
+      this.openNewEndpoint();
     });
   };
 
+  componentDidMount() {
+    const { connectDragPreview, iconSize } = this.props;
+    const img = new Image();
+    img.src = `data:image/svg+xml,${encodeURIComponent(renderToStaticMarkup(
+      <IconSvg type={IconTypes.SERVICE_CHAIN} size={iconSize} />
+    ))}`;
+    connectDragPreview(img, { offsetX: iconSize/2, offsetY: iconSize/2 });
+  }
+
+
   render() {
     console.debug('Tenant Render');
-    const { isOpen, fade, tenant, endpoints, networkServices,
-      connectDropTarget, isOver, canDrop } = this.props;
-    const { openEndpointName, newItemOpen, newItemDevice } = this.state;
+    const { isOpen, fade, newNetworkService,
+            tenant, endpoints, networkServices,
+            connectDropTarget, connectDragSource,
+            isOver, canDrop } = this.props;
+    const { openEndpointName, newEndpointOpen, newEndpointDevice,
+            openNetworkServiceName } = this.state;
     const { name, deviceList, ...rest } = tenant;
     return (
       connectDropTarget(
@@ -177,7 +208,7 @@ class Tenant extends PureComponent {
           >
             <Btn
               type={IconTypes.BTN_REDEPLOY}
-              tooltip="Touch and go to Commit Manager" />
+              tooltip="Touch L3 VPN and go to Commit Manager" />
           </div>
           <div
             className="sidebar__round-btn sidebar__round-btn--delete"
@@ -202,17 +233,17 @@ class Tenant extends PureComponent {
             <span className="sidebar__title-text">Endpoints</span>
             <div
               className="sidebar__round-btn sidebar__round-btn--add"
-              onClick={this.openNewItem}
+              onClick={this.openNewEndpoint}
             >
               <Btn type={IconTypes.BTN_ADD} tooltip="Add New Endpoint" />
             </div>
             <NewItem
-              path={`${this.keyPath}/endpoint`}
-              defaults={getEndpointDefaults(newItemDevice)}
-              label={`Endpoint Name${newItemDevice ?
-                ` (${newItemDevice})` : ''}`}
-              isOpen={isOpen && newItemOpen}
-              close={this.closeNewItem}
+              path={`${this.keyPath}/l3vpn/endpoint`}
+              defaults={getEndpointDefaults(newEndpointDevice)}
+              label={`Endpoint Name${newEndpointDevice ?
+                ` (${newEndpointDevice})` : ''}`}
+              isOpen={isOpen && newEndpointOpen}
+              close={this.closeNewEndpoint}
             />
           </div>
           {endpoints && endpoints.map((endpoint, index) =>
@@ -225,16 +256,36 @@ class Tenant extends PureComponent {
           )}
           <div className="sidebar__sub-header">
             <div className="sidebar__title-text">Network Services</div>
+            {connectDragSource(
+            <div className="sidebar__round-btn sidebar__round-btn--add">
+              <Btn
+                type={IconTypes.BTN_ADD}
+                tooltip="Add New Network Service (drag me)"
+              />
+            </div>)}
+            <NewItem
+              path={`${this.keyPath}/nfvo/network-service`}
+              defaultsPath="/webui:webui/data-stores/tme-demo-ui:static-map/icon"
+              defaults={newNetworkService ?
+                getNetworkServiceDefaults(name, newNetworkService) : []}
+              label="Network Service Name"
+              isOpen={!!newNetworkService}
+              close={this.closeNewNetworkService}
+            />
           </div>
           {networkServices && networkServices.map(networkService =>
-            <div key={networkService.name}
-              className="accordion__empty"
-            >{networkService.name}</div>)}
+            <NetworkService
+              key={networkService.name}
+              toggle={() => this.openNetworkService(networkService.name)}
+              isOpen={openNetworkServiceName === networkService.name}
+              {...networkService}
+            />
+          )}
         </div>
         <div className="accordion__overlay-wrapper">
-          <div className={`accordion__overlay${
-            isOver && canDrop && ' accordion__overlay--hovered'}`
-          }/>
+          <div className={classNames('accordion__overlay', {
+            'accordion__overlay--hovered': isOver && canDrop
+          })}/>
         </div>
       </div>)
     );

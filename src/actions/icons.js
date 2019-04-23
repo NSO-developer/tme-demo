@@ -10,14 +10,10 @@ export const FETCH_ONE_ICON_REQUEST = 'fetch-one-icon-request';
 export const FETCH_ONE_ICON_FAILURE = 'fetch-one-icon-failure';
 
 
-const safeRound = (n) =>
-  Math.min(1, Math.max(0, Number.parseFloat(n).toFixed(4))).toString();
-
-
 // === Action Creators ========================================================
 
-const iconMoved = (name, x, y) => ({
-  type: ICON_MOVED, name, pos: { x, y }
+const iconMoved = (name, pos) => ({
+  type: ICON_MOVED, name, pos
 });
 
 const iconDeleted = name => ({
@@ -27,10 +23,10 @@ const iconDeleted = name => ({
 
 // === JsonRpc Middleware =====================================================
 
-const path = '/webui:webui/data-stores/l3vpnui:static-map/position';
-const selection = [ 'id',
+const path = '/webui:webui/data-stores/tme-demo-ui:static-map/icon';
+const selection = [ 'name',
                     'device',
-                    'ns-info-id',
+                    'ns-info',
                     'type',
                     'container',
                     'coord/x',
@@ -73,12 +69,12 @@ export const fetchOneIcon = name => ({
   errorMessage: 'Failed to fetch icon'
 });
 
-export const moveIcon = (name, x, y) => ({
+export const moveIcon = (name, pos) => ({
   jsonRpcSetValues: { pathValues: [
-    { path: `${path}{"${name}"}/coord/x`, value: safeRound(x) },
-    { path: `${path}{"${name}"}/coord/y`, value: safeRound(y) }
+    { path: `${path}{"${name}"}/coord/x`, value: pos.x },
+    { path: `${path}{"${name}"}/coord/y`, value: pos.y }
   ]},
-  actions: [ iconMoved(name, safeRound(x), safeRound(y)) ],
+  actions: [ iconMoved(name, pos) ],
   errorMessage: `Failed to move icon ${name}`
 });
 

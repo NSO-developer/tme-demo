@@ -9,7 +9,7 @@ module.exports = {
   output: {
     filename: '[name].js',
     path: `${__dirname}/dist`,
-    publicPath: '/custom/l3vpnui'
+    publicPath: '/custom/tme-demo-ui'
   },
   mode: 'development',
   plugins: [

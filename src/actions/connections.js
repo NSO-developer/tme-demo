@@ -16,8 +16,8 @@ export const connectionAdded = (name, ep1Device, ep2Device) => ({
   type: CONNECTION_ADDED, name, item: { ep1Device, ep2Device }
 });
 
-export const connectionMoved = (name, endpoint, device, nsInfo) => ({
-  type: CONNECTION_MOVED, name, endpoint, device, nsInfo
+export const connectionMoved = (name, endpoint, device) => ({
+  type: CONNECTION_MOVED, name, endpoint, device
 });
 
 export const connectionDeleted = name => ({
@@ -30,18 +30,10 @@ export const connectionDeleted = name => ({
 const path = '/l3vpn:topology/connection';
 const selection = [ 'name',
                     'endpoint-1/device',
-                    'endpoint-1/ns-info-id',
-                    'endpoint-1/connection-point',
-                    'endpoint-2/device',
-                    'endpoint-2/ns-info-id',
-                    'endpoint-2/connection-point' ];
+                    'endpoint-2/device' ];
 const resultKeys = [ 'name',
                      'ep1Device',
-                     'ep1NsInfo',
-                     'ep1Cp',
-                     'ep2Device',
-                     'ep2NsInfo',
-                     'ep2Cp' ];
+                     'ep2Device' ];
 
 export const fetchConnections = () => ({
   jsonRpcQuery: {
@@ -88,14 +80,12 @@ export const addConnection = (name, ep1Device, ep2Device) => ({
   errorMessage: `Failed to add connnection ${name}`
 });
 
-export const moveConnection = (name, endpoint, device, nsInfo) => ({
+export const moveConnection = (name, endpoint, device) => ({
   jsonRpcSetValues: { pathValues: [
     { path: `${path}{${name}}/endpoint-${endpoint}/device`,
-      value: device || null },
-    { path: `${path}{${name}}/endpoint-${endpoint}/ns-info-id`,
-      value: nsInfo || null }
+      value: device || null }
   ]},
-  actions: [ connectionMoved(name, endpoint, device, nsInfo) ],
+  actions: [ connectionMoved(name, endpoint, device) ],
   errorMessage: `Failed to move connection ${name}`
 });
 

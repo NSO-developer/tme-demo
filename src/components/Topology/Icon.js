@@ -28,7 +28,7 @@ import { iconSelected, connectionSelected,
 import { moveIcon } from '../../actions/icons';
 import { addConnection, moveConnection } from '../../actions/connections';
 
-import { restrictPos, pxToPc } from '../../utils/UiUtils';
+import { pxCoordToSafePc } from '../../utils/UiUtils';
 
 
 // === Util functions =========================================================
@@ -194,10 +194,7 @@ class Icon extends PureComponent {
 
   moveIcon = (x, y) => {
     const { name, container, dimensions, layout, moveIcon } = this.props;
-    const { left, top, width, height } = layout[container].pc;
-    const { pcX, pcY } =
-      pxToPc(restrictPos(x, y, layout[container]), dimensions);
-    moveIcon(name, (pcX - left) / width, (pcY - top) / height);
+    moveIcon(name, pxCoordToSafePc(x, y, layout[container], dimensions));
   }
 
   tooltipContent = (status, vnfIndex) => {

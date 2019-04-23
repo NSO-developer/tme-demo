@@ -1,4 +1,4 @@
-export const TITLE = 'Topology Viewer Demo';
+export const TITLE = 'TME Demo';
 
 export const COMMIT_MANAGER_URL = '/webui-one/CommitManager';
 export const CONFIGURATION_EDITOR_URL = '/webui-one/ConfigurationEditor';

@@ -8,19 +8,16 @@ import { LABEL_FONT } from '../../constants/Icons';
 import { INTERFACE, ICON } from '../../constants/ItemTypes';
 import { CIRCLE_ICON_RATIO, LINE_ICON_RATIO } from '../../constants/Layout';
 
-import { getDraggedItem, getConnections, getVnfs, getIcon, getIconPositions,
-         getDimensions, getLayout, getActualIconSize, getIconsByDevice,
-         getIconsByNsInfo, calculateConnectionPositions } from '../../reducers';
+import { getDraggedItem, getConnections,getVnfs, getIconPositions,
+         getIconsByDevice, getIconsByNsInfo, getVnfsByDevice,
+         getDimensions, getLayout, getActualIconSize,
+         calculateConnectionPositions } from '../../reducers';
 
 import { restrictPos, pointAlongLine } from '../../utils/UiUtils';
 
 
-const getEndpointIcon = (conn, endpoint, iconsByDevice, iconsByNsInfo) => {
-  if (conn[`ep${endpoint}Device`]) {
-    return iconsByDevice[conn[`ep${endpoint}Device`]];
-  } else {
-    return iconsByNsInfo[conn[`ep${endpoint}NsInfo`]];
-  }
+const getEndpointIcon = (conn, endpoint, iconsByDevice) => {
+  return iconsByDevice[conn[`ep${endpoint}Device`]];
 };
 
 const mapStateToProps = state => {
@@ -28,18 +25,19 @@ const mapStateToProps = state => {
   const connections = getConnections(state);
   const iconsByDevice = getIconsByDevice(state);
   const iconsByNsInfo = getIconsByNsInfo(state);
+  const vnfsByDevice = getVnfsByDevice(state);
+  const vnfs = getVnfs(state);
   const iconPositions = getIconPositions(state);
   let overlayConnections = undefined;
   if (draggedItem) {
     const { icon, fromIcon, connection, endpoint } = draggedItem;
     overlayConnections = icon
         ? calculateConnectionPositions(connections, iconsByDevice,
-            iconsByNsInfo, iconPositions, undefined, icon)
+            iconsByNsInfo, vnfsByDevice, vnfs, iconPositions, icon)
         : [ {
             name: connection,
             from: iconPositions[fromIcon ? fromIcon : getEndpointIcon(
-              connections[connection], endpoint === 1 ? 2 : 1,
-                iconsByDevice, iconsByNsInfo)]
+              connections[connection], endpoint === 1 ? 2 : 1, iconsByDevice)]
           } ];
   }
   return {

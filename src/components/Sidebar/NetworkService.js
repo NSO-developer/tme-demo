@@ -8,24 +8,24 @@ import * as IconTypes from '../../constants/Icons';
 
 import Btn from '../icons/BtnWithTooltip';
 
-import { deleteEndpoint } from '../../actions/endpoints';
+import { deleteNetworkService } from '../../actions/networkServices';
 import { TENANT_PATH } from '../../actions/tenants';
 
 
-const mapDispatchToProps = { deleteEndpoint };
+const mapDispatchToProps = { deleteNetworkService };
 
-class Endpoint extends PureComponent {
+class NetworkService extends PureComponent {
   constructor(props) {
     super(props);
     this.ref = createRef();
     const { tenant, name } = props;
-    this.keyPath = `${TENANT_PATH}{${tenant}}/l3vpn/endpoint{${name}}`;
+    this.keyPath = `${TENANT_PATH}{${tenant}}/nfvo/network-service{${name}}`;
   }
 
   delete = async (event) => {
     event.stopPropagation();
-    const { isOpen, toggle, deleteEndpoint, tenant, name } = this.props;
-    await deleteEndpoint(tenant, name);
+    const { isOpen, toggle, deleteNetworkService, tenant, name } = this.props;
+    await deleteNetworkService(tenant, name);
     if (isOpen) { toggle(); }
   }
 
@@ -35,8 +35,8 @@ class Endpoint extends PureComponent {
   }
 
   render() {
-    console.debug('Endpoint Render');
-    const { isOpen, toggle, deleteEndpoint,
+    console.debug('Network Service Render');
+    const { isOpen, toggle, deleteNetworkService,
             name, tenant, ...rest } = this.props;
     return (
       <div className={classNames('accordion accordion--level2', {
@@ -44,21 +44,21 @@ class Endpoint extends PureComponent {
           'accordion--open': isOpen
       })}>
         <div className="accordion__header" onClick={toggle} >
-          <span className="sidebar__title-text">{name} ({rest['Device']})</span>
+          <span className="sidebar__title-text">{name}</span>
           <div
             className="sidebar__round-btn sidebar__round-btn--go-to"
             onClick={this.goTo}
           >
             <Btn
               type={IconTypes.BTN_GOTO}
-              tooltip="View Endpoint in Configuration Editor"
+              tooltip="View Network Service in Configuration Editor"
             />
           </div>
           <div
             className="sidebar__round-btn sidebar__round-btn--delete"
             onClick={this.delete}
           >
-            <Btn type={IconTypes.BTN_DELETE} tooltip="Delete Endpoint"/>
+            <Btn type={IconTypes.BTN_DELETE} tooltip="Delete Network Service"/>
           </div>
         </div>
         <div
@@ -81,4 +81,4 @@ class Endpoint extends PureComponent {
   }
 }
 
-export default connect(null, mapDispatchToProps)(Endpoint);
+export default connect(null, mapDispatchToProps)(NetworkService);

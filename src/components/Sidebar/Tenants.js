@@ -9,8 +9,10 @@ import { BTN_ADD } from '../../constants/Icons';
 import LoadingOverlay from '../common/LoadingOverlay';
 
 import { getTenants, getEndpoints, getNetworkServices,
-         getIsFetchingTenants, getIsFetchingEndpoints } from '../../reducers';
+         getIsFetchingTenants, getIsFetchingEndpoints,
+         getIsFetchingNetworkServices } from '../../reducers';
 import { bodyOverlayToggled } from '../../actions/uiState';
+import { TENANT_PATH } from '../../actions/tenants';
 
 import { fetchSidebarData } from '../../actions';
 
@@ -22,11 +24,9 @@ const mapStateToProps = state => ({
   endpoints: getEndpoints(state),
   networkServices: getNetworkServices(state),
   isFetchingTenants: getIsFetchingTenants(state),
-  isFetchingEndpoints: getIsFetchingEndpoints(state)
+  isFetchingEndpoints: getIsFetchingEndpoints(state),
+  isFetchingNetworkServices: getIsFetchingNetworkServices(state)
 });
-
-// TODO: Move defaults into the YANG model or read from demo-settings
-const getTenantDefaults = () => ([ {path: 'as-number', value: '65000'} ]);
 
 
 class Tenants extends PureComponent {
@@ -51,10 +51,9 @@ class Tenants extends PureComponent {
 
   render() {
     console.debug('Tenants Render');
-    const { tenants, endpoints, networkServices,
-            isFetchingTenants, isFetchingEndpoints } = this.props;
+    const { tenants, endpoints, networkServices, isFetchingTenants,
+            isFetchingEndpoints, isFetchingNetworkServices } = this.props;
     const { newItemOpen } = this.state;
-    const isFetching = isFetchingTenants || isFetchingEndpoints;
     return (
       <div className="tenants">
         <div className="sidebar__header">
@@ -66,8 +65,7 @@ class Tenants extends PureComponent {
             <Btn type={BTN_ADD} tooltip="Add New Tenant" />
           </div>
             <NewItem
-              path="/l3vpn:vpn/l3vpn"
-              defaults={getTenantDefaults()}
+              path={TENANT_PATH}
               label="Tenant Name"
               isOpen={newItemOpen}
               close={this.closeNewItem}
@@ -88,7 +86,9 @@ class Tenants extends PureComponent {
           )}
           <LoadingOverlay items={[
             { isFetching: isFetchingTenants, label: 'Fetching Tenants' },
-            { isFetching: isFetchingEndpoints, label: 'Fetching Endpoints...' }
+            { isFetching: isFetchingEndpoints, label: 'Fetching Endpoints...' },
+            { isFetching: isFetchingNetworkServices,
+              label: 'Fetching Network Services...' }
           ]}/>
         </div>
       </div>

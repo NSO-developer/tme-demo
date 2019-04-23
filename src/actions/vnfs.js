@@ -6,6 +6,7 @@ import { subscriptionRequest, subscriptionSuccess, subscriptionEvent,
          SUBSCRIPTION_FAILURE } from './comet';
 
 export const VNF_VM_STATUS_UPDATED = 'vnf-vm-status-updated';
+export const VNF_VM_DEVICE_UPDATED = 'vnf-vm-device-updated';
 export const VNF_SCALE_EVENT = 'vnf-scale-event';
 export const VNF_ADDED = 'vnf-added';
 export const VNF_DELETED = 'vnf-deleted';
@@ -23,6 +24,10 @@ export const FETCH_ONE_VNF_FAILURE = 'fetch-one-vnf-failure';
 
 export const vnfVmStatusUpdated = (name, vmId, status) => ({
   type: VNF_VM_STATUS_UPDATED, name, vmId, status
+});
+
+export const vnfVmDeviceUpdated = (name, vmId, device) => ({
+  type: VNF_VM_DEVICE_UPDATED, name, vmId, device
 });
 
 export const vnfScaleEvent = (name, vmsScaling) => ({
@@ -188,7 +193,7 @@ export const fetchOneVnf =
 
 const parseMatch = match => {
   const [ all, tenant, depName, esc, vnfInfo, vdu ] = match;
-  const nsInfo = `${tenant}_${depName}`;
+  const nsInfo = `${tenant}-${depName}`;
   const vnfVduName = getVnfVduName(nsInfo, vnfInfo, vdu);
 
   return { nsInfo, vnfVduName, tenant, depName, esc, vnfInfo, vdu };
@@ -244,6 +249,15 @@ export const subscribeVnfs = () => dispatch => {
             const vmId = match[7];
             const status = match[8];
             dispatch(vnfVmStatusUpdated(vnfVduName, vmId, status));
+          }
+
+          match = /\/nfvo-rel2:nfvo\/vnf-info\/nfvo-rel2-esc:esc\/vnf-deployment-result\{([^{} ]+) ([^{} ]+) ([^{} ]+)\}\/vdu\{([^{} ]+) ([^{} ]+)\}\/vm-device\{([^{} ]+) ([^{} ]+)\}\/device-name$/.exec(keypath);
+          if (match && op !== 'deleted') {
+            dispatch(subscriptionEvent(keypath, op));
+            const { vnfVduName } = parseMatch(match);
+            const vmId = match[7];
+            const device = value;
+            dispatch(vnfVmDeviceUpdated(vnfVduName, vmId, device));
           }
 
           match = /\/nfvo-rel2:nfvo\/vnf-info\/nfvo-rel2-esc:esc\/vnf-deployment-result\{([^{} ]+) ([^{} ]+) ([^{} ]+)\}\/vdu\{([^{} ]+) ([^{} ]+)\}\/l3vpn:vms-scaling\/([^{} ]+)$/.exec(keypath);

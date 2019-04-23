@@ -5,7 +5,6 @@ import jsonRpcWrapper, { getItems } from './jsonRpcWrapper';
 // === Helpers ================================================================
 
 const endpointDeviceKey = endpoint => `ep${endpoint}Device`;
-const endpointNsInfoKey = endpoint => `ep${endpoint}NsInfo`;
 
 
 // === Selectors ==============================================================
@@ -24,7 +23,7 @@ export default jsonRpcWrapper([
   ActionTypes.CONNECTION_ADDED
 ],
 (state = [], action) => {
-  const { type, name, endpoint, device, nsInfo } = action;
+  const { type, name, endpoint, device } = action;
   switch (type) {
 
     case ActionTypes.CONNECTION_MOVED:
@@ -32,8 +31,7 @@ export default jsonRpcWrapper([
         ...state,
         [name]: {
           ...state[name],
-          [endpointDeviceKey(endpoint)]: device,
-          [endpointNsInfoKey(endpoint)]: nsInfo
+          [endpointDeviceKey(endpoint)]: device
         }
       };
 

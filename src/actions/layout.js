@@ -4,8 +4,8 @@ export const ICON_SIZE_CHANGED = 'icon-size-changed';
 
 // === Action Creators ========================================================
 
-export function dimensionsChanged(width, height) {
-  return { type: DIMENSIONS_CHANGED, width, height };
+export function dimensionsChanged(left, top, width, height) {
+  return { type: DIMENSIONS_CHANGED, left, top, width, height };
 }
 
 export function iconSizeChanged(size) {

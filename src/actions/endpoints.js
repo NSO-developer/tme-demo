@@ -1,3 +1,5 @@
+import { TENANT_PATH } from './tenants';
+
 export const ENDPOINT_DELETED = 'endpoint-deleted';
 
 export const FETCH_ENDPOINTS_REQUEST = 'fetch-endpoints-request';
@@ -7,13 +9,11 @@ export const FETCH_ENDPOINTS_FAILURE = 'fetch-endpoints-failure';
 
 // === jsonRpc Middleware =====================================================
 
-const path = '/l3vpn:vpn/l3vpn';
-
 export const fetchEndpoints = () => ({
   jsonRpcQuery: {
-    xpathExpr   : `${path}/endpoint`,
+    xpathExpr   : `${TENANT_PATH}/l3vpn/endpoint`,
     selection   : [ 'id',
-                    '../name',
+                    '../../name',
                     'ce-device',
                     'ce-interface',
                     'ip-network',
@@ -38,7 +38,7 @@ export const fetchEndpoints = () => ({
 
 export const deleteEndpoint = (tenant, name) => ({
   jsonRpcDelete: {
-    path: `${path}{${tenant}}/endpoint`,
+    path: `${TENANT_PATH}{${tenant}}/l3vpn/endpoint`,
     name: name
   },
   types: [ ENDPOINT_DELETED ],

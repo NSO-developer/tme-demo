@@ -20,14 +20,17 @@ import { fetchDevices } from './devices';
 
 import { fetchTenants } from './tenants';
 import { fetchEndpoints } from './endpoints';
+import { fetchNetworkServices } from './networkServices';
 
 
 // === Thunk Middleware =======================================================
 
 export const fetchTopologyData = () => async dispatch => {
   // Must fetch in order!
-  await dispatch(fetchIcons());
-  await dispatch(fetchVnfs());
+  await Promise.all([
+    dispatch(fetchIcons()),
+    dispatch(fetchVnfs())
+  ]);
   dispatch(fetchConnections());
   dispatch(fetchDevices());
 };
@@ -35,6 +38,7 @@ export const fetchTopologyData = () => async dispatch => {
 export const fetchSidebarData = () => dispatch => {
   dispatch(fetchTenants());
   dispatch(fetchEndpoints());
+  dispatch(fetchNetworkServices());
 };
 
 export const fetchAll = () => dispatch => {

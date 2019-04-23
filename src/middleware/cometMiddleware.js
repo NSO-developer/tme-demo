@@ -16,7 +16,7 @@ export default store => next => async action => {
     try {
       await Comet.subscribe({
         path, cdbOper,
-        skipLocalChanges: true,
+        skipLocalChanges: false,
         callback : evt => {
           evt.changes.forEach(change => {
             const { keypath, op } = change;

@@ -1,0 +1,373 @@
+<?xml version="1.0"?>
+<config xmlns="http://tail-f.com/ns/config/1.0">
+  <nfvo xmlns="http://tail-f.com/pkg/tailf-etsi-rel2-nfvo">
+    <ns-info>
+      <esc xmlns="http://tail-f.com/pkg/tailf-etsi-rel2-nfvo-esc">
+        <ns-info>
+          <id>{$NS_INFO_ID}</id>
+          <tenant>{../../name}</tenant>
+          <deployment-name>{name}</deployment-name>
+          <esc>{vnfm}</esc>
+          <username>admin</username>
+          <nsd>{nsd}</nsd>
+          <flavor>{flavour}</flavor>
+          <instantiation-level>small</instantiation-level>
+          <vnf-info tags="replace" when="{deref(flavour)/../vnf-profile[id='ASA-bronze']}">
+            <vnf-profile>ASA-bronze</vnf-profile>
+            <vnfd>Cisco-ASA</vnfd>
+            <vdu>
+              <id>fw-3cp</id>
+              <authgroup>default</authgroup>
+              <image-name>Cisco-ASA</image-name>
+              <flavor-name>ASA-bronze</flavor-name>
+              <bootup-time>300</bootup-time>
+              <recovery-wait-time>60</recovery-wait-time>
+              <day0>
+                <destination>day0-config</destination>
+                <data>ASA Version 9.4(1)202
+!
+hostname $HOSTNAME
+interface management0/0
+nameif management
+security-level 100
+ip address $NICID_0_IP_ADDRESS $NICID_0_NETMASK
+no shutdown
+interface gigabitethernet0/0
+nameif inside
+security-level 100
+http server enable
+http $NICID_0_CIDR_ADDRESS $NICID_0_NETMASK management
+crypto key generate rsa modulus 1024
+enable password $ADMIN_PWD
+terminal width 0
+
+!
+!####_DAY0_SSH
+!
+aaa authentication ssh console LOCAL
+username admin password $ADMIN_PWD
+no ssh stricthostkeycheck
+ssh timeout 10
+
+ssh 0.0.0.0 0.0.0.0 management
+
+!
+!####_DAY0_MGMT_INTERFACE_ROUTING_ROUTING
+!
+route management 0.0.0.0 0.0.0.0 $NICID_0_GATEWAY
+</data>
+                <variable>
+                  <name>ADMIN_PWD</name>
+                  <value>admin</value>
+                </variable>
+                <variable>
+                  <name>HOSTNAME</name>
+                  <value>the-fw</value>
+                </variable>
+              </day0>
+              <managed/>
+            </vdu>
+          </vnf-info>
+          <vnf-info tags="replace" when="{deref(flavour)/../vnf-profile[id='ASA-silver']}">
+            <vnf-profile>ASA-silver</vnf-profile>
+            <vnfd>Cisco-ASA</vnfd>
+            <vdu>
+              <id>fw-4cp</id>
+              <authgroup>default</authgroup>
+              <image-name>Cisco-ASA</image-name>
+              <flavor-name>ASA-bronze</flavor-name>
+              <bootup-time>300</bootup-time>
+              <recovery-wait-time>60</recovery-wait-time>
+              <day0>
+                <destination>day0-config</destination>
+                <data>ASA Version 9.4(1)202
+!
+hostname $HOSTNAME
+interface management0/0
+nameif management
+security-level 100
+ip address $NICID_0_IP_ADDRESS $NICID_0_NETMASK
+no shutdown
+interface gigabitethernet0/0
+nameif inside
+security-level 100
+http server enable
+http $NICID_0_CIDR_ADDRESS $NICID_0_NETMASK management
+crypto key generate rsa modulus 1024
+enable password $ADMIN_PWD
+terminal width 0
+
+!
+!####_DAY0_SSH
+!
+aaa authentication ssh console LOCAL
+username admin password $ADMIN_PWD
+no ssh stricthostkeycheck
+ssh timeout 10
+
+ssh 0.0.0.0 0.0.0.0 management
+
+!
+!####_DAY0_MGMT_INTERFACE_ROUTING_ROUTING
+!
+route management 0.0.0.0 0.0.0.0 $NICID_0_GATEWAY
+</data>
+                <variable>
+                  <name>ADMIN_PWD</name>
+                  <value>admin</value>
+                </variable>
+                <variable>
+                  <name>HOSTNAME</name>
+                  <value>the-fw</value>
+                </variable>
+              </day0>
+              <managed/>
+            </vdu>
+          </vnf-info>
+          <vnf-info tags="replace" when="{deref(flavour)/../vnf-profile[id='CSR1kv-bronze']}">
+            <vnf-profile>CSR1kv-bronze</vnf-profile>
+            <vnfd>Cisco-CSR1kv</vnfd>
+            <vdu>
+              <id>router</id>
+              <authgroup>default</authgroup>
+              <image-name>Cisco-CSR1kv</image-name>
+              <flavor-name>CSR1kv-bronze</flavor-name>
+              <bootup-time>300</bootup-time>
+              <recovery-wait-time>120</recovery-wait-time>
+              <day0>
+                <destination>iosxe_config.txt</destination>
+                <data>!####_DAY0_TIMESTAMPS
+!
+service timestamps debug datetime msec localtime show-timezone
+service timestamps log datetime msec localtime show-timezone
+!
+!####_DAY0_HOSTNAME_AND_ENABLE_PASSWORD
+!
+hostname $HOSTNAME
+!
+enable secret $ADMIN_PWD
+!
+!####_DAY0_VTY_LINE
+!
+line con 0
+exec-timeout 30 0
+!
+line vty 0 15
+ exec-timeout 30 0
+ transport input ssh
+ transport output none
+!
+!####_DAY0_MANAGEMENT_VRF_AND_INTERFACE - e.g.172.16.0.21 255.255.255.0 (CSR)
+!
+interface GigabitEthernet 1
+ description mgmt interface
+ ip address $NICID_0_IP_ADDRESS $NICID_0_NETMASK
+ no shutdown
+!
+interface GigabitEthernet 2
+ description left interface
+ ip address $NICID_1_IP_ADDRESS $NICID_1_NETMASK
+ no shutdown
+!
+interface GigabitEthernet 3
+ description right interface
+ ip address $NICID_2_IP_ADDRESS $NICID_2_NETMASK
+ no shutdown
+!
+!#### Default route
+!
+ip route 0.0.0.0 0.0.0.0 $NICID_0_GATEWAY
+
+!####_DAY0_LOCAL_USER
+!
+aaa new-model
+!
+username admin privilege 15 password $ADMIN_PWD
+!
+!####_DAY0_SSH
+!
+ip domain lookup
+ip domain-name tail-f.com
+ip tftp source-interface GigabitEthernet 1
+ip ssh version 2
+ip ssh source-interface GigabitEthernet 1
+no ip ssh stricthostkeycheck
+!
+!####_DAY0_GENERATE_CRYPTO_KEY
+!
+crypto key generate rsa modulus 2048 general-keys
+!
+!### SNMP
+!
+snmp-server community public RO
+!
+license boot level ax
+!
+do write memory
+</data>
+                <variable>
+                  <name>ADMIN_PWD</name>
+                  <value>admin</value>
+                </variable>
+                <variable>
+                  <name>HOSTNAME</name>
+                  <value>router</value>
+                </variable>
+              </day0>
+              <managed/>
+            </vdu>
+          </vnf-info>
+          <vnf-info tags="replace" when="{deref(flavour)/../vnf-profile[id='VTA-bronze']}">
+            <vnf-profile>VTA-bronze</vnf-profile>
+            <vnfd>Netrounds-VTA</vnfd>
+            <vdu>
+              <id>ta</id>
+              <image-name>Netrounds-VTA</image-name>
+              <flavor-name>VTA-bronze</flavor-name>
+              <bootup-time>60</bootup-time>
+              <recovery-wait-time>120</recovery-wait-time>
+              <day0>
+                <destination>--user-data</destination>
+                <data>
+#netrounds-config
+name: $NAME
+email: $USER
+password: $PWD
+account: $ACCOUNT
+server: $NCC_SERVER
+management_interface: eth0
+management_address_type: dhcp
+</data>
+                <variable>
+                  <name>ACCOUNT</name>
+                  <value>cisco</value>
+                  <!-- TODO: hardcoded for demo -->
+                </variable>
+                <variable>
+                  <name>NAME</name>
+                  <value>{../name}-{name}-ta</value>
+                </variable>
+                <variable>
+                  <name>USER</name>
+                  <value>demo@cisco.com</value>
+                  <!-- TODO: hardcoded for demo -->
+                </variable>
+                <variable>
+                  <name>PWD</name>
+                  <value>demo</value>
+                  <!-- TODO: hardocoded for demo -->
+                </variable>
+                <variable>
+                  <name>NCC_SERVER</name>
+                  <value>ncc0</value>
+                </variable>
+              </day0>
+            </vdu>
+          </vnf-info>
+          <vnf-info tags="replace" when="{deref(flavour)/../vnf-profile[id='VTA-bronze-right']}">
+            <vnf-profile>VTA-bronze-right</vnf-profile>
+            <vnfd>Netrounds-VTA</vnfd>
+            <vdu>
+              <id>ta</id>
+              <image-name>Netrounds-VTA</image-name>
+              <flavor-name>VTA-bronze</flavor-name>
+              <bootup-time>60</bootup-time>
+              <recovery-wait-time>120</recovery-wait-time>
+              <day0>
+                <destination>--user-data</destination>
+                <data>
+#netrounds-config
+name: $NAME
+email: $USER
+password: $PWD
+account: $ACCOUNT
+server: $NCC_SERVER
+management_interface: eth0
+management_address_type: dhcp
+</data>
+                <variable>
+                  <name>ACCOUNT</name>
+                  <value>cisco</value>
+                  <!-- TODO: hardcoded for demo -->
+                </variable>
+                <variable>
+                  <name>NAME</name>
+                  <value>{../name}-{name}-ta</value>
+                </variable>
+                <variable>
+                  <name>USER</name>
+                  <value>demo@cisco.com</value>
+                  <!-- TODO: hardcoded for demo -->
+                </variable>
+                <variable>
+                  <name>PWD</name>
+                  <value>demo</value>
+                  <!-- TODO: hardocoded for demo -->
+                </variable>
+                <variable>
+                  <name>NCC_SERVER</name>
+                  <value>ncc0</value>
+                </variable>
+              </day0>
+            </vdu>
+          </vnf-info>
+          <vnf-info tags="replace" when="{deref(flavour)/../vnf-profile[id='Pen-bronze']}">
+            <vnf-profile>Pen-bronze</vnf-profile>
+            <vnfd>Linux-Pen</vnfd>
+            <vdu>
+              <id>lb</id>
+              <image-name>Linux-Pen</image-name>
+              <flavor-name>Pen-bronze</flavor-name>
+              <bootup-time>60</bootup-time>
+              <recovery-wait-time>120</recovery-wait-time>
+              <day0>
+                <destination>--user-data</destination>
+                <data>#!/bin/sh
+
+cat &gt; /etc/pen.conf &lt;&lt;EOF
+LOGFILE=/var/log/pen.log
+WEBFILE=/var/www/pen/webstatus.html
+CONTROL=127.0.0.1:10080
+MAX_CONNECTIONS=500
+PORT=80
+BACKEND=3
+SERVER1={WWW_IP_ADDRESS_1}:80
+SERVER2={WWW_IP_ADDRESS_2}:80
+SERVER3={WWW_IP_ADDRESS_3}:80
+EOF
+</data>
+              </day0>
+            </vdu>
+          </vnf-info>
+          <vnf-info tags="replace" when="{deref(flavour)/../vnf-profile[id='Apache-bronze']}">
+            <vnf-profile>Apache-bronze</vnf-profile>
+            <vnfd>Linux-Apache</vnfd>
+            <vdu>
+              <id>www</id>
+              <image-name>Linux-Apache</image-name>
+              <flavor-name>Apache-bronze</flavor-name>
+              <bootup-time>60</bootup-time>
+              <recovery-wait-time>120</recovery-wait-time>
+              <esc-device-template>
+                <name>esc-scaling</name>
+                <variable>
+                  <name>TENANT</name>
+                  <value>{../../name}</value>
+                </variable>
+                <variable>
+                  <name>DEPLOYMENT_NAME</name>
+                  <value>{name}</value>
+                </variable>
+                <variable>
+                  <name>VM_GROUP_NAME</name>
+                  <value>Apache-bronze-www</value>
+                </variable>
+              </esc-device-template>
+            </vdu>
+          </vnf-info>
+          <state>instantiated</state>
+        </ns-info>
+      </esc>
+    </ns-info>
+  </nfvo>
+</config>

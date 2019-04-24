@@ -1,0 +1,12 @@
+<?xml version="1.0"?>
+<config xmlns="http://tail-f.com/ns/config/1.0">
+  <kickers xmlns="http://tail-f.com/ns/kicker">
+    <data-kicker>
+      <id>tme-demo-{$NS_INFO_ID}</id>
+      <monitor>/nfvo-rel2:nfvo/nfvo-rel2:ns-info/nfvo-rel2-esc:esc/nfvo-rel2-esc:ns-info[nfvo-rel2-esc:id='{$NS_INFO_ID}']/nfvo-rel2-esc:plan/nfvo-rel2-esc:component[nfvo-rel2-esc:name='self']/nfvo-rel2-esc:state[nfvo-rel2-esc:name='ncs:ready']</monitor>
+      <trigger-expr>nfvo-rel2-esc:status='reached'</trigger-expr>
+      <kick-node>/tme-demo:tme-demo/tenant[name='{../../name}'] </kick-node>
+      <action-name>reactive-re-deploy</action-name>
+    </data-kicker>
+  </kickers>
+</config>

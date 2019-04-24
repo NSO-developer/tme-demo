@@ -1,0 +1,9 @@
+<ncs-package xmlns="http://tail-f.com/ns/ncs-packages">
+  <name>tme-demo-ui</name>
+  <package-version>1.0</package-version>
+  <description>
+    Graphical topology viewer for devices and VNF service chains.
+    Sidebar with summary information and service shortcuts.
+  </description>
+  <ncs-min-version>5.0</ncs-min-version>
+</ncs-package>

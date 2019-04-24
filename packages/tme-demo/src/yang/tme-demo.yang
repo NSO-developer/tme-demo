@@ -1,0 +1,383 @@
+module tme-demo {
+
+  yang-version 1.1;
+  namespace "http://example.com/tme-demo";
+  prefix tme-demo;
+
+  import ietf-inet-types {
+    prefix inet;
+  }
+  import tailf-common {
+    prefix tailf;
+  }
+  import tailf-ncs {
+    prefix ncs;
+  }
+  import l3vpn {
+    prefix l3vpn;
+  }
+
+  // NEDs
+  import tailf-ned-cisco-ios {
+    prefix ios;
+  }
+  import tailf-ned-cisco-ios-xr {
+   prefix cisco-ios-xr;
+  }
+  import junos {
+    prefix junos;
+  }
+  import tailf-ned-alu-sr {
+    prefix alu;
+  }
+
+  // NED IDs
+  import cisco-ios-cli {
+    prefix ios-ned-id;
+  }
+  import cisco-iosxr-cli {
+   prefix iosxr-ned-id;
+  }
+  import juniper-junos-nc {
+    prefix junos-ned-id;
+  }
+  import alu-sr-cli {
+    prefix alu-ned-id;
+  }
+
+  // Package depenencies
+  import tailf-etsi-rel2-nfvo {
+    prefix nfvo-rel2;
+  }
+  import tailf-etsi-rel2-nfvo-esc {
+    prefix nfvo-rel2-esc;
+  }
+  import resource-allocator {
+    prefix ralloc;
+  }
+  import ipaddress-allocator {
+    prefix ipalloc;
+  }
+
+  identity l3vpn {
+    base ncs:plan-component-type;
+    description "L3VPN plan component";
+  }
+
+  identity network-service {
+    base ncs:plan-component-type;
+    description "Network service plan component";
+  }
+
+  identity ip-addresses-allocated {
+    base ncs:plan-state;
+    description "Network service component state - " +
+                "IP addresses have benn allocated";
+  }
+
+  identity vnfs-instantiated {
+    base ncs:plan-state;
+    description "Network service component state - " +
+                "all VNFS have been spun up";
+  }
+
+  identity topology-created {
+    base ncs:plan-state;
+    description "Network service component state - " +
+                "topoloogy connections have been created";
+  }
+
+  grouping connection-grouping {
+    leaf ns-info-id {
+      type leafref {
+        path "/nfvo-rel2:nfvo/nfvo-rel2:ns-info/nfvo-rel2-esc:esc" +
+             "/nfvo-rel2-esc:ns-info/nfvo-rel2-esc:id";
+      }
+    }
+    leaf connection-point {
+      type leafref {
+        path "deref(../ns-info-id)/../nfvo-rel2-esc:sap-info" +
+             "/nfvo-rel2-esc:sapd";
+      }
+    }
+  }
+
+  grouping network-service-connections {
+    leaf sapd {
+      type leafref {
+        path "deref(../../nsd)/.." +
+             "/nfvo-rel2:service-access-point-descriptor/nfvo-rel2:id";
+      }
+    }
+
+    leaf network {
+      type leafref {
+        path "/ralloc:resource-pools/ipalloc:ip-address-pool" +
+             "/ipalloc:name";
+      }
+    }
+
+    container topology-connection {
+      leaf device {
+        type leafref {
+          path "/ncs:devices/ncs:device/ncs:name";
+        }
+      }
+
+      choice interface-type {
+        leaf ios-GigabitEthernet{
+          when "derived-from(deref(../device)/../ncs:device-type" +
+               "/ncs:cli/ncs:ned-id, 'ios-ned-id:cisco-ios-cli')" {
+            tailf:dependency "../device";
+          }
+          tailf:info "Gigabit ethernet interface";
+          type leafref {
+            path "deref(../device)/../ncs:config" +
+                 "/ios:interface/ios:GigabitEthernet/ios:name";
+          }
+        }
+        leaf ios-xr-GigabitEthernet {
+          when "derived-from(deref(../device)/../ncs:device-type" +
+               "/ncs:cli/ncs:ned-id," +
+               "'iosxr-ned-id:cisco-iosxr-cli')" {
+            tailf:dependency "../device";
+          }
+          tailf:info "Gigabit ethernet interface";
+          type leafref {
+            path "deref(../device)/../ncs:config" +
+                 "/cisco-ios-xr:interface" +
+                 "/cisco-ios-xr:GigabitEthernet/cisco-ios-xr:id";
+          }
+        }
+        leaf ios-xr-TenGigE {
+          when "derived-from(deref(../device)/../ncs:device-type" +
+               "/ncs:cli/ncs:ned-id," +
+               "'iosxr-ned-id:cisco-iosxr-cli')" {
+            tailf:dependency "../device";
+          }
+          tailf:info "Gigabit ethernet interface";
+          type leafref {
+            path "deref(../device)/../ncs:config" +
+                 "/cisco-ios-xr:interface" +
+                 "/cisco-ios-xr:TenGigE/cisco-ios-xr:id";
+          }
+        }
+        leaf junos-interface {
+          when "derived-from(deref(../device)/../ncs:device-type" +
+               "/ncs:netconf/ncs:ned-id," +
+               "'junos-ned-id:juniper-junos-nc')" {
+            tailf:dependency "../device";
+          }
+
+          tailf:info "Interface";
+          type leafref {
+            path "deref(../device)/../ncs:config/junos:configuration" +
+                 "/junos:interfaces/junos:interface/junos:name";
+          }
+        }
+        leaf alu-interface {
+          when "derived-from(deref(../device)/../ncs:device-type" +
+               "/ncs:cli/ncs:ned-id, 'alu-ned-id:alu-sr-cli')" {
+            tailf:dependency "../device";
+          }
+          tailf:info "Gigabit ethernet interface";
+          type leafref {
+            path "deref(../device)/../ncs:config/alu:port/alu:port-id";
+          }
+        }
+      }
+    }
+  }
+
+  container tme-demo {
+    list default-ns-connections {
+      must "count(connection-points) = count(deref(nsd)/.." +
+           "/nfvo-rel2:service-access-point-descriptor)" {
+        tailf:dependency "connection-points";
+        tailf:dependency "/nfvo-rel2:nfvo/nfvo-rel2:nsd" +
+                         "/nfvo-rel2:service-access-point-descriptor";
+        error-message "A connection-point must be defined for each " +
+                      "service-access-point-descriptor in the NSD";
+      }
+      key nsd;
+      leaf nsd {
+        type leafref {
+          path "/nfvo-rel2:nfvo/nfvo-rel2:nsd/nfvo-rel2:id";
+        }
+      }
+
+      list connection-points {
+        key sapd;
+        uses network-service-connections;
+      }
+    }
+
+    list tenant {
+      key name;
+      leaf name {
+        tailf:info "Unique service id";
+        tailf:cli-allow-range;
+        type string;
+      }
+
+      description "Tenant";
+      uses ncs:plan-data;
+      uses ncs:service-data;
+      ncs:servicepoint tme-demo-servicepoint;
+
+      container l3vpn {
+        tailf:info "Layer3 VPN parameters";
+        presence true;
+
+        leaf route-distinguisher {
+          tailf:info "Route distinguisher/target identifier unique for the VPN";
+          type uint32 {
+            range "0..65535";
+          }
+          default 65535;
+        }
+
+        leaf qos-policy {
+          tailf:info "VPN QoS Policy";
+          type leafref {
+            path "/l3vpn:qos/l3vpn:qos-policy/l3vpn:name";
+          }
+        }
+
+        list endpoint {
+          key "id";
+          leaf id{
+            tailf:info "Endpoint identifier";
+            type string;
+          }
+
+          leaf ce-device {
+            tailf:info "CE endpoint device";
+            type leafref {
+              path "/ncs:devices/ncs:device/ncs:name";
+            }
+            must "/ncs:devices/ncs:device-group[ncs:name='C']" +
+                 "/ncs:device-name[.=current()]" {
+              error-message "The device must be in the C device group";
+            }
+            must "count(/l3vpn:topology/l3vpn:connection" +
+                 "/l3vpn:endpoint-1[l3vpn:device=current()])>0 or " +
+                 "count(/l3vpn:topology/l3vpn:connection" +
+                 "/l3vpn:endpoint-2[l3vpn:device=current()])>0" {
+              error-message "The device must have a topology connection";
+            }
+            mandatory true;
+          }
+
+          leaf ce-interface {
+            tailf:info "CE local GigabitEthernet interface";
+            type leafref {
+              path "deref(../ce-device)/../ncs:config" +
+                   "/ios:interface/ios:GigabitEthernet/ios:name";
+            }
+            default "0/1";
+          }
+
+          leaf ip-network {
+            tailf:info "CE interface local private network";
+            type inet:ip-prefix;
+            default "10.0.0.0/24";
+          }
+
+          leaf bandwidth {
+            tailf:info "Endpoint bandwidth in bps";
+            type uint32;
+            default 10000000;
+          }
+
+          leaf as-number {
+            tailf:info "CE device AS Number";
+            type uint32 {
+              range "0..65535";
+            }
+            default 500;
+          }
+        }
+      }
+
+      container nfvo {
+        tailf:info "NFVO parameters for network services";
+        presence true;
+
+        list network-service {
+          must "use-default-connections or " +
+               "count(connection-points) = count(deref(nsd)/.." +
+               "/nfvo-rel2:service-access-point-descriptor)" {
+            tailf:dependency "connection-points";
+            tailf:dependency "/nfvo-rel2:nfvo/nfvo-rel2:nsd" +
+                             "/nfvo-rel2:service-access-point-descriptor";
+            error-message "A connection-point must be defined for each " +
+                          "service-access-point-descriptor in the NSD";
+          }
+
+          key name;
+          leaf name {
+            type string;
+          }
+
+          leaf nsd {
+            type leafref {
+              path "/nfvo-rel2:nfvo/nfvo-rel2:nsd/nfvo-rel2:id";
+            }
+            mandatory true;
+          }
+
+          leaf flavour {
+            type leafref {
+              path "deref(../nsd)/../nfvo-rel2:deployment-flavor/nfvo-rel2:id";
+            }
+            mandatory true;
+          }
+
+          leaf vnfm {
+            type leafref {
+              path "/ncs:devices/ncs:device/ncs:name";
+            }
+            must "/ncs:devices/ncs:device-group[ncs:name='VNFM']" +
+                 "/ncs:device-name[.=current()]" {
+              error-message "The device must be in the VNFM device group";
+            }
+            default "esc0";
+          }
+
+          choice connections-choice {
+            default use-default-connections;
+            leaf use-default-connections {
+              when "/tme-demo:tme-demo" +
+                   "/default-ns-connections[nsd=current()/../nsd]";
+              type empty;
+            }
+            list connection-points {
+              key sapd;
+              uses network-service-connections;
+            }
+          }
+        }
+      }
+    }
+  }
+
+  augment "/nfvo-rel2:nfvo/nfvo-rel2:vnf-info/nfvo-rel2-esc:esc" +
+          "/nfvo-rel2-esc:vnf-deployment-result/nfvo-rel2-esc:vdu" {
+    leaf vms-scaling {
+      type uint8;
+      config false;
+      tailf:cdb-oper {
+        tailf:persistent true;
+      }
+    }
+  }
+
+//  augment "/l3vpn:topology/l3vpn:connection/l3vpn:endpoint-1" {
+//    uses connection-grouping;
+//  }
+
+//  augment "/l3vpn:topology/l3vpn:connection/l3vpn:endpoint-2" {
+//    uses connection-grouping;
+//  }
+}

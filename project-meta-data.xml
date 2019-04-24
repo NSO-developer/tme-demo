@@ -1,0 +1,33 @@
+<project-meta-data xmlns="http://tail-f.com/ns/ncs-project">
+  <name>tme-demo</name>
+  <project-version>1.0</project-version>
+  <description>TME demo project</description>
+  <package>
+    <name>cisco-asa</name>
+    <git>
+      <repo>ssh://git@stash.tail-f.com/ned/cisco-asa.git</repo>
+      <tag>6.5.5</tag>
+    </git>
+  </package>
+  <package>
+    <name>resource-manager</name>
+    <git>
+      <repo>ssh://git@stash.tail-f.com/pkg/resource-manager.git</repo>
+      <branch>master</branch>
+    </git>
+  </package>
+  <package>
+    <name>esc</name>
+    <git>
+      <repo>ssh://git@stash.tail-f.com/pkg/esc.git</repo>
+      <tag>4.3.0.2</tag>
+    </git>
+  </package>
+  <package>
+    <name>tailf-etsi-rel2-nfvo</name>
+    <git>
+      <repo>ssh://git@stash.tail-f.com/pkg/tailf-etsi-rel2-nfvo.git</repo>
+      <tag>3.6.0</tag>
+    </git>
+  </package>
+</project-meta-data>

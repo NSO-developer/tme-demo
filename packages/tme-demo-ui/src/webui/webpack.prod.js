@@ -8,7 +8,7 @@ module.exports = {
   entry: `${__dirname}/src/index.js`,
   output: {
     filename: '[name].js',
-    path: `${__dirname}/dist`,
+    path: `${__dirname}/../../webui`,
   },
   mode: 'production',
   optimization: {
@@ -32,17 +32,6 @@ module.exports = {
       inject: 'body'
     }),
     new MiniCssExtractPlugin(),
-    {
-      apply: (compiler) => {
-        compiler.hooks.afterEmit.tap('AfterEmitPlugin', (compilation) => {
-          exec('echo "request packages package tme-demo-ui redeploy" | ' +
-               'ncs_cli -u admin', (err, stdout, stderr) => {
-            if (stdout) process.stdout.write(stdout);
-            if (stderr) process.stderr.write(stderr);
-          });
-        });
-      }
-    }
   ],
   module: {
     rules: [

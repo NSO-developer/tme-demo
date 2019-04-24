@@ -1,0 +1,54 @@
+<?xml version="1.0"?>
+<config xmlns="http://tail-f.com/ns/config/1.0">
+  <resource-pools xmlns="http://tail-f.com/pkg/resource-allocator">
+    <id-pool xmlns="http://tail-f.com/pkg/id-allocator">
+      <name>virtual_pe</name>
+      <range>
+        <start>1000</start>
+        <end>1200</end>
+      </range>
+    </id-pool>
+    <ip-address-pool xmlns="http://tail-f.com/pkg/ipaddress-allocator">
+      <name>stitch</name>
+      <subnet>
+        <address>10.252.0.0</address>
+        <cidrmask>16</cidrmask>
+      </subnet>
+    </ip-address-pool>
+    <ip-address-pool xmlns="http://tail-f.com/pkg/ipaddress-allocator">
+      <name>net_osmgmt</name>
+      <subnet>
+        <address>192.168.131.64</address>
+        <cidrmask>26</cidrmask>
+      </subnet>
+    </ip-address-pool>
+    <ip-address-pool xmlns="http://tail-f.com/pkg/ipaddress-allocator">
+      <name>p_net</name>
+      <subnet>
+        <address>10.1.1.64</address>
+        <cidrmask>26</cidrmask>
+      </subnet>
+    </ip-address-pool>
+    <ip-address-pool xmlns="http://tail-f.com/pkg/ipaddress-allocator">
+      <name>ce_net</name>
+      <subnet>
+        <address>10.2.2.64</address>
+        <cidrmask>26</cidrmask>
+      </subnet>
+    </ip-address-pool>
+    <ip-address-pool xmlns="http://tail-f.com/pkg/ipaddress-allocator">
+      <name>dci1_net</name>
+      <subnet>
+        <address>10.3.3.64</address>
+        <cidrmask>26</cidrmask>
+      </subnet>
+    </ip-address-pool>
+    <ip-address-pool xmlns="http://tail-f.com/pkg/ipaddress-allocator">
+      <name>dci2_net</name>
+      <subnet>
+        <address>10.4.4.64</address>
+        <cidrmask>26</cidrmask>
+      </subnet>
+    </ip-address-pool>
+  </resource-pools>
+</config>

@@ -1,0 +1,111 @@
+module tme-demo-ui {
+
+  namespace "http://com.example/tme-demo-ui";
+  prefix tme-demo-ui;
+
+  import tailf-common {
+    prefix tailf;
+  }
+
+  import tailf-ncs {
+    prefix ncs;
+  }
+
+  import tailf-webui {
+    prefix webui;
+  }
+
+  typedef icon-type {
+    description "";
+
+    type enumeration {
+      enum "service-chain";
+      enum "router";
+      enum "firewall";
+      enum "load-balancer";
+      enum "web-server";
+      enum "generic";
+    }
+  }
+
+  typedef icon-container {
+    description "";
+
+    type enumeration {
+      enum "provider";
+      enum "customer";
+      enum "data-centre";
+    }
+  }
+
+  typedef icon-coordinate {
+    description "Normalized relative coordinate";
+
+    type decimal64 {
+      fraction-digits 18;
+      range "0 .. 1";
+    }
+  }
+
+  grouping icon-coordinates {
+    container coord {
+      leaf x {
+        type icon-coordinate;
+      }
+
+      leaf y {
+        type icon-coordinate;
+      }
+    }
+  }
+
+  augment "/webui:webui/webui:data-stores"  {
+
+    container static-map {
+
+      tailf:info "Static map icon information";
+
+      list icon {
+        key name;
+
+        leaf name {
+            type string;
+        }
+
+        choice item-type {
+          case device {
+            leaf device {
+              tailf:non-strict-leafref {
+                path "/ncs:devices/ncs:device/ncs:name";
+              }
+              type string;
+            }
+          }
+
+          case ns-info {
+            leaf ns-info {
+        //      tailf:non-strict-leafref {
+        //        path "/nfvo-rel2:nfvo/nfvo-rel2:ns-info/nfvo-rel2-esc:esc/nfvo-rel2-esc:ns-info/nfvo-rel2-esc:id";
+        //      }
+              type string;
+            }
+          }
+        }
+
+        leaf type {
+          type icon-type;
+        }
+
+        leaf container {
+          type icon-container;
+        }
+
+        uses icon-coordinates;
+      }
+    }
+  }
+}
+
+
+
+

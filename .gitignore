@@ -1,0 +1,13 @@
+/ncs-cdb
+/state
+/logs
+/netsim
+
+/README.ncs
+/init
+/setup.mk
+/.ipython
+
+.DS_Store
+*.fxs
+*.swp

@@ -1,0 +1,16 @@
+<config-template xmlns="http://tail-f.com/ns/config/1.0">
+  <devices xmlns="http://tail-f.com/ns/ncs">
+    <device>
+      <name>{vnfm}</name>
+      <config>
+        <esc_datamodel xmlns="http://www.cisco.com/esc/esc">
+          <tenants>
+            <tenant>
+              <name>{../../name}</name>
+            </tenant>
+          </tenants>
+        </esc_datamodel>
+      </config>
+    </device>
+  </devices>
+</config-template>

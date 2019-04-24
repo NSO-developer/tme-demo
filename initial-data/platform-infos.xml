@@ -1,0 +1,116 @@
+<config xmlns="http://tail-f.com/ns/config/1.0">
+  <devices xmlns="http://tail-f.com/ns/ncs">
+    <device>
+      <name>ce0</name>
+      <platform>
+        <name>Cisco IOS</name>
+        <version>3.8</version>
+        <model>NETSIM</model>
+      </platform>
+    </device>
+    <device>
+      <name>ce1</name>
+      <platform>
+        <name>Cisco IOS</name>
+        <version>3.8</version>
+        <model>NETSIM</model>
+      </platform>
+    </device>
+    <device>
+      <name>ce2</name>
+      <platform>
+        <name>Cisco IOS</name>
+        <version>3.8</version>
+        <model>NETSIM</model>
+      </platform>
+    </device>
+    <device>
+      <name>ce3</name>
+      <platform>
+        <name>Cisco IOS</name>
+        <version>3.8</version>
+        <model>NETSIM</model>
+      </platform>
+    </device>
+    <device>
+      <name>ce4</name>
+      <platform>
+        <name>Cisco IOS</name>
+        <version>3.8</version>
+        <model>NETSIM</model>
+      </platform>
+    </device>
+    <device>
+      <name>ce5</name>
+      <platform>
+        <name>Cisco IOS</name>
+        <version>3.8</version>
+        <model>NETSIM</model>
+      </platform>
+    </device>
+    <device>
+      <name>ce6</name>
+      <platform>
+        <name>Cisco IOS</name>
+        <version>3.8</version>
+        <model>NETSIM</model>
+      </platform>
+    </device>
+    <device>
+      <name>ce7</name>
+      <platform>
+        <name>Cisco IOS</name>
+        <version>3.8</version>
+        <model>NETSIM</model>
+      </platform>
+    </device>
+    <device>
+      <name>dci0</name>
+      <platform>
+        <name>Cisco IOS-XR</name>
+        <version>3.5</version>
+        <model>NETSIM</model>
+      </platform>
+    </device>
+    <device>
+      <name>dci1</name>
+      <platform>
+        <name>Cisco IOS-XR</name>
+        <version>3.5</version>
+        <model>NETSIM</model>
+      </platform>
+    </device>
+    <device>
+      <name>pe0</name>
+      <platform>
+        <name>Cisco IOS-XR</name>
+        <version>3.5</version>
+        <model>NETSIM</model>
+      </platform>
+    </device>
+    <device>
+      <name>pe1</name>
+      <platform>
+        <name>Cisco IOS-XR</name>
+        <version>3.5</version>
+        <model>NETSIM</model>
+      </platform>
+    </device>
+    <device>
+      <name>pe2</name>
+      <platform>
+        <name>Juniper Junos</name>
+        <version>3.0</version>
+        <model>NETSIM</model>
+      </platform>
+    </device>
+    <device>
+      <name>pe3</name>
+      <platform>
+        <name>TiMOS</name>
+        <version>14.0.R0</version>
+        <model>7750 (NETSIM)</model>
+      </platform>
+    </device>
+  </devices>
+</config>

@@ -1,0 +1,26 @@
+<?xml version="1.0"?>
+<config xmlns="http://tail-f.com/ns/config/1.0">
+  <devices xmlns="http://tail-f.com/ns/ncs">
+    <authgroups>
+      <group>
+        <name>ESC</name>
+        <default-map>
+          <remote-name>admin</remote-name>
+          <remote-password>$4$wIo7Yd068FRwhYYI0d4IDw==</remote-password>
+        </default-map>
+      </group>
+    </authgroups>
+    <device>
+      <name>esc0</name>
+      <address>192.168.131.3</address>
+      <port>830</port>
+      <authgroup>ESC</authgroup>
+      <device-type>
+        <netconf/>
+      </device-type>
+      <state>
+        <admin-state>unlocked</admin-state>
+      </state>
+    </device>
+  </devices>
+</config>

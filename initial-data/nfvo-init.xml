@@ -1,0 +1,13 @@
+<?xml version="1.0"?>
+<config xmlns="http://tail-f.com/ns/config/1.0">
+  <nfvo xmlns="http://tail-f.com/pkg/tailf-etsi-rel2-nfvo">
+    <settings-esc xmlns="http://tail-f.com/pkg/tailf-etsi-rel2-nfvo-esc">
+      <netconf-subscription>
+        <username>admin</username>
+        <esc-device>
+          <name>esc0</name>
+        </esc-device>
+      </netconf-subscription>
+    </settings-esc>
+  </nfvo>
+</config>

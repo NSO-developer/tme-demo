@@ -1,0 +1,23 @@
+<?xml version="1.0"?>
+<config xmlns="http://tail-f.com/ns/config/1.0">
+  <topology xmlns="http://com/example/l3vpn">
+    <connection>
+      <name>{device}-{$NS_INFO_ID}-{../sapd}</name>
+      <endpoint-1>
+        <device>{device}</device>
+        <interface when="{ios-GigabitEthernet}">GigabitEthernet{ios-GigabitEthernet}</interface>
+        <interface when="{ios-xr-GigabitEthernet}">GigabitEthernet{ios-xr-GigabitEthernet}</interface>
+        <interface when="{ios-xr-TenGigE}">TenGigE{ios-xr-TenGigE}</interface>
+        <interface when="{junos-interface}">{junos-interface}</interface>
+        <interface when="{alu-interface}">{alu-interface}</interface>
+        <ip-address>{$IP_ADDRESS}</ip-address>
+      </endpoint-1>
+      <endpoint-2>
+        <device>{$DEVICE}</device>
+        <interface>{$INTERFACE}</interface>
+        <ip-address>{$IP_ADDRESS}</ip-address>
+      </endpoint-2>
+      <link-vlan>100</link-vlan>
+    </connection>
+  </topology>
+</config>

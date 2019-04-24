@@ -1,0 +1,15 @@
+<ncs-package xmlns="http://tail-f.com/ns/ncs-packages">
+  <name>tme-demo</name>
+  <package-version>1.0</package-version>
+  <description>Generated Python package</description>
+  <ncs-min-version>5.0</ncs-min-version>
+  <required-package>
+    <name>resource-manager</name>
+  </required-package>
+  <component>
+    <name>main</name>
+    <application>
+      <python-class-name>tme_demo.main.Main</python-class-name>
+    </application>
+  </component>
+</ncs-package>

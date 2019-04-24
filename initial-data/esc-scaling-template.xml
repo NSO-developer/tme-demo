@@ -1,0 +1,74 @@
+<?xml version="1.0"?>
+<config xmlns="http://tail-f.com/ns/config/1.0">
+  <devices xmlns="http://tail-f.com/ns/ncs">
+    <template>
+      <name>esc-scaling</name>
+      <ned-id>
+        <id xmlns:esc-id="http://tail-f.com/ned/esc-id">esc-id:esc</id>
+        <config>
+          <esc_datamodel xmlns="http://www.cisco.com/esc/esc">
+            <tenants>
+              <tenant>
+                <name>{$TENANT}</name>
+                <deployments>
+                  <deployment>
+                    <name>{$DEPLOYMENT_NAME}</name>
+                    <vm_group>
+                      <name>{$VM_GROUP_NAME}</name>
+                      <kpi_data>
+                        <kpi>
+                          <event_name>VM_OVERLOADED</event_name>
+                          <metric_value>10</metric_value>
+                          <metric_cond>GT</metric_cond>
+                          <metric_type>UINT32</metric_type>
+                          <metric_occurrences_true>1</metric_occurrences_true>
+                          <metric_occurrences_false>1</metric_occurrences_false>
+                          <metric_collector>
+                            <type>SUBSCRIBER_SESSION</type>
+                            <nicid>0</nicid>
+                            <poll_frequency>15</poll_frequency>
+                            <polling_unit>seconds</polling_unit>
+                            <continuous_alarm>false</continuous_alarm>
+                          </metric_collector>
+                        </kpi>
+                        <kpi>
+                          <event_name>VM_UNDERLOADED_EMPTY</event_name>
+                          <metric_value>1</metric_value>
+                          <metric_cond>LT</metric_cond>
+                          <metric_type>UINT32</metric_type>
+                          <metric_occurrences_true>1</metric_occurrences_true>
+                          <metric_occurrences_false>1</metric_occurrences_false>
+                          <metric_collector>
+                            <type>SUBSCRIBER_SESSION</type>
+                            <nicid>0</nicid>
+                            <poll_frequency>15</poll_frequency>
+                            <polling_unit>seconds</polling_unit>
+                            <continuous_alarm>false</continuous_alarm>
+                          </metric_collector>
+                        </kpi>
+                      </kpi_data>
+                      <rules>
+                        <admin_rules>
+                          <rule>
+                            <event_name>VM_OVERLOADED</event_name>
+                            <action>ALWAYS log</action>
+                            <action>TRUE servicescaleup.sh</action>
+                          </rule>
+                          <rule>
+                            <event_name>VM_UNDERLOADED_EMPTY</event_name>
+                            <action>ALWAYS log</action>
+                            <action>TRUE servicescaledown.sh</action>
+                          </rule>
+                        </admin_rules>
+                      </rules>
+                    </vm_group>
+                  </deployment>
+                </deployments>
+              </tenant>
+            </tenants>
+          </esc_datamodel>
+        </config>
+      </ned-id>
+    </template>
+  </devices>
+</config>

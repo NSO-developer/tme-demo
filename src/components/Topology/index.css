@@ -1,0 +1,397 @@
+.topology {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  position: relative;
+  width: 70%;
+}
+
+.topology--edit-mode {
+  z-index: 5;
+}
+
+.topology__layer {
+  height: 100%;
+  left: 0px;
+  position: absolute;
+  top: 0px;
+  width: 100%;
+}
+
+.topology__layer--background {
+  display: flex;
+}
+
+.topology__layer--foreground {
+  display: flex;
+  flex-direction: column;
+}
+
+.topology__header {
+  color: White;
+  position: relative;
+  width: 100%;
+}
+
+.topology__body {
+  position: relative;
+  height: 100%;
+}
+
+.topology__footer {
+  position: relative;
+}
+
+.topology__footer-content {
+  background: var(--nso-background-grey);
+  border-top: solid var(--nso-border-grey) 0.0625rem;
+  box-sizing: border-box;
+  padding: 0.25em;
+  position: relative;
+  width: 100%;
+  white-space: nowrap;
+}
+
+.topology__connection {
+  background: var(--nso-blue);
+  opacity: 1;
+  position: absolute;
+  transition-property: left, top, width, transform, background, z-index;
+  transition-duration: 500ms, 500ms, 500ms, 500ms, 250ms, 0ms;
+  transform-origin: 0 0;
+  z-index: 1;
+}
+
+.topology__connection--selected {
+  background: var(--nso-green);
+  z-index: 4
+}
+
+.topology__connection--disabled {
+  background: var(--nso-light-grey);
+}
+
+.topology__connection--edit {
+  cursor: pointer;
+}
+
+.topology__connection--dragging {
+  opacity: 0.25;
+}
+
+.topology__svg-icon {
+}
+
+.topology__svg-icon-circle {
+  transition: fill 500ms ease;
+}
+
+
+.topology__round-btn {
+  background: var(--nso-blue);
+  color: White;
+  display: block;
+  opacity: 1;
+  pointer-events: none;
+  position: absolute;
+  transform: translate(-50%, -50%);
+  transition-property: width, height, background, border-radius;
+  transition-duration: 250ms;
+}
+
+.topology__round-btn--add {
+  background: var(--nso-green);
+}
+
+.topology__round-btn--hidden {
+  opacity: 0;
+}
+
+.topology__round-btn--enabled {
+  background: var(--nso-green);
+  pointer-events: auto;
+  cursor: pointer;
+}
+
+.topology__round-btn--disabled {
+  background: var(--nso-light-grey);
+}
+
+.topology__round-btn--expanded {
+  background: var(--nso-green);
+}
+
+.topology__round-btn--delete {
+  background: IndianRed;
+}
+
+.topology__round-btn-svg-container {
+  position: absolute;
+  transition-property: padding, opacity;
+  transition-duration: inherit;
+}
+
+.topology__body .round-btn__svg-icon {
+  display: block;
+  transition-property: height, width;
+  transition-duration: inherit;
+}
+
+
+.canvas {
+  position: absolute;
+  pointer-events: none;
+  z-index: 5;
+}
+
+
+.container {
+  position: relative;
+}
+
+.container__layer {
+  height: 100%;
+  left: 0px;
+  position: absolute;
+  top: 0px;
+  width: 100%;
+}
+
+.container__background {
+  background: var(--nso-very-light-grey);
+}
+
+.container__background--alt {
+  background: var(--nso-background-grey);
+}
+
+.container__background--not-first {
+  border-left: 1px solid var(--nso-border-grey);
+  box-sizing: border-box;
+}
+
+.container__overlay {
+  background: rgba(255, 255, 255, 0);
+  border-left: 0px solid rgba(255, 255, 255, 0);
+  pointer-events: none;
+  transition: background 250ms, border-color 250ms, box-shadow 250ms;
+  z-index: 5;
+}
+
+.container__overlay--inactive {
+  background: rgba(255, 255, 255, 0.7);
+}
+
+.container__overlay--active-not-first {
+  border-left: 1px solid rgba(255, 255, 255, 0.7);
+}
+
+.container__overlay--dragging {
+  pointer-events: auto;
+}
+
+.container__overlay--hovered {
+  background: rgba(255, 255, 255, 0.7);
+  box-shadow: 0 0 0 5px var(--nso-green) inset;
+}
+
+.container__title-text {
+  position: relative;
+  background: var(--nso-dark-grey);
+  box-sizing: border-box;
+  color: White;
+  display: inline-block;
+  padding: 0.5em 0 0.5em 0;
+  text-align: center;
+  line-height: 2rem;
+}
+
+
+.icon__outline {
+  background: PaleTurquoise;
+  border: solid Teal 0.125rem;
+  box-sizing: border-box;
+  cursor: pointer;
+  opacity: 0;
+  position: absolute;
+  transition-property: height, width, top, transform, opacity, border-radius, z-index;
+  transition-duration: 500ms, 500ms, 500ms, 500ms, 500ms, 500ms, 0ms;
+}
+
+.icon__outline--expanded {
+  opacity: 1;
+  z-index: 3;
+}
+
+.icon__vnf-connection {
+  background: Teal;
+  opacity: 0;
+  position: absolute;
+  pointer-events: none;
+  transition-property: bottom, height, opacity;
+  transition-duration: 500ms, 500ms, 0ms;
+  transform: translateX(-50%);
+  z-index: 3;
+}
+
+.icon__vnf-connection--expanded {
+  opacity: 1;
+}
+
+.icon__container {
+  opacity: 1;
+  pointer-events: none;
+  position: absolute;
+  transition-property: left, top, opacity, z-index;
+  transition-duration: 500ms, 500ms, 500ms, 0ms;
+  z-index: 2;
+}
+
+.icon__container--dragging {
+  opacity: 0.25;
+}
+
+.icon__container--hidden {
+  opacity: 0;
+}
+
+.icon__container--expanded {
+  z-index: 4;
+}
+
+.icon__svg-wrapper {
+  cursor: pointer;
+  left: 50%;
+  opacity: 1;
+  outline: none;
+  pointer-events: auto;
+  position: relative;
+  transform: translateX(-50%);
+  transition-property: height, opacity;
+  transition-duration: 500ms;
+}
+
+.icon__svg-wrapper--hidden {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.icon__svg-wrapper-absolute {
+  position: absolute;
+  top: 0;
+}
+
+.icon__label {
+  margin-top: 0.25em;
+  pointer-events: none;
+  position: relative;
+  text-align: center;
+}
+
+.icon__label--vnf {
+  margin-top: -1.25em;
+}
+
+.icon__label-text {
+  font-size: 0.875em;
+  line-height: 1.25;
+  border-radius: 0.5em;
+  padding: 0.125rem 0.25rem;
+  border: 0.0625rem solid var(--nso-border-grey);
+  margin-left: -100%;
+  margin-right: -100%;
+}
+
+@-moz-document url-prefix() {
+  .icon__label-text {
+    padding: 0.25rem 0.25rem;
+  }
+}
+
+.icon__label:not(.icon__label--vnf) > .icon__label-text {
+  color: var(--nso-dark-grey);
+  background: rgba(255, 255, 255, 0.7);
+}
+
+.icon__label--vnf > .icon__label-text {
+  color: DarkGreen;
+  background: rgba(224, 255, 255, 0.7);
+}
+
+
+.slider > input {
+  cursor: pointer;
+  vertical-align: middle;
+}
+
+.toggle {
+  position: relative;
+  display: inline-block;
+  vertical-align: middle;
+  width: 3.5em;
+  height: 2em;
+}
+
+.toggle > input {
+  display: none;
+}
+
+.toggle__switch {
+  position: absolute;
+  cursor: pointer;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  border-radius: 2em;
+  background-color: var(--nso-light-grey);
+  transition: .4s;
+}
+
+.toggle__switch:before {
+  position: absolute;
+  content: "";
+  height: 1.5em;
+  width: 1.5em;
+  left: 0.25em;
+  bottom: 0.25em;
+  border-radius: 50%;
+  background-color: White;
+  transition: .4s;
+}
+
+input:checked + .toggle__switch {
+  background-color: var(--nso-blue);
+}
+
+input:checked + .toggle__switch:before {
+  transform: translateX(1.5em);
+}
+
+
+.topology-footer__item {
+  position: relative;
+  display: inline-block;
+}
+
+.topology-footer__item + .topology-footer__item {
+  padding-left: 1em;
+}
+
+.topology-footer__label {
+  position: relative;
+  display: inline-block;
+  padding-left: 1em;
+}
+
+.topology-footer__label-text {
+  font-size: 0.875em;
+  color: var(--nso-dark-grey);
+}
+
+
+.container__title-text, .icon__label-text, .topology-footer__label-text {
+  white-space: nowrap;
+  user-select: none;
+  -moz-user-select: none;
+}

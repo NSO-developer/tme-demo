@@ -1,8 +1,10 @@
 const HTMLWebpackPlugin = require('html-webpack-plugin');
 const webpack = require('webpack');
+const postcssCustomProperties = require('postcss-custom-properties');
 
 module.exports = {
   entry: [
+    'whatwg-fetch',
     `${__dirname}/src/index.js`,
     'webpack-hot-middleware/client'
   ],
@@ -20,6 +22,11 @@ module.exports = {
     }),
     new webpack.HotModuleReplacementPlugin()
   ],
+  resolve: {
+    alias: {
+      'react-dom': '@hot-loader/react-dom'
+    }
+  },
   module: {
     rules: [
       {
@@ -28,16 +35,26 @@ module.exports = {
         use: {
           loader: 'babel-loader',
           options: {
-            presets: ['react', 'env'],
+            presets: [
+              [ '@babel/preset-env', {
+                targets: {
+                  chrome: '72',
+                  firefox: '66',
+                  edge: '18',
+                  safari: '12',
+                  ie: '11'
+                },
+                useBuiltIns: 'usage',
+                corejs: {
+                  version: 3
+                }
+              }],
+              [ '@babel/preset-react', {} ]
+            ],
             plugins: [
-              'react-hot-loader/babel',
-              'transform-class-properties',
-              'transform-decorators-legacy',
-              'transform-object-rest-spread',
-              ['transform-runtime', {
-                'polyfill': false,
-                'regenerator': true
-              }]
+              [ '@babel/plugin-proposal-decorators', { 'legacy': true } ],
+              [ '@babel/plugin-proposal-class-properties', { 'loose' : true } ],
+              'react-hot-loader/babel'
             ]
           }
         },
@@ -47,9 +64,17 @@ module.exports = {
         enforce: 'pre'
       }, {
         test: /\.css$/,
-        use: [ 'style-loader', 'css-loader' ]
+        use: [
+          'style-loader',
+          'css-loader',
+          { loader: 'postcss-loader',
+            options: {
+              plugins: () => ([ postcssCustomProperties ])
+            }
+          }
+        ]
       }, {
-        test: /\.(svg|ttf)$/,
+        test: /\.(svg|ttf|eot)$/,
         use: {
           loader: 'file-loader',
           options: {

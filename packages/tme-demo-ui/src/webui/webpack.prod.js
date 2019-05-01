@@ -2,15 +2,23 @@ const HTMLWebpackPlugin = require('html-webpack-plugin');
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 const UglifyJsPlugin = require('uglifyjs-webpack-plugin');
 const OptimizeCSSAssetsPlugin = require('optimize-css-assets-webpack-plugin');
-const exec = require('child_process').exec;
+const postcssCustomProperties = require('postcss-custom-properties');
 
 module.exports = {
-  entry: `${__dirname}/src/index.js`,
+  entry: [
+    'whatwg-fetch',
+    `${__dirname}/src/index.js`
+  ],
   output: {
     filename: '[name].js',
     path: `${__dirname}/../../webui`,
   },
   mode: 'production',
+  performance: {
+      hints: false,
+      maxEntrypointSize: 512000,
+      maxAssetSize: 512000
+  },
   optimization: {
     usedExports: true,
     splitChunks: {
@@ -41,15 +49,25 @@ module.exports = {
         use: {
           loader: 'babel-loader',
           options: {
-            presets: ['react', 'env'],
+            presets: [
+              [ '@babel/preset-env', {
+                targets: {
+                  chrome: '72',
+                  firefox: '66',
+                  edge: '18',
+                  safari: '12',
+                  ie: '11'
+                },
+                useBuiltIns: 'usage',
+                corejs: {
+                  version: 3
+                }
+              }],
+              [ '@babel/preset-react', {} ]
+            ],
             plugins: [
-              'transform-class-properties',
-              'transform-decorators-legacy',
-              'transform-object-rest-spread',
-              ['transform-runtime', {
-                'polyfill': false,
-                'regenerator': true
-              }]
+              [ '@babel/plugin-proposal-decorators', { 'legacy': true } ],
+              [ '@babel/plugin-proposal-class-properties', { 'loose' : true } ]
             ]
           }
         }
@@ -57,10 +75,15 @@ module.exports = {
         test: /\.css$/,
         use: [
           { loader: MiniCssExtractPlugin.loader },
-          'css-loader'
+          'css-loader',
+          { loader: 'postcss-loader',
+            options: {
+              plugins: () => ([ postcssCustomProperties ])
+            }
+          }
         ]
       }, {
-        test: /\.(svg|ttf)$/,
+        test: /\.(svg|ttf|eot)$/,
         use: {
           loader: 'file-loader',
           options: {

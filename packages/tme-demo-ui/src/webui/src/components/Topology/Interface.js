@@ -15,10 +15,13 @@ const mapDispatchToProps = { itemDragged, connectionSelected, iconSelected };
 
 const interfaceSource = {
   beginDrag: ({ connection, endpoint, fromIcon, fromDevice, x, y,
-    itemDragged, connectionSelected }) => {
-    const item = { connection, endpoint, fromIcon, fromDevice, x, y };
-    itemDragged(item);
-    requestAnimationFrame(() => {connectionSelected(undefined);});
+    itemDragged, connectionSelected }, monitor, { mouseDownPos }) => {
+    const item = { connection, endpoint, fromIcon, fromDevice, x, y,
+                   mouseDownPos };
+    requestAnimationFrame(() => {
+      itemDragged(item);
+      connectionSelected(undefined);
+    });
     return item;
   },
 
@@ -38,6 +41,18 @@ const interfaceSource = {
   connectDragSource: connect.dragSource()
 }))
 class Interface extends PureComponent {
+  constructor(props) {
+    super(props);
+    this.mouseDownPos = {};
+  }
+
+  handleMouseDown = event => {
+    this.mouseDownPos = {
+      x: event.clientX,
+      y: event.clientY
+    };
+  }
+
   render() {
     console.debug('Interface Render');
     const { connectDragSource, onClick, pcX, pcY,
@@ -47,6 +62,7 @@ class Interface extends PureComponent {
       <RoundButton
         ref={instance => connectDragSource(instance)}
         onClick={onClick}
+        onMouseDown={this.handleMouseDown}
         pcX={pcX}
         pcY={pcY}
         type={type}

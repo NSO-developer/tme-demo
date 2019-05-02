@@ -15,6 +15,7 @@
   left: 0px;
   position: absolute;
   top: 0px;
+  -ms-user-select: none;
   width: 100%;
 }
 
@@ -48,6 +49,7 @@
   box-sizing: border-box;
   padding: 0.25em;
   position: relative;
+  -ms-user-select: none;
   width: 100%;
   white-space: nowrap;
 }
@@ -281,6 +283,10 @@
   top: 0;
 }
 
+svg {
+  pointer-events: none;
+}
+
 .icon__label {
   margin-top: 0.25em;
   pointer-events: none;
@@ -298,8 +304,6 @@
   border-radius: 0.5em;
   padding: 0.125rem 0.25rem;
   border: 0.0625rem solid var(--nso-border-grey);
-  margin-left: -100%;
-  margin-right: -100%;
 }
 
 @-moz-document url-prefix() {
@@ -325,11 +329,11 @@
 }
 
 .toggle {
-  position: relative;
   display: inline-block;
+  height: 2em;
+  position: relative;
   vertical-align: middle;
   width: 3.5em;
-  height: 2em;
 }
 
 .toggle > input {
@@ -370,8 +374,9 @@ input:checked + .toggle__switch:before {
 
 
 .topology-footer__item {
-  position: relative;
   display: inline-block;
+  position: relative;
+  vertical-align: middle;
 }
 
 .topology-footer__item + .topology-footer__item {
@@ -385,13 +390,15 @@ input:checked + .toggle__switch:before {
 }
 
 .topology-footer__label-text {
-  font-size: 0.875em;
   color: var(--nso-dark-grey);
+  font-size: 0.875em;
+  vertical-align: middle;
 }
 
 
 .container__title-text, .icon__label-text, .topology-footer__label-text {
   white-space: nowrap;
   user-select: none;
+  -ms-user-select: none;
   -moz-user-select: none;
 }

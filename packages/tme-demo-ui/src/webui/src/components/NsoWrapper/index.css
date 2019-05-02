@@ -91,6 +91,7 @@
   width: 100%;
   z-index: 10;
   -moz-user-select :none;
+  -ms-user-select :none;
 }
 
 .nso-header__inner {
@@ -229,6 +230,7 @@
 }
 
 .nso-user-menu__user {
+  background: none;
   min-width: 5rem;
   outline: none;
 }

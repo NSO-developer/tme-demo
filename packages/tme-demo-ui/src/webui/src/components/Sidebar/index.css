@@ -6,6 +6,7 @@
   width: 30%;
   user-select: none;
   -moz-user-select: none;
+  -ms-user-select: none;
 }
 
 .sidebar__header {
@@ -174,6 +175,7 @@
 .field-group__value {
   user-select: text;
   -moz-user-select: text;
+  -ms-user-select: text;
 }
 
 

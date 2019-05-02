@@ -50,11 +50,29 @@ const mapStateToProps = state => {
 };
 
 
-@DragLayer(monitor => ({
-  item: monitor.getItem(),
-  itemType: monitor.getItemType(),
-  offsetDifference: monitor.getDifferenceFromInitialOffset()
-}))
+@DragLayer(monitor => {
+  const item = monitor.getItem();
+  const itemType = monitor.getItemType();
+  let pos = null;
+  if (monitor.isDragging() && (itemType === INTERFACE || itemType === ICON) ) {
+    // IE and Edge fix: The ghost image is offset from the initial mouse
+    // coordinates at mouseDown, not dragStart, so need to account for this
+    // slight difference in offset (since the ghost image can't easily be
+    // hidden on these browsers).
+    const initialClientOffset = monitor.getInitialClientOffset();
+    const offsetDifference = monitor.getDifferenceFromInitialOffset();
+    if (initialClientOffset && offsetDifference) {
+      const { mouseDownPos } = item;
+      const xMouseDownPos = mouseDownPos ? mouseDownPos.x : 0;
+      const yMouseDownPos = mouseDownPos ? mouseDownPos.y : 0;
+      pos = {
+        x: item.x + offsetDifference.x + initialClientOffset.x - xMouseDownPos,
+        y: item.y + offsetDifference.y + initialClientOffset.y - yMouseDownPos
+      };
+    }
+  }
+  return { item, itemType, pos };
+})
 class CustomDragLayer extends PureComponent {
   constructor(props) {
     super(props);
@@ -125,7 +143,7 @@ class CustomDragLayer extends PureComponent {
       layout,
       item,
       itemType,
-      offsetDifference,
+      pos,
       hoveredIcon
     } = this.props;
 
@@ -136,17 +154,14 @@ class CustomDragLayer extends PureComponent {
     const ctx = this.ctx;
     ctx.clearRect(0, 0, dimensions.width, dimensions.height);
 
-    if (!offsetDifference || !overlayConnections) {
+    if (!pos || !overlayConnections) {
       return null;
     }
     const iconRadius = iconSize / 2;
 
     switch (itemType) {
       case ICON: {
-        const { x, y } = restrictPos(
-          item.x + offsetDifference.x,
-          item.y + offsetDifference.y,
-          layout[item.container]
+        const { x, y } = restrictPos(pos.x, pos.y, layout[item.container]
         );
 
         Object.keys(overlayConnections).forEach(key => {
@@ -156,7 +171,9 @@ class CustomDragLayer extends PureComponent {
           this.drawConnection(p1, p2);
         });
 
-        ctx.drawImage(item.img, x - iconRadius, y - iconRadius);
+        if (item.imgReady) {
+          ctx.drawImage(item.img, x - iconRadius, y - iconRadius);
+        }
         this.drawLabel(x, y + iconRadius + 4, item.label);
         break;
       }
@@ -166,13 +183,10 @@ class CustomDragLayer extends PureComponent {
         let from = conn.from;
         let to = hoveredIcon.name
           ? iconPositions[hoveredIcon.name]
-          : { x: item.x, y: item.y };
+          : pos;
 
         if (hoveredIcon.name) {
           to = pointAlongLine(to.x, to.y, from.x, from.y, iconRadius);
-        } else {
-          to.x += offsetDifference.x;
-          to.y += offsetDifference.y;
         }
 
         from = pointAlongLine(from.x, from.y, to.x, to.y, iconRadius);

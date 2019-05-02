@@ -9,7 +9,7 @@ import Btn from '../icons/BtnWithTooltip';
 
 
 export default forwardRef((props, ref) => {
-  const { onClick, pcX, pcY, type, size,
+  const { onClick, onMouseDown, pcX, pcY, type, size,
     active, expanded, disabled, tooltip } = props;
   const iconScale = type === IconTypes.BTN_DRAG ? 0.5 : 0.66;
   const actualSize = size * (active && !disabled ? 2 : 1);
@@ -28,6 +28,7 @@ export default forwardRef((props, ref) => {
       })}
       ref={ref}
       onClick={onClick}
+      onMouseDown={onMouseDown}
       style={{
         borderRadius: `${actualSize / 2}px`,
         height: `${actualSize}px`,

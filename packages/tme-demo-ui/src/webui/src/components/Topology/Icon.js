@@ -142,15 +142,17 @@ const iconTarget = {
 // Edit mode icon drag
 const iconSource = {
   beginDrag: ({
-    name, type, container, status, label, size, positions, itemDragged
-  }) => {
+    name, type, container, label, size, positions, itemDragged
+  }, monitor, { mouseDownPos, getStatus }) => {
     const img = new Image();
     img.src = `data:image/svg+xml,${encodeURIComponent(renderToStaticMarkup(
-      <IconSvg type={type} status={status} size={size} />
+      <IconSvg type={type} status={getStatus()} size={size} />
     ))}`;
     const { x, y } = positions[name];
-    const item = { icon: name, x, y, img, label, container };
-    itemDragged(item);
+    const item = { icon: name, imgReady: false,
+                   x, y, img, label, container, mouseDownPos };
+    img.onload = () => { item.imgReady = true; };
+    requestAnimationFrame(() => { itemDragged(item); });
     return item;
   },
 
@@ -182,6 +184,11 @@ const iconSource = {
   isDragging: monitor.isDragging()
 }))
 class Icon extends PureComponent {
+  constructor(props) {
+    super(props);
+    this.mouseDownPos = {};
+  }
+
   handleOnClick = () => {
     const { name, device, editMode,
       iconSelected, iconExpandToggled } = this.props;
@@ -195,6 +202,13 @@ class Icon extends PureComponent {
   moveIcon = (x, y) => {
     const { name, container, dimensions, layout, moveIcon } = this.props;
     moveIcon(name, pxCoordToSafePc(x, y, layout[container], dimensions));
+  }
+
+  handleMouseDown = event => {
+    this.mouseDownPos = {
+      x: event.clientX,
+      y: event.clientY
+    };
   }
 
   tooltipContent = (status, vnfIndex) => {
@@ -242,14 +256,16 @@ class Icon extends PureComponent {
     }
   }
 
+  getStatus = () => {
+    const { device, nsInfo, vnfs, deviceInfo } = this.props;
+    return (device
+      ? deviceInfo && deviceInfo.platform ? 'reachable' : 'unreachable'
+      : nsInfo ? vnfs.length > 0 ? 'ready' : 'init' : undefined
+    );
+  }
+
   componentDidMount() {
-    // Use empty image as a drag preview so browsers don't draw it
-    // and we can draw whatever we want on the custom drag layer instead.
-    this.props.connectIconDragPreview(getEmptyImage(), {
-      // IE fallback: specify that we'd rather screenshot the node
-      // when it already knows it's being dragged so we can hide it with CSS.
-      captureDraggingState: true
-    });
+    this.props.connectIconDragPreview(getEmptyImage(), {});
   }
 
   render() {
@@ -284,10 +300,7 @@ class Icon extends PureComponent {
       hoveredIcon.name = null;
     }
 
-    let status = device
-      ? deviceInfo && deviceInfo.platform ? 'reachable' : 'unreachable'
-      : nsInfo ? vnfs.length > 0 ? 'ready' : 'init' : undefined;
-
+    let status = this.getStatus();
     const hasVnfs = vnfs && vnfs.length > 0;
     const top = positions[hasVnfs ? vnfs[0].name : name];
     const outlineSize = expanded ? size * ICON_VNF_SPACING : size;
@@ -427,14 +440,14 @@ class Icon extends PureComponent {
                   connectIconDragSource(
                     <div
                       onClick={this.handleOnClick}
+                      onMouseDown={this.handleMouseDown}
                       className={classNames('icon__svg-wrapper',
                         'icon__svg-wrapper-absolute', {
                         'icon__svg-wrapper--hidden': expanded && vnfs.length > 0
                       })}
                       style={svgStyle(size)}
                     >
-                      <IconSvg type={type} status={status} size={size}
-                      />
+                      <IconSvg type={type} status={status} size={size} />
                       <Interface
                         fromIcon={name}
                         fromDevice={device}

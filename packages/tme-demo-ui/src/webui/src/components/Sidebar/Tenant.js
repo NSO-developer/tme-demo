@@ -22,6 +22,7 @@ import { tenantToggled, bodyOverlayToggled, itemDragged,
          newNetworkServiceToggled } from '../../actions/uiState';
 import { TENANT_PATH, deleteTenant } from '../../actions/tenants';
 
+import { connectPngDragPreview } from '../../utils/UiUtils';
 import JsonRpc from '../../utils/JsonRpc';
 import Comet from '../../utils/Comet';
 
@@ -167,11 +168,10 @@ class Tenant extends PureComponent {
 
   componentDidMount() {
     const { connectDragPreview, iconSize } = this.props;
-    const img = new Image();
-    img.src = `data:image/svg+xml,${encodeURIComponent(renderToStaticMarkup(
-      <IconSvg type={IconTypes.SERVICE_CHAIN} size={iconSize} />
-    ))}`;
-    connectDragPreview(img, { offsetX: iconSize/2, offsetY: iconSize/2 });
+    connectPngDragPreview(renderToStaticMarkup(
+      <IconSvg type={IconTypes.SERVICE_CHAIN} size={iconSize} />),
+      iconSize, connectDragPreview, true
+    );
   }
 
 

@@ -28,7 +28,8 @@ import { iconSelected, connectionSelected,
 import { moveIcon } from '../../actions/icons';
 import { addConnection, moveConnection } from '../../actions/connections';
 
-import { pxCoordToSafePc } from '../../utils/UiUtils';
+import { pxCoordToSafePc, isSafari,
+         connectPngDragPreview } from '../../utils/UiUtils';
 
 
 // === Util functions =========================================================
@@ -265,7 +266,8 @@ class Icon extends PureComponent {
   }
 
   componentDidMount() {
-    this.props.connectIconDragPreview(getEmptyImage(), {});
+    const { connectIconDragPreview } = this.props;
+    connectIconDragPreview(getEmptyImage(), {});
   }
 
   render() {
@@ -303,13 +305,20 @@ class Icon extends PureComponent {
     let status = this.getStatus();
     const hasVnfs = vnfs && vnfs.length > 0;
     const top = positions[hasVnfs ? vnfs[0].name : name];
-    const outlineSize = expanded ? size * ICON_VNF_SPACING : size;
+    const outlineSize = expanded ? Math.round(size * ICON_VNF_SPACING) : size;
     const outlineRadius = outlineSize / 2;
 
     const height = (expanded && hasVnfs)
       ? vnfs.length * outlineSize + vnfs.reduce((accumulator, vnf) =>
           accumulator += (vnf.vmDevices.length - 1) * ICON_VM_SPACING, 0) * size
       : outlineSize;
+
+    // The drag preview is not captured correctly on Safari,
+    // so generate PNG image and use that
+    isSafari && connectPngDragPreview(renderToStaticMarkup(
+      <IconSvg type={type} status={status} size={size} />),
+      size, connectEndpointDragPreview, false
+    );
 
     return (
       <Fragment>
@@ -320,7 +329,9 @@ class Icon extends PureComponent {
             'icon__outline--expanded': expanded
           })}
           style={{
-            ...positionStyle(top, outlineSize),
+            left: `${top.pcX}%`,
+            top: `${top.pcY}%`,
+            transform: `translate(${-outlineSize/2}px, ${-outlineSize/2}px)`,
             borderRadius: `${outlineRadius}px`,
             height: `${height}px`,
             width: `${outlineSize}px`,

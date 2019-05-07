@@ -2,6 +2,8 @@ import { ICON_VNF_SPACING, ICON_VM_SPACING } from '../constants/Layout';
 import { combineReducers } from 'redux';
 import { createSelector } from 'reselect';
 
+import { roundPc } from '../utils/UiUtils';
+
 import layout, * as fromLayout from './layout.js';
 import uiState, * as fromUiState from './uiState.js';
 import tenants, * as fromTenants from './tenants.js';
@@ -191,8 +193,8 @@ const calculateIconPosition =
   }
   const { x, y, container } = icon;
   const { left, top, width, height } = layout[container || 'provider'].pc;
-  const pcX = left + x * width;
-  const pcY = top + y * height;
+  const pcX = roundPc(left + x * width);
+  const pcY = roundPc(top + y * height);
   const ret = {
     [name]: {
       pcX,
@@ -212,8 +214,8 @@ const calculateIconPosition =
         if (vmIndex > 0) { vmOffset++; }
         const vnfPcX = pcX;
         const vnfPcY = (expanded && vnfs.length > 1)
-          ? pcY + ((vnfIndex + 1) * ICON_VNF_SPACING +
-            vmOffset * ICON_VM_SPACING) * iconHeightPc  - vnfOffset
+          ? roundPc(pcY + ((vnfIndex + 1) * ICON_VNF_SPACING +
+            vmOffset * ICON_VM_SPACING) * iconHeightPc  - vnfOffset)
           : pcY;
         ret[`${vnf.name}${vmIndex > 0 ? `-${vmIndex}` : ''}`] = {
           pcX: vnfPcX,

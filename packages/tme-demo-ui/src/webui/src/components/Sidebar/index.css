@@ -7,6 +7,7 @@
   user-select: none;
   -moz-user-select: none;
   -ms-user-select: none;
+  -webkit-user-select: none;
 }
 
 .sidebar__header {
@@ -176,6 +177,7 @@
   user-select: text;
   -moz-user-select: text;
   -ms-user-select: text;
+  -webkit-user-select: text;
 }
 
 
@@ -204,7 +206,6 @@
   margin: 0.25rem;
   overflow: visible;
   padding: 0px;
-  position: absolute;
   transition: padding 500ms ease-out, margin 500ms ease-out;
 }
 
@@ -227,6 +228,7 @@
 
 .new-item__label {
   color: var(--nso-dark-grey);
+  line-height: 1em;
   margin: 0 0.75em 0 1em;
 }
 

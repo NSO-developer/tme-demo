@@ -37,6 +37,9 @@ export function restrictPos(x, y, layoutContainer) {
   };
 }
 
+export const roundPc = (n) =>
+  +Number.parseFloat(n).toFixed(2);
+
 export const safeRound = (n) =>
   Math.min(1, Math.max(0, Number.parseFloat(n).toFixed(4))).toString();
 
@@ -45,4 +48,41 @@ export const pxCoordToSafePc = (x, y, layoutContainer, dimensions) => {
   const { pcX, pcY } = pxToPc(restrictPos(x, y, layoutContainer), dimensions);
   return { x: safeRound((pcX - left) / width),
            y: safeRound((pcY - top) / height) };
+};
+
+export const isSafari = !!window.safari;
+
+export const getCanvasPixelRatio = ctx => {
+  const dpr = window.devicePixelRatio || 1;
+  const bsr =
+    ctx.webkitBackingStorePixelRatio ||
+    ctx.mozBackingStorePixelRatio ||
+    ctx.msBackingStorePixelRatio ||
+    ctx.oBackingStorePixelRatio ||
+    ctx.backingStorePixelRatio ||
+    1;
+  return dpr / bsr;
+};
+
+export const connectPngDragPreview = (imageMarkup, size, connect, centred) => {
+  const svgImg = new Image();
+  const canvasImg = new Image();
+  const canvas = document.createElement('canvas');
+  const ctx = canvas.getContext('2d');
+  const ratio = isSafari ? getCanvasPixelRatio(ctx) : 1;
+  canvas.width = size * ratio;
+  canvas.height = size * ratio;
+
+  svgImg.src = `data:image/svg+xml,${encodeURIComponent(imageMarkup)}`;
+
+  svgImg.onload = () => {
+    ctx.setTransform(ratio, 0, 0, ratio, 0, 0);
+    ctx.drawImage(svgImg, 0, 0);
+    canvasImg.src=(canvas.toDataURL('image/png'));
+  };
+
+  canvasImg.onload = () => {
+    connect(canvasImg,
+      centred && { offsetX: size/2, offsetY: size/2 + (isSafari ? size : 0) });
+  };
 };

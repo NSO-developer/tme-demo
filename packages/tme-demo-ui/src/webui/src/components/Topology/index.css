@@ -16,6 +16,7 @@
   position: absolute;
   top: 0px;
   -ms-user-select: none;
+  -webkit-user-select: none;
   width: 100%;
 }
 
@@ -50,6 +51,7 @@
   padding: 0.25em;
   position: relative;
   -ms-user-select: none;
+  -webkit-user-select: none;
   width: 100%;
   white-space: nowrap;
 }
@@ -284,7 +286,6 @@
 }
 
 svg {
-  pointer-events: none;
 }
 
 .icon__label {
@@ -401,4 +402,5 @@ input:checked + .toggle__switch:before {
   user-select: none;
   -ms-user-select: none;
   -moz-user-select: none;
+  -webkit-user-select: none;
 }

@@ -1,5 +1,6 @@
 import React from 'react';
 import { PureComponent } from 'react';
+import { getCanvasPixelRatio } from '../../utils/UiUtils';
 
 class DragLayerCanvas extends PureComponent {
   constructor(props) {
@@ -8,25 +9,13 @@ class DragLayerCanvas extends PureComponent {
     this.ctx = null;
   }
 
-  getCanvasPixelRatio(ctx) {
-    const dpr = window.devicePixelRatio || 1;
-    const bsr =
-      ctx.webkitBackingStorePixelRatio ||
-      ctx.mozBackingStorePixelRatio ||
-      ctx.msBackingStorePixelRatio ||
-      ctx.oBackingStorePixelRatio ||
-      ctx.backingStorePixelRatio ||
-      1;
-    return dpr / bsr;
-  }
-
   componentDidMount() {
     this.ctx = this.props.canvasRef.current.getContext('2d');
-    this.setState({ ratio: this.getCanvasPixelRatio(this.ctx) });
+    this.setState({ ratio: getCanvasPixelRatio(this.ctx) });
   }
 
   componentDidUpdate() {
-    const ratio = this.getCanvasPixelRatio(this.ctx);
+    const ratio = getCanvasPixelRatio(this.ctx);
     if (ratio !== this.state.ratio) {
       this.setState({ ratio: ratio });
     }

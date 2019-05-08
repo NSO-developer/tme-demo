@@ -1,5 +1,6 @@
 import * as ActionTypes from '../actions/layout';
-import { LAYOUT, ICON_BASE_SIZE } from '../constants/Layout';
+import { ICON_INITIAL_MAX_SIZE_PC,
+         ICON_INITIAL_MAX_SIZE_PX, LAYOUT } from '../constants/Layout';
 import { createSelector } from 'reselect';
 
 
@@ -7,6 +8,16 @@ import { createSelector } from 'reselect';
 
 export const getDimensions = state => state.dimensions;
 export const getIconSize = state => state.iconSize;
+
+export const calculateInitialIconSize = state => {
+  const dimensions = getDimensions(state);
+  if (!dimensions) {
+    return null;
+  }
+  const { width, height } = dimensions;
+  const sizePc = ICON_INITIAL_MAX_SIZE_PX / Math.min(width, height) * 100;
+  return Math.min(Math.ceil(sizePc), ICON_INITIAL_MAX_SIZE_PC);
+};
 
 export const getActualIconSize = createSelector(
   [getDimensions, getIconSize],
@@ -88,7 +99,7 @@ export const getLayout = createSelector(
 
 // === Reducer ================================================================
 
-export default function(state = { iconSize: ICON_BASE_SIZE }, action) {
+export default function(state = { iconSize: null }, action) {
   const { type, left, top, width, height, size } = action;
   switch (type) {
 

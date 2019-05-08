@@ -40,6 +40,9 @@ export const getDimensions = state =>
 export const getIconSize = state =>
   fromLayout.getIconSize(state.layout);
 
+export const calculateInitialIconSize = state =>
+  fromLayout.calculateInitialIconSize(state.layout);
+
 export const getActualIconSize = state =>
   fromLayout.getActualIconSize(state.layout);
 

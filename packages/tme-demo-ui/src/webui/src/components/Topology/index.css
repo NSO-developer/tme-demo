@@ -2,6 +2,7 @@
   display: flex;
   flex-direction: column;
   height: 100%;
+  max-width: 1200px;
   position: relative;
   width: 70%;
 }
@@ -324,10 +325,79 @@ svg {
 }
 
 
-.slider > input {
+.slider > input[type=range] {
+  -webkit-appearance: none;
+  background: none;
   cursor: pointer;
+  height: 2em;
+  padding: 0px;
   vertical-align: middle;
+  width: 15em;
 }
+
+.slider > input[type=range]:focus {
+  outline: none;
+}
+
+.slider > input[type=range]::-moz-focus-outer {
+  border: 0;
+}
+
+.slider > input[type=range]::-webkit-slider-runnable-track {
+  animate: 0.2s;
+  background: var(--nso-light-grey);
+  border-radius: 0.25em;
+  cursor: pointer;
+  height: 0.5em;
+}
+
+.slider > input[type=range]::-moz-range-track {
+  animate: 0.2s;
+  background: var(--nso-light-grey);
+  border-radius: 0.25em;
+  cursor: pointer;
+  height: 0.5em;
+}
+
+.slider > input[type=range]::-ms-track {
+  animate: 0.2s;
+  cursor: pointer;
+  height: 0.5em;
+  background: transparent;
+  border-color: transparent;
+  color: transparent;
+}
+
+.slider > input[type=range]::-ms-fill-lower {
+  background: rgb(182, 185, 197);
+  border-radius: 0.25em;
+}
+
+.slider > input[type=range]::-ms-fill-upper {
+  background: rgb(182, 185, 197);
+  border-radius: 0.25em;
+}
+
+.slider > input[type=range]::-webkit-slider-thumb {
+  background: White;
+  border: 1px solid var(--nso-light-grey);
+  border-radius: 2em;
+  cursor: pointer;
+  height: 2em;
+  margin-top: -0.75em;
+  width: 2em;
+  -webkit-appearance: none;
+}
+
+.slider > input[type=range]::-moz-range-thumb {
+  background: White;
+  border: 1px solid var(--nso-light-grey);
+  border-radius: 1.75em;
+  cursor: pointer;
+  height: 1.75em;
+  width: 1.75em;
+}
+
 
 .toggle {
   display: inline-block;

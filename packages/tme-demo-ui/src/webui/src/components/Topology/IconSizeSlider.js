@@ -2,7 +2,7 @@ import React from 'react';
 import { PureComponent } from 'react';
 import { connect } from 'react-redux';
 
-import { getIconSize } from '../../reducers';
+import { getIconSize, calculateInitialIconSize } from '../../reducers';
 import { iconSizeChanged } from '../../actions/layout';
 
 
@@ -10,13 +10,18 @@ const mapDispatchToProps = { iconSizeChanged };
 
 const mapStateToProps = state => ({
   iconSize: getIconSize(state),
+  initialIconSize: calculateInitialIconSize(state)
 });
 
 
 class IconSizeSlider extends PureComponent {
   constructor(props) {
     super(props);
+    const { iconSize, initialIconSize, iconSizeChanged } = this.props;
     this.handleChange = this.handleChange.bind(this);
+    if (iconSize === null) {
+      iconSizeChanged(initialIconSize);
+    }
   }
 
   handleChange(event) {
@@ -26,14 +31,15 @@ class IconSizeSlider extends PureComponent {
 
   render() {
     console.debug('IconSizeSlider Render');
-    return (
+    const { iconSize } = this.props;
+    return (iconSize !== null &&
       <div className="topology-footer__item">
         <label className="slider">
           <input
             type="range"
-            min="8"
+            min="6"
             max="12"
-            value={this.props.size}
+            value={iconSize}
             onChange={this.handleChange}
           />
         </label>

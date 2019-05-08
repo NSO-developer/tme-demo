@@ -1,6 +1,7 @@
 .sidebar {
   color: var(--nso-dark-grey);
   margin-right: 1rem;
+  max-width: 400px;
   position: relative;
   white-space: nowrap;
   width: 30%;

@@ -17,8 +17,8 @@ import EditToggle from './EditToggle';
 import IconSizeSlider from './IconSizeSlider';
 import LoadingOverlay from '../common/LoadingOverlay';
 
-import { getIcons, getConnectionPositions, getActualIconSize, getLayout,
-         getDimensions, getDraggedItem, getIsFetchingIcons, getIsFetchingVnfs,
+import { getIcons, getConnectionPositions, getDimensions, getLayout,
+         getDraggedItem, getIsFetchingIcons, getIsFetchingVnfs,
          getIsFetchingConnections, getEditMode } from '../../reducers';
 
 import { fetchTopologyData, subscribeTopologyData } from '../../actions';
@@ -28,10 +28,9 @@ import { dimensionsChanged } from '../../actions/layout';
 const mapStateToProps = state => ({
   icons: getIcons(state),
   connections: getConnectionPositions(state),
-  iconSize: getActualIconSize(state),
+  dimensions: getDimensions(state),
   layout: getLayout(state),
   draggedItem: getDraggedItem(state),
-  dimensions: getDimensions(state),
   isFetchingIcons: getIsFetchingIcons(state),
   isFetchingConnections: getIsFetchingConnections(state),
   isFetchingVnfs: getIsFetchingVnfs(state),
@@ -69,7 +68,7 @@ class Topology extends PureComponent {
 
   render() {
     console.debug('Topology Render');
-    const { icons, connections, iconSize, layout, dimensions, draggedItem,
+    const { icons, connections, layout, dimensions, draggedItem,
             isFetchingIcons, isFetchingVnfs, isFetchingConnections,
             editMode } = this.props;
     return (
@@ -139,7 +138,7 @@ class Topology extends PureComponent {
         <div className="topology__footer">
           <div className="topology__footer-content">
             <EditToggle/>
-            <IconSizeSlider/>
+            {dimensions && <IconSizeSlider/>}
           </div>
           <div className={classNames('container__layer', 'container__overlay', {
             'container__overlay--inactive': draggedItem &&

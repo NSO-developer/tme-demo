@@ -13,7 +13,9 @@
 
 @font-face {
   font-family: CiscoSansLight;
-  src: url(CiscoSansTTLight.ttf) format("truetype");
+  src: url(CiscoSansTTLight.eot);
+  src: url(CiscoSansTTLight.eot?#iefix) format("embedded-opentype"),
+       url(CiscoSansTTLight.ttf) format("truetype")
 }
 
 body {

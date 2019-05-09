@@ -29,6 +29,11 @@ class IconSizeSlider extends PureComponent {
     iconSizeChanged(Number(event.target.value));
   }
 
+  componentDidMount() {
+    // IE fix: Ensure any cached value is reset
+    setTimeout(() => { this.forceUpdate(); }, 500);
+  }
+
   render() {
     console.debug('IconSizeSlider Render');
     const { iconSize } = this.props;

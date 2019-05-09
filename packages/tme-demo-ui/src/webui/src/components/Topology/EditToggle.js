@@ -26,6 +26,11 @@ class EditToggle extends PureComponent {
     bodyOverlayToggled(checked);
   }
 
+  componentDidMount() {
+    // IE fix: Ensure any cached value is reset
+    setTimeout(() => { this.forceUpdate(); }, 500);
+  }
+
   render() {
     console.debug('EditToggle Render');
     return (

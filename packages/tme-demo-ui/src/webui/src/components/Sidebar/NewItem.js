@@ -105,8 +105,12 @@ class NewItem extends PureComponent {
     if (isOpen != prevProps.isOpen) {
       requestAnimationFrame(() => {
         if (isOpen) {
-          this.ref.current.style.width =
-            `${this.formRef.current.scrollWidth + 10}px`;
+          // IE fix: Need to set display to block to get correct scrollWidth
+          this.formRef.current.style.display = 'block';
+          const formWidth = this.formRef.current.scrollWidth;
+          this.formRef.current.style.width = `${formWidth}px`;
+          this.formRef.current.style.display = 'flex';
+          this.ref.current.style.width = `${formWidth + 10}px`;
           setTimeout(() => {this.inputRef.current.focus();}, 500);
         } else {
           this.ref.current.style.width = '0px';

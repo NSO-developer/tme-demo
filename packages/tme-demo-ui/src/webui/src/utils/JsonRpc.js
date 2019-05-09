@@ -25,7 +25,8 @@ class JsonRpc {
         id: ++this.id,
         method: method,
         params: params
-      })
+      }),
+      credentials: 'same-origin'
     });
 
     if (!response.ok) {
@@ -87,8 +88,8 @@ class JsonRpc {
   async read() {
     const db = 'running';
 
-    if (this.thWrite) { return this.thWrite; }
     if (this.thRead) { return this.thRead; }
+    if (this.thWrite) { return this.thWrite; }
 
     const res = await this.request('get_trans');
     const readTrans = res.trans.filter(c =>

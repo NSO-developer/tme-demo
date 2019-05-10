@@ -172,6 +172,21 @@ export default jsonRpcWrapper([
         }
       };
 
+    case ActionTypes.VNF_VM_DELETED:
+      return { ...state,
+        [name]: {
+          ...state[name],
+          vmDevices: Object.keys(state[name].vmDevices).reduce(
+            (accumulator, current) => {
+              if (current !== vmId) {
+                accumulator[current] = state[name].vmDevices[current];
+              }
+              return accumulator;
+            }, {}
+          )
+        }
+      };
+
     default:
       return state;
   }

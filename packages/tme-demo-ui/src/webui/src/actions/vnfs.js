@@ -7,6 +7,7 @@ import { subscriptionRequest, subscriptionSuccess, subscriptionEvent,
 
 export const VNF_VM_STATUS_UPDATED = 'vnf-vm-status-updated';
 export const VNF_VM_DEVICE_UPDATED = 'vnf-vm-device-updated';
+export const VNF_VM_DELETED = 'vnf-vm-deleted';
 export const VNF_SCALE_EVENT = 'vnf-scale-event';
 export const VNF_ADDED = 'vnf-added';
 export const VNF_DELETED = 'vnf-deleted';
@@ -28,6 +29,10 @@ export const vnfVmStatusUpdated = (name, vmId, status) => ({
 
 export const vnfVmDeviceUpdated = (name, vmId, device) => ({
   type: VNF_VM_DEVICE_UPDATED, name, vmId, device
+});
+
+export const vnfVmDeleted = (name, vmId) => ({
+  type: VNF_VM_DELETED, name, vmId
 });
 
 export const vnfScaleEvent = (name, vmsScaling) => ({
@@ -237,7 +242,7 @@ export const subscribeVnfs = () => dispatch => {
     dispatch(subscriptionRequest(path, cdbOper));
 
     Comet.subscribe({
-      path, cdbOper, skipLocalChanges: false,
+      path, cdbOper, skipLocalChanges: true,
       callback : evt => {
         evt.changes.forEach(change => {
           const { keypath, op, value } = change;
@@ -258,6 +263,14 @@ export const subscribeVnfs = () => dispatch => {
             const vmId = match[7];
             const device = value;
             dispatch(vnfVmDeviceUpdated(vnfVduName, vmId, device));
+          }
+
+          match = /\/nfvo-rel2:nfvo\/vnf-info\/nfvo-rel2-esc:esc\/vnf-deployment-result\{([^{} ]+) ([^{} ]+) ([^{} ]+)\}\/vdu\{([^{} ]+) ([^{} ]+)\}\/vm-device\{([^{} ]+) ([^{} ]+)\}$/.exec(keypath);
+          if (match && op === 'deleted') {
+            dispatch(subscriptionEvent(keypath, op));
+            const { vnfVduName } = parseMatch(match);
+            const vmId = match[7];
+            dispatch(vnfVmDeleted(vnfVduName, vmId));
           }
 
           match = /\/nfvo-rel2:nfvo\/vnf-info\/nfvo-rel2-esc:esc\/vnf-deployment-result\{([^{} ]+) ([^{} ]+) ([^{} ]+)\}\/vdu\{([^{} ]+) ([^{} ]+)\}\/l3vpn:vms-scaling\/([^{} ]+)$/.exec(keypath);

@@ -53,6 +53,7 @@ netsim:
 
 ncs-cdb:
 	ncs-setup --no-netsim --dest .
+	cp initial-data/authgroups.xml ncs-cdb
 	cp initial-data/device-groups.xml ncs-cdb
 	cp initial-data/esc-scaling-template.xml ncs-cdb
 	cp initial-data/icon-positions.xml ncs-cdb
@@ -62,7 +63,7 @@ ncs-cdb:
 	cp initial-data/topology.xml ncs-cdb
 	cp initial-data/vnfd-catalogue.xml ncs-cdb
 	cp initial-data/webui-applications.xml ncs-cdb
-	ncs-netsim ncs-xml-init > ncs-cdb/netsim_devices_init.xml
+	ncs-netsim ncs-xml-init > ncs-cdb/netsim-devices-init.xml
 
 clean:
 	$(MAKE) -C packages clean
@@ -82,6 +83,7 @@ init:
 	while ! grep -qs RUNNING $$FILE; do sleep 5; done
 	ncs_load -u admin -l -C initial-data/platform-infos.xml > $@
 	ncs_load -u admin -m -l initial-data/nfvo-init.xml >> $@
+	ncs_cli -u admin <<< 'request devices device * ssh fetch-host-keys' >> $@
 	ncs_cli -u admin <<< 'request devices sync-from' >> $@
 	ncs_load -u admin -m -l initial-data/default-ns-connections.xml >> $@
 
@@ -116,7 +118,8 @@ cli:
 	ncs_cli -u admin
 .PHONY: cli
 
-dist:
+dist: stop deep-clean
+	$(MAKE) -C packages/tme-demo-ui/src/webui || exit 1;
 	cd .. ; \
 	tar -cf $(DEMO_DIR).tar \
 		--exclude='.git' \

@@ -17,7 +17,7 @@
             <vnfd>Cisco-ASA</vnfd>
             <vdu>
               <id>fw-3cp</id>
-              <authgroup>default</authgroup>
+              <authgroup>asa</authgroup>
               <image-name>Cisco-ASA</image-name>
               <flavor-name>ASA-bronze</flavor-name>
               <bootup-time>300</bootup-time>
@@ -73,7 +73,7 @@ route management 0.0.0.0 0.0.0.0 $NICID_0_GATEWAY
             <vnfd>Cisco-ASA</vnfd>
             <vdu>
               <id>fw-4cp</id>
-              <authgroup>default</authgroup>
+              <authgroup>asa</authgroup>
               <image-name>Cisco-ASA</image-name>
               <flavor-name>ASA-bronze</flavor-name>
               <bootup-time>300</bootup-time>
@@ -129,7 +129,7 @@ route management 0.0.0.0 0.0.0.0 $NICID_0_GATEWAY
             <vnfd>Cisco-CSR1kv</vnfd>
             <vdu>
               <id>router</id>
-              <authgroup>default</authgroup>
+              <authgroup>csr</authgroup>
               <image-name>Cisco-CSR1kv</image-name>
               <flavor-name>CSR1kv-bronze</flavor-name>
               <bootup-time>300</bootup-time>
@@ -245,7 +245,7 @@ management_address_type: dhcp
                 </variable>
                 <variable>
                   <name>NAME</name>
-                  <value>{../name}-{name}-ta</value>
+                  <value>{../../name}-{name}-ta</value>
                 </variable>
                 <variable>
                   <name>USER</name>
@@ -292,7 +292,7 @@ management_address_type: dhcp
                 </variable>
                 <variable>
                   <name>NAME</name>
-                  <value>{../name}-{name}-ta</value>
+                  <value>{../../name}-{name}-ta</value>
                 </variable>
                 <variable>
                   <name>USER</name>

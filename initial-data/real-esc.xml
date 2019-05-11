@@ -16,7 +16,9 @@
       <port>830</port>
       <authgroup>ESC</authgroup>
       <device-type>
-        <netconf/>
+        <netconf>
+          <ned-id xmlns:id="http://tail-f.com/ned/esc-id">id:esc</ned-id>
+        </netconf>
       </device-type>
       <state>
         <admin-state>unlocked</admin-state>

@@ -7,6 +7,8 @@
 /init
 /setup.mk
 /.ipython
+/ncs.conf
+/storedstate
 
 .DS_Store
 *.fxs

@@ -34,7 +34,7 @@ clean:
 
 deep-clean: clean
 	for i in $(PACKAGE_DEPENDENCIES); do \
-	    $(MAKE) -C $${i}/src clean || exit 1; \
+	    $(MAKE) -C $${i}/src clean || exit 0; \
 	done
 	rm -f l3vpn
 	rm -f alu-sr

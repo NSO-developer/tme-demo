@@ -167,13 +167,16 @@ class Tenant extends PureComponent {
   };
 
   componentDidMount() {
-    const { connectDragPreview, iconSize } = this.props;
+    const { connectDragPreview, iconSize, isOpen } = this.props;
     connectPngDragPreview(renderToStaticMarkup(
       <IconSvg type={IconTypes.SERVICE_CHAIN} size={iconSize} />),
       iconSize, connectDragPreview, true
     );
-  }
 
+    if (isOpen) {
+      this.animateToggle();
+    }
+  }
 
   render() {
     console.debug('Tenant Render');
@@ -269,7 +272,7 @@ class Tenant extends PureComponent {
               defaults={newNetworkService ?
                 getNetworkServiceDefaults(name, newNetworkService) : []}
               label="Network Service Name"
-              isOpen={!!newNetworkService}
+              isOpen={isOpen && newNetworkService}
               close={this.closeNewNetworkService}
             />
           </div>
@@ -297,27 +300,32 @@ class Tenant extends PureComponent {
     this.ref.current.style.maxHeight = 'none';
   }
 
- componentDidUpdate(prevProps) {
+  animateToggle = () => {
+    const { isOpen } = this.props;
+    if (isOpen) {
+      requestAnimationFrame(() => {
+        this.ref.current.style.maxHeight =
+          `${this.ref.current.scrollHeight}px`;
+        this.ref.current.addEventListener(
+          'transitionend', this.onTransitionEnd);
+      });
+    } else {
+      this.ref.current.removeEventListener(
+        'transitionend', this.onTransitionEnd);
+      requestAnimationFrame(() => {
+        this.ref.current.style.maxHeight =
+          `${this.ref.current.scrollHeight}px`;
+        requestAnimationFrame(() => {
+          this.ref.current.style.maxHeight = 0;
+        });
+      });
+    }
+  }
+
+  componentDidUpdate(prevProps) {
     const { isOpen } = this.props;
     if (isOpen !== prevProps.isOpen) {
-      if (isOpen) {
-        requestAnimationFrame(() => {
-          this.ref.current.style.maxHeight =
-            `${this.ref.current.scrollHeight}px`;
-          this.ref.current.addEventListener(
-            'transitionend', this.onTransitionEnd);
-        });
-      } else {
-        this.ref.current.removeEventListener(
-          'transitionend', this.onTransitionEnd);
-        requestAnimationFrame(() => {
-          this.ref.current.style.maxHeight =
-            `${this.ref.current.scrollHeight}px`;
-          requestAnimationFrame(() => {
-            this.ref.current.style.maxHeight = 0;
-          });
-        });
-      }
+      this.animateToggle();
     }
   }
 }

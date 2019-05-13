@@ -1,6 +1,8 @@
 import { ICON_VNF_SPACING, ICON_VM_SPACING } from '../constants/Layout';
 import { combineReducers } from 'redux';
 import { createSelector } from 'reselect';
+import { persistReducer } from 'redux-persist';
+import storage from 'redux-persist/lib/storage';
 
 import { roundPc } from '../utils/UiUtils';
 
@@ -14,9 +16,21 @@ import vnfs, * as fromVnfs from './vnfs.js';
 import connections, * as fromConnections from './connections.js';
 import devices, * as fromDevices from './devices.js';
 
+const layoutPersistConfig = {
+  key: 'layout',
+  storage: storage,
+  whitelist: ['iconSize']
+};
+
+const uiStatePersistConfig = {
+  key: 'uiState',
+  storage: storage,
+  whitelist: ['expandedIcons', 'openTenant']
+};
+
 export default combineReducers({
-  layout,
-  uiState,
+  layout: persistReducer(layoutPersistConfig, layout),
+  uiState: persistReducer(uiStatePersistConfig, uiState),
   tenants,
   endpoints,
   networkServices,

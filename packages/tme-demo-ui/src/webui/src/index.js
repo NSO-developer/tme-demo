@@ -5,6 +5,8 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import { Provider } from 'react-redux';
 import { createStore, applyMiddleware, compose } from 'redux';
+import { persistStore } from 'redux-persist';
+import { PersistGate } from 'redux-persist/integration/react';
 import Modal from 'react-modal';
 
 import thunkMiddleware from 'redux-thunk';
@@ -25,6 +27,7 @@ const store = createStore(
     applyMiddleware(cometMiddleware, jsonRpcMiddleware, thunkMiddleware)
   )
 );
+const persistor = persistStore(store);
 
 JsonRpc.setStore(store);
 Comet.start();
@@ -34,7 +37,9 @@ Modal.setAppElement(appElement);
 
 ReactDOM.render(
   <Provider store={store}>
-    <App />
+    <PersistGate loading={null} persistor={persistor}>
+      <App />
+    </PersistGate>
   </Provider>,
   appElement
 );

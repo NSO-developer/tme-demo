@@ -18,7 +18,7 @@ export const fetchEndpoints = () => ({
                     'ce-interface',
                     'ip-network',
                     'bandwidth',
-                    'qos-policy' ],
+                    'as-number' ],
     resultKeys  : [ 'name',
                     'tenant',
                     // Following used as label names...
@@ -26,7 +26,7 @@ export const fetchEndpoints = () => ({
                     'Interface',
                     'IP Network',
                     'Bandwidth',
-                    'QoS Policy' ]
+                    'AS Number' ]
   },
   types: [
     FETCH_ENDPOINTS_REQUEST,

@@ -1,0 +1,22 @@
+<devices xmlns="http://tail-f.com/ns/ncs">
+  <authgroups>
+    <group>
+      <name>asa</name>
+      <umap>
+        <local-user>admin</local-user>
+        <remote-name>admin</remote-name>
+        <remote-password>$8$fAF8I+RdiAnK7pgywq2NbKtqObaufNs1Ro3/EkMw/Eg=</remote-password>
+        <remote-secondary-password>$8$WzuKJGmYZ/EuUpKMbFKKwn/9YgmmJXSA3qgPzdqdkNk=</remote-secondary-password>
+      </umap>
+    </group>
+    <group>
+      <name>csr</name>
+      <umap>
+        <local-user>admin</local-user>
+        <remote-name>admin</remote-name>
+        <remote-password>$8$fAF8I+RdiAnK7pgywq2NbKtqObaufNs1Ro3/EkMw/Eg=</remote-password>
+        <remote-secondary-password>$8$WzuKJGmYZ/EuUpKMbFKKwn/9YgmmJXSA3qgPzdqdkNk=</remote-secondary-password>
+      </umap>
+    </group>
+  </authgroups>
+</devices>

@@ -8,6 +8,7 @@ class JsonRpc {
     this.id = 0;
     this.thWrite = undefined;
     this.pendingThWrite = undefined;
+    this.committing = false;
     this.thRead = undefined;
     this.store = undefined;
   }
@@ -88,8 +89,8 @@ class JsonRpc {
   async read() {
     const db = 'running';
 
+    if (this.thWrite && !this.committing) { return this.thWrite; }
     if (this.thRead) { return this.thRead; }
-    if (this.thWrite) { return this.thWrite; }
 
     const res = await this.request('get_trans');
     const readTrans = res.trans.filter(c =>
@@ -97,7 +98,7 @@ class JsonRpc {
     const writeTrans = res.trans.filter(c =>
       c.db === db && c.mode === 'read_write');
 
-    if (writeTrans.length > 0) {
+    if (writeTrans.length > 0 && !this.committing) {
       this.thWrite = writeTrans[0].th;
       this.store.dispatch(writeTransactionToggled(true));
       return writeTrans[0].th;
@@ -143,11 +144,14 @@ class JsonRpc {
     try {
       this.store.dispatch(commitInProgressToggled(true));
       await this.request('validate_commit', {th: this.thWrite});
+      this.committing = true;
       await this.request('commit', {th: this.thWrite});
       this.thWrite = undefined;
+      this.committing = false;
       this.store.dispatch(writeTransactionToggled(false));
       this.store.dispatch(commitInProgressToggled(false));
     } catch(error) {
+      this.committing = false;
       this.store.dispatch(handleError('Error committing transaction', error));
       this.store.dispatch(commitInProgressToggled(false));
     }

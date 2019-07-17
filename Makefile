@@ -10,6 +10,8 @@ NETWORK = \
 
 DEMO_DIR = $(shell basename $(CURDIR))
 
+EXTERNAL_DEPS = resource-manager esc tailf-etsi-rel2-nfvo cisco-asa
+DEP_CLEANUP_DIRS = doc doc-internal examples initial_data test
 
 all-real-esc: remove-esc-netsim all
 	cp initial-data/real-esc.xml ncs-cdb
@@ -25,7 +27,15 @@ all: setup.mk packages netsim ncs-cdb
 .PHONY: all
 
 setup.mk:
-	ncs-project update
+	for i in $(EXTERNAL_DEPS); do \
+	    if [ ! -d packages/$${i} ]; then ncs-project update; break; fi; \
+	done
+	if [ ! -f setup.mk ]; then touch setup.mk; fi
+	for i in $(EXTERNAL_DEPS); do \
+	    for n in $(DEP_CLEANUP_DIRS); do \
+	        [ -d packages/$${i}/$${n} ] && rm -r packages/$${i}/$${n} || true; \
+	    done; \
+	done
 
 packages:
 	$(MAKE) -C packages

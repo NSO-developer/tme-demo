@@ -44,7 +44,7 @@ tenants can be expanded to show their endpoints and network services.
 
 ## Displaying the UI
 From the NSO Web UI, the demo UI can be displayed by clicking the *TME Demo*
-tile in the *Application bub*, or using the *TME Demo* button on the shortcut
+tile in the *Application hub*, or using the *TME Demo* button on the shortcut
 bar at the bottom of the browser window.
 
 ## Making changes
@@ -59,7 +59,7 @@ no confirmation. The *Commit* button is useful when wanting to quickly commit
 changes without showing the dry-run output.
 
 ## Topology
-The topology is split in to different domains and each device and service chain
+The topology is split into different domains and each device and service chain
 belong to a domain. The default domains are:
 
 - **Data Center:** This is where centralized VNFs can be placed (the hosted
@@ -83,7 +83,7 @@ the device tooltip. The device types are as follows:
 - **Nokia ALU-SR:** pe3
 
 ### Service chains
-By default, service chains are displayed on the topology collapsed in to a
+By default, service chains are displayed on the topology collapsed into a
 single icon. Clicking the icon will expand the network service to show the VNFs
 and their connections. The state of each VNF is indicated by a colour overlay:
 
@@ -136,9 +136,8 @@ the topology with a blue hue.
 
 ### Network Services
 Network services are created by dragging the `+` button next to the tenant's
-*Network Services* header in the sidebar on to the topology window. The
-position the button is dropped indicates where the service chain icon will be
-created.
+*Network Services* header in the sidebar on to the topology window. The service
+chain icon will be created where the button is dropped.
 
 The service chain will be created according to the Network Service Descriptor
 (NSD) chosen. Example NSDs included with the demo are virtual PE (vPE) and
@@ -153,8 +152,9 @@ Network services can be deleted by pressing the `x` button next to the network
 service in the sidebar.
 
 # Getting started
-By default, the demo uses an entirely simulated environment. The demo supports
-using a real ESC device when the VIM is OpenStack.
+By default, the demo uses an entirely simulated environment, suitable for
+running on a laptop. The demo also supports using a real ESC device when the
+VIM is OpenStack.
 
 ## Pre-requites
 * NSO 5.1
@@ -226,7 +226,7 @@ the RSA keys before compiling the demo), ensure that the demo is rebuilt
 cleanly. This is important to ensure that all automated installation steps have
 been executed.
 
-Use the `clean` target to delete the CDB and NETSIM network, and clean the demo
+Use the `clean` target to delete the CDB and NETSIM network and clean the demo
 packages.
 
     > make clean all
@@ -264,7 +264,7 @@ tile in the *Application hub*.
     select *full model*.
 
 2.  Click the `l3vpn` container. Choose a `qos-policy`. The default
-    `router-distinguisher` can be changed. Navigate back to the *TME Demo*
+    `route-distinguisher` can be changed. Navigate back to the *TME Demo*
     using the shortcut bar at the bottom of the browser window.
 
 ## Add physical endpoints
@@ -350,7 +350,7 @@ tile in the *Application hub*.
     the *Edit Topology* toggle button again to leave edit mode.
 
 14. At this point the service is no longer operational because *pe2* contains
-    configuration that should be in *pe3*. The service can be fixed
+    configuration that should be in *pe3*. The service can be repaired
     automatically using NSO's re-deploy feature. Click the *redeploy* button
     next to the tenant name in the sidebar (the tooltip for this button is
     *Touch L3 VPN and go to Commit Manager*). NSO uses the original service
@@ -368,7 +368,7 @@ tile in the *Application hub*.
     automatic cross vendor migration to do this repair.
 
 17. Click the *Commit* button on the right of the header bar and choose *Yes,
-    commit* from the confirmation dialog to send the changes to the device.
+    commit* from the confirmation dialog to send the changes to the devices.
     Navigate back to the *TME Demo* using the shortcut bar at the bottom of the
     browser window.
 

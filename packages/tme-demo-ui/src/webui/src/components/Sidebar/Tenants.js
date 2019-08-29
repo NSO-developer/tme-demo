@@ -59,7 +59,7 @@ class Tenants extends PureComponent {
         <div className="sidebar__header">
           <span className="sidebar__title-text">Tenants</span>
           <div
-            className="sidebar__round-btn sidebar__round-btn--add"
+            className="inline-round-btn inline-round-btn--add"
             onClick={this.openNewItem}
           >
             <Btn type={BTN_ADD} tooltip="Add New Tenant" />

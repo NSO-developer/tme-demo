@@ -46,7 +46,7 @@ class Endpoint extends PureComponent {
         <div className="accordion__header" onClick={toggle} >
           <span className="sidebar__title-text">{name} ({rest['Device']})</span>
           <div
-            className="sidebar__round-btn sidebar__round-btn--go-to"
+            className="inline-round-btn inline-round-btn--go-to"
             onClick={this.goTo}
           >
             <Btn
@@ -55,7 +55,7 @@ class Endpoint extends PureComponent {
             />
           </div>
           <div
-            className="sidebar__round-btn sidebar__round-btn--delete"
+            className="inline-round-btn inline-round-btn--delete"
             onClick={this.delete}
           >
             <Btn type={IconTypes.BTN_DELETE} tooltip="Delete Endpoint"/>

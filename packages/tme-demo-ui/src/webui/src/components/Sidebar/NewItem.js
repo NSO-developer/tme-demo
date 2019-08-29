@@ -76,7 +76,7 @@ class NewItem extends PureComponent {
           ref={this.formRef}
         >
           <div
-            className="sidebar__round-btn sidebar__round-btn--delete"
+            className="inline-round-btn inline-round-btn--delete"
             onClick={close}
           >
             <Btn type={IconTypes.BTN_DELETE} tooltip="Cancel"/>
@@ -89,9 +89,9 @@ class NewItem extends PureComponent {
             type="text"
             value={value}
           />
-          <div className={classNames('sidebar__round-btn', {
-            'sidebar__round-btn--confirm-active': value !== '',
-            'sidebar__round-btn--confirm-inactive': value === ''
+          <div className={classNames('inline-round-btn', {
+            'inline-round-btn--confirm-active': value !== '',
+            'inline-round-btn--confirm-inactive': value === ''
           })} onClick={this.create}>
             <Btn type={IconTypes.BTN_CONFIRM} tooltip="Create"/>
           </div>

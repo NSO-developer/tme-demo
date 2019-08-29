@@ -35,8 +35,14 @@ table.tooltip > tbody > tr > td {
   padding-right: 1em;
 }
 
-.round-btn__svg-icon {
-  outline: none;
+.inline-round-btn {
+  border-radius: 1rem;
+  cursor: pointer;
+  display: inline-block;
+  height: 1.25rem;
+  padding: 0.375rem;
+  transition: background 500ms ease, opacity 500ms ease;
+  width: 1.25rem;
 }
 
 .loading__overlay {

@@ -197,7 +197,7 @@ class Tenant extends PureComponent {
         <div className="accordion__header" onClick={this.toggle}>
           <span className="sidebar__title-text">{name}</span>
           <div
-            className="sidebar__round-btn sidebar__round-btn--go-to"
+            className="inline-round-btn inline-round-btn--go-to"
             onClick={this.goTo}
           >
             <Btn
@@ -206,7 +206,7 @@ class Tenant extends PureComponent {
             />
           </div>
           <div
-            className="sidebar__round-btn sidebar__round-btn--redeploy"
+            className="inline-round-btn inline-round-btn--redeploy"
             onClick={this.redeploy}
           >
             <Btn
@@ -214,7 +214,7 @@ class Tenant extends PureComponent {
               tooltip="Touch L3 VPN and go to Commit Manager" />
           </div>
           <div
-            className="sidebar__round-btn sidebar__round-btn--delete"
+            className="inline-round-btn inline-round-btn--delete"
             onClick={this.delete}
           >
             <Btn type={IconTypes.BTN_DELETE} tooltip="Delete Tenant" />
@@ -235,7 +235,7 @@ class Tenant extends PureComponent {
           <div className="sidebar__sub-header">
             <span className="sidebar__title-text">Endpoints</span>
             <div
-              className="sidebar__round-btn sidebar__round-btn--add"
+              className="inline-round-btn inline-round-btn--add"
               onClick={this.openNewEndpoint}
             >
               <Btn type={IconTypes.BTN_ADD} tooltip="Add New Endpoint" />
@@ -260,7 +260,7 @@ class Tenant extends PureComponent {
           <div className="sidebar__sub-header">
             <div className="sidebar__title-text">Network Services</div>
             {connectDragSource(
-            <div className="sidebar__round-btn sidebar__round-btn--add">
+            <div className="inline-round-btn inline-round-btn--add">
               <Btn
                 type={IconTypes.BTN_ADD}
                 tooltip="Add New Network Service (drag me)"

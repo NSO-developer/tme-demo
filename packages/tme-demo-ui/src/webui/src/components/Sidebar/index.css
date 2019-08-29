@@ -234,50 +234,40 @@
 }
 
 
-.sidebar__round-btn {
-  border-radius: 1rem;
-  cursor: pointer;
-  display: inline-block;
-  height: 1.25rem;
-  padding: 0.375rem;
-  transition: background 500ms ease, opacity 500ms ease;
-  width: 1.25rem;
-}
-
-.sidebar__round-btn--add {
+.inline-round-btn--add {
   background: var(--nso-blue);
 }
 
-.sidebar__round-btn--add:hover {
+.inline-round-btn--add:hover {
   background: var(--nso-green);
 }
 
-.new-item__form > .sidebar__round-btn--delete {
+.new-item__form > .inline-round-btn--delete {
   background: var(--nso-light-grey);
 }
 
-.sidebar__round-btn--delete:hover {
+.inline-round-btn--delete:hover {
   background: IndianRed;
   color: White;
 }
 
-.sidebar__round-btn--go-to:hover,
-.sidebar__round-btn--redeploy:hover {
+.inline-round-btn--go-to:hover,
+.inline-round-btn--redeploy:hover {
   background: var(--nso-background-grey);
   color: var(--nso-dark-grey);
 }
 
-.accordion--closed > .accordion__header > .sidebar__round-btn--go-to:hover,
-.accordion--closed > .accordion__header > .sidebar__round-btn--redeploy:hover {
+.accordion--closed > .accordion__header > .inline-round-btn--go-to:hover,
+.accordion--closed > .accordion__header > .inline-round-btn--redeploy:hover {
   background: var(--nso-green);
   color: White;
 }
 
-.sidebar__round-btn--confirm-active {
+.inline-round-btn--confirm-active {
   background: var(--nso-green);
 }
 
-.sidebar__round-btn--confirm-inactive {
+.inline-round-btn--confirm-inactive {
   background: var(--nso-light-grey);
   cursor: not-allowed;
 }

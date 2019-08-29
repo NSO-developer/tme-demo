@@ -4,9 +4,14 @@ NETWORK = \
 	create-network packages/cisco-iosxr     2 pe \
 	create-network packages/juniper-junos   1 pe \
 	create-network packages/alu-sr          1 pe \
-	create-network packages/cisco-iosxr     2 dci \
+	create-network packages/cisco-iosxr     4 dci \
 	create-network packages/cisco-iosxr     4 p \
-	create-network packages/esc             1 esc
+	create-network packages/esc             1 esc \
+	create-network packages/cisco-nx        4 tor \
+	create-network packages/cisco-ios       2 sw \
+	create-network packages/dell-ftos       1 sw \
+	create-network packages/cisco-ios       2 sw \
+	create-network packages/dell-ftos       1 sw
 
 DEMO_DIR = $(shell basename $(CURDIR))
 
@@ -56,10 +61,30 @@ netsim:
 	cp initial-data/netsim/alu-sr.xml netsim/pe/pe3/cdb
 	cp initial-data/netsim/iosxr.xml netsim/dci/dci0/cdb
 	cp initial-data/netsim/iosxr.xml netsim/dci/dci1/cdb
+	cp initial-data/netsim/iosxr.xml netsim/dci/dci2/cdb
+	cp initial-data/netsim/iosxr.xml netsim/dci/dci3/cdb
 	cp initial-data/netsim/iosxr.xml netsim/p/p0/cdb
 	cp initial-data/netsim/iosxr.xml netsim/p/p1/cdb
 	cp initial-data/netsim/iosxr.xml netsim/p/p2/cdb
 	cp initial-data/netsim/iosxr.xml netsim/p/p3/cdb
+	cp initial-data/netsim/dci0.xml netsim/dci/dci0/cdb
+	cp initial-data/netsim/dci1.xml netsim/dci/dci1/cdb
+	cp initial-data/netsim/dci2.xml netsim/dci/dci2/cdb
+	cp initial-data/netsim/dci3.xml netsim/dci/dci3/cdb
+	cp initial-data/netsim/nexus.xml netsim/tor/tor0/cdb
+	cp initial-data/netsim/nexus.xml netsim/tor/tor1/cdb
+	cp initial-data/netsim/nexus.xml netsim/tor/tor2/cdb
+	cp initial-data/netsim/nexus.xml netsim/tor/tor3/cdb
+	cp initial-data/netsim/tor0.xml netsim/tor/tor0/cdb
+	cp initial-data/netsim/tor1.xml netsim/tor/tor1/cdb
+	cp initial-data/netsim/tor2.xml netsim/tor/tor2/cdb
+	cp initial-data/netsim/tor3.xml netsim/tor/tor3/cdb
+	cp initial-data/netsim/ios.xml netsim/sw/sw0/cdb
+	cp initial-data/netsim/ios.xml netsim/sw/sw1/cdb
+	cp initial-data/netsim/f10.xml netsim/sw/sw2/cdb
+	cp initial-data/netsim/ios.xml netsim/sw/sw3/cdb
+	cp initial-data/netsim/ios.xml netsim/sw/sw4/cdb
+	cp initial-data/netsim/f10.xml netsim/sw/sw5/cdb
 
 ncs-cdb:
 	ncs-setup --no-netsim --dest .

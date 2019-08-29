@@ -69,7 +69,7 @@
       <platform>
         <name>Cisco IOS-XR</name>
         <version>3.5</version>
-        <model>NETSIM</model>
+        <model>ASR 9000 (NETSIM)</model>
       </platform>
     </device>
     <device>
@@ -77,7 +77,23 @@
       <platform>
         <name>Cisco IOS-XR</name>
         <version>3.5</version>
-        <model>NETSIM</model>
+        <model>ASR 9000 (NETSIM)</model>
+      </platform>
+    </device>
+    <device>
+      <name>dci2</name>
+      <platform>
+        <name>Cisco IOS-XR</name>
+        <version>3.5</version>
+        <model>ASR 9000 (NETSIM)</model>
+      </platform>
+    </device>
+    <device>
+      <name>dci3</name>
+      <platform>
+        <name>Cisco IOS-XR</name>
+        <version>3.5</version>
+        <model>ASR 9000 (NETSIM)</model>
       </platform>
     </device>
     <device>
@@ -110,6 +126,86 @@
         <name>TiMOS</name>
         <version>14.0.R0</version>
         <model>7750 (NETSIM)</model>
+      </platform>
+    </device>
+    <device>
+      <name>sw0</name>
+      <platform>
+        <name>Cisco IOS</name>
+        <version>3.8</version>
+        <model>Catalyst (NETSIM)</model>
+      </platform>
+    </device>
+    <device>
+      <name>sw1</name>
+      <platform>
+        <name>Cisco IOS</name>
+        <version>3.8</version>
+        <model>Catalyst (NETSIM)</model>
+      </platform>
+    </device>
+    <device>
+      <name>sw2</name>
+      <platform>
+        <name>Dell FTOS</name>
+        <version>3.0</version>
+        <model>Force10 (NETSIM)</model>
+      </platform>
+    </device>
+    <device>
+      <name>sw3</name>
+      <platform>
+        <name>Cisco IOS</name>
+        <version>3.8</version>
+        <model>Catalyst (NETSIM)</model>
+      </platform>
+    </device>
+    <device>
+      <name>sw4</name>
+      <platform>
+        <name>Cisco IOS</name>
+        <version>3.8</version>
+        <model>Catalyst (NETSIM)</model>
+      </platform>
+    </device>
+     <device>
+      <name>sw5</name>
+      <platform>
+        <name>Dell FTOS</name>
+        <version>3.0</version>
+        <model>Force10 (NETSIM)</model>
+      </platform>
+    </device>
+    <device>
+      <name>tor0</name>
+      <platform>
+        <name>Cisco NX</name>
+        <version>3.0</version>
+        <model>NETSIM</model>
+      </platform>
+    </device>
+    <device>
+      <name>tor1</name>
+      <platform>
+        <name>Cisco NX</name>
+        <version>3.0</version>
+        <model>NETSIM</model>
+      </platform>
+    </device>
+    <device>
+      <name>tor2</name>
+      <platform>
+        <name>Cisco NX</name>
+        <version>3.0</version>
+        <model>NETSIM</model>
+      </platform>
+    </device>
+    <device>
+      <name>tor3</name>
+      <platform>
+        <name>Cisco NX</name>
+        <version>3.0</version>
+        <model>NETSIM</model>
       </platform>
     </device>
   </devices>

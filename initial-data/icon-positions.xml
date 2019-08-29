@@ -5,83 +5,84 @@
     <icon>
       <name>ce0</name>
       <device>ce0</device>
-      <type>router</type>
+      <type>customer-router</type>
       <container>customer</container>
       <coord>
         <x>1</x>
-        <y>0.15</y>
+        <y>0.2</y>
       </coord>
     </icon>
     <icon>
       <name>ce1</name>
       <device>ce1</device>
-      <type>router</type>
+      <type>customer-router</type>
       <container>customer</container>
       <coord>
         <x>0.5</x>
-        <y>0.25</y>
+        <y>0.3</y>
       </coord>
     </icon>
     <icon>
       <name>ce2</name>
       <device>ce2</device>
-      <type>router</type>
+      <type>customer-router</type>
       <container>customer</container>
       <coord>
         <x>0</x>
-        <y>0.35</y>
+        <y>0.4</y>
       </coord>
     </icon>
     <icon>
       <name>ce3</name>
       <device>ce3</device>
-      <type>router</type>
+      <type>customer-router</type>
       <container>customer</container>
       <coord>
-        <x>0.0</x>
-        <y>0.025</y>
+        <x>0</x>
+        <y>0.05</y>
       </coord>
     </icon>
     <icon>
       <name>ce4</name>
       <device>ce4</device>
-      <type>router</type>
+      <type>customer-router</type>
       <container>customer</container>
       <coord>
         <x>1</x>
-        <y>0.8</y>
+        <y>0.7</y>
       </coord>
     </icon>
     <icon>
       <name>ce5</name>
       <device>ce5</device>
-      <type>router</type>
+      <type>customer-router</type>
       <container>customer</container>
       <coord>
-        <x>0</x>
-        <y>0.65</y>
+        <x>0.5</x>
+        <y>0.8</y>
       </coord>
     </icon>
     <icon>
       <name>ce6</name>
       <device>ce6</device>
-      <type>router</type>
+      <type>customer-router</type>
       <container>customer</container>
       <coord>
         <x>0.5</x>
-        <y>0.5</y>
+        <y>0.55</y>
       </coord>
     </icon>
     <icon>
       <name>ce7</name>
       <device>ce7</device>
-      <type>router</type>
+      <type>customer-router</type>
       <container>customer</container>
       <coord>
         <x>0.0</x>
         <y>0.95</y>
       </coord>
     </icon>
+
     <icon>
       <name>dci0</name>
       <device>dci0</device>
@@ -89,8 +90,15 @@
       <container>provider</container>
       <coord>
         <x>0.0</x>
-        <y>0.3</y>
+        <y>0.1</y>
       </coord>
+      <zoomed>
+        <container>data-centre</container>
+        <coord>
+          <x>0.15</x>
+          <y>0.2</y>
+        </coord>
+      </zoomed>
     </icon>
     <icon>
       <name>dci1</name>
@@ -99,9 +107,51 @@
       <container>provider</container>
       <coord>
         <x>0.0</x>
+        <y>0.3</y>
+      </coord>
+      <zoomed>
+        <container>data-centre</container>
+        <coord>
+          <x>0.31</x>
+          <y>0.2</y>
+        </coord>
+      </zoomed>
+    </icon>
+    <icon>
+      <name>dci2</name>
+      <device>dci2</device>
+      <type>router</type>
+      <container>provider</container>
+      <coord>
+        <x>0.0</x>
         <y>0.7</y>
       </coord>
+      <zoomed>
+        <container>data-centre</container>
+        <coord>
+          <x>0.69</x>
+          <y>0.2</y>
+        </coord>
+      </zoomed>
     </icon>
+    <icon>
+      <name>dci3</name>
+      <device>dci3</device>
+      <type>router</type>
+      <container>provider</container>
+      <coord>
+        <x>0.0</x>
+        <y>0.9</y>
+      </coord>
+      <zoomed>
+        <container>data-centre</container>
+        <coord>
+          <x>0.85</x>
+          <y>0.2</y>
+        </coord>
+      </zoomed>
+    </icon>
+
     <icon>
       <name>p0</name>
       <device>p0</device>
@@ -109,7 +159,7 @@
       <container>provider</container>
       <coord>
         <x>0.4</x>
-        <y>0.15</y>
+        <y>0.2</y>
       </coord>
     </icon>
     <icon>
@@ -139,7 +189,7 @@
       <container>provider</container>
       <coord>
         <x>0.4</x>
-        <y>0.85</y>
+        <y>0.8</y>
       </coord>
     </icon>
     <icon>
@@ -149,7 +199,7 @@
       <container>provider</container>
       <coord>
         <x>1</x>
-        <y>0.25</y>
+        <y>0.3</y>
       </coord>
     </icon>
     <icon>
@@ -159,7 +209,7 @@
       <container>provider</container>
       <coord>
         <x>1</x>
-        <y>0.025</y>
+        <y>0.05</y>
       </coord>
     </icon>
     <icon>
@@ -179,8 +229,181 @@
       <container>provider</container>
       <coord>
         <x>1</x>
-        <y>0.5</y>
+        <y>0.55</y>
       </coord>
+    </icon>
+
+
+    <icon>
+      <name>sw0</name>
+      <device>sw0</device>
+      <type>switch</type>
+      <container>data-centre</container>
+      <coord>
+        <x>0.25</x>
+        <y>0.05</y>
+      </coord>
+      <zoomed>
+        <container>data-centre</container>
+        <coord>
+          <x>0.07</x>
+          <y>0.9</y>
+        </coord>
+      </zoomed>
+    </icon>
+    <icon>
+      <name>sw1</name>
+      <device>sw1</device>
+      <type>switch</type>
+      <container>data-centre</container>
+      <coord>
+        <x>0.1</x>
+        <y>0.2</y>
+      </coord>
+      <zoomed>
+        <container>data-centre</container>
+        <coord>
+          <x>0.23</x>
+          <y>0.9</y>
+        </coord>
+      </zoomed>
+    </icon>
+    <icon>
+      <name>sw2</name>
+      <device>sw2</device>
+      <type>switch</type>
+      <container>data-centre</container>
+      <coord>
+        <x>0.3</x>
+        <y>0.35</y>
+      </coord>
+      <zoomed>
+        <container>data-centre</container>
+        <coord>
+          <x>0.39</x>
+          <y>0.9</y>
+        </coord>
+      </zoomed>
+    </icon>
+    <icon>
+      <name>sw3</name>
+      <device>sw3</device>
+      <type>switch</type>
+      <container>data-centre</container>
+      <coord>
+        <x>0.25</x>
+        <y>0.65</y>
+      </coord>
+      <zoomed>
+        <container>data-centre</container>
+        <coord>
+          <x>0.61</x>
+          <y>0.9</y>
+        </coord>
+    </zoomed>
+  </icon>
+    <icon>
+      <name>sw4</name>
+      <device>sw4</device>
+      <type>switch</type>
+      <container>data-centre</container>
+      <coord>
+        <x>0.1</x>
+        <y>0.8</y>
+      </coord>
+      <zoomed>
+        <container>data-centre</container>
+        <coord>
+          <x>0.77</x>
+          <y>0.9</y>
+        </coord>
+      </zoomed>
+    </icon>
+    <icon>
+      <name>sw5</name>
+      <device>sw5</device>
+      <type>switch</type>
+      <container>data-centre</container>
+      <coord>
+        <x>0.25</x>
+        <y>0.95</y>
+      </coord>
+      <zoomed>
+        <container>data-centre</container>
+        <coord>
+          <x>0.93</x>
+          <y>0.9</y>
+        </coord>
+      </zoomed>
+    </icon>
+
+    <icon>
+      <name>tor0</name>
+      <device>tor0</device>
+      <type>switch</type>
+      <container>data-centre</container>
+      <coord>
+        <x>0.75</x>
+        <y>0.1</y>
+      </coord>
+      <zoomed>
+        <container>data-centre</container>
+        <coord>
+          <x>0.15</x>
+          <y>0.5</y>
+        </coord>
+      </zoomed>
+    </icon>
+    <icon>
+      <name>tor1</name>
+      <device>tor1</device>
+      <type>switch</type>
+      <container>data-centre</container>
+      <coord>
+        <x>0.75</x>
+        <y>0.3</y>
+      </coord>
+      <zoomed>
+        <container>data-centre</container>
+        <coord>
+          <x>0.31</x>
+          <y>0.5</y>
+        </coord>
+      </zoomed>
+    </icon>
+    <icon>
+      <name>tor2</name>
+      <device>tor2</device>
+      <type>switch</type>
+      <container>data-centre</container>
+      <coord>
+        <x>0.75</x>
+        <y>0.7</y>
+      </coord>
+      <zoomed>
+        <container>data-centre</container>
+        <coord>
+          <x>0.69</x>
+          <y>0.5</y>
+        </coord>
+      </zoomed>
+    </icon>
+    <icon>
+      <name>tor3</name>
+      <device>tor3</device>
+      <type>switch</type>
+      <container>data-centre</container>
+      <coord>
+        <x>0.75</x>
+        <y>0.9</y>
+      </coord>
+      <zoomed>
+        <container>data-centre</container>
+        <coord>
+          <x>0.85</x>
+          <y>0.5</y>
+        </coord>
+      </zoomed>
     </icon>
   </static-map>
   </data-stores>

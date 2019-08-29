@@ -4,6 +4,7 @@ import * as Icons from '../../constants/Icons';
 
 import Firewall from './Firewall';
 import Router from './Router';
+import Switch from './Switch';
 import ServiceChain from './ServiceChain';
 import LoadBalancer from './LoadBalancer';
 import WebServer from './WebServer';
@@ -14,7 +15,17 @@ export default function(props) {
   const colour = Colours.STATE_COLOURS[status];
   switch (type) {
     case Icons.ROUTER:
-      return <Router colour={colour} size={size} />;
+      return <Router colour={colour}
+                     baseColour={Colours.ROUTER}
+                     strokeColour={Colours.STROKE}
+                     size={size} />;
+    case Icons.CUSTOMER_ROUTER:
+      return <Router colour={colour}
+                     baseColour={Colours.CUSTOMER_ROUTER}
+                     strokeColour={Colours.CUSTOMER_ROUTER_STROKE}
+                     size={size} />;
+    case Icons.SWITCH:
+      return <Switch colour={colour} size={size} />;
     case Icons.FIREWALL:
       return <Firewall colour={colour} size={size} />;
     case Icons.SERVICE_CHAIN:

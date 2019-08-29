@@ -1,5 +1,5 @@
 import React from 'react';
-import { STROKE, ROUTER } from '../../constants/Colours';
+import { SWITCH_STROKE, SWITCH } from '../../constants/Colours';
 
 /* Symbols don't appear correctly when dragging in IE and Edge.
       <symbol id="arrow" width="160" height="160">
@@ -20,8 +20,8 @@ import { STROKE, ROUTER } from '../../constants/Colours';
       </symbol>
 */
 
-export default function({ size, colour, baseColour, strokeColour }) {
-  const background = colour ? colour : baseColour;
+export default function({ size, colour }) {
+  const background = colour ? colour : SWITCH;
   return (
     <svg
       xmlns="http://www.w3.org/2000/svg"
@@ -33,7 +33,7 @@ export default function({ size, colour, baseColour, strokeColour }) {
     >
       <circle
         className="topology__svg-icon-circle"
-        stroke={strokeColour} strokeWidth="10" fill={background}
+        stroke={SWITCH_STROKE} strokeWidth="10" fill={background}
         cx="200" cy="200" r="195"
       />
       <g fill="White">
@@ -50,7 +50,7 @@ export default function({ size, colour, baseColour, strokeColour }) {
           l15,1 -1,19
           c-1,11 0,23 2,24
           c2,2 13,4 23,4"
-          transform="translate(50, 50) rotate(315, 80, 80)"
+          transform="translate(50, 90) rotate(270, 80, 80)"
         />
         <path d="
           m80, 154
@@ -65,7 +65,7 @@ export default function({ size, colour, baseColour, strokeColour }) {
           l15,1 -1,19
           c-1,11 0,23 2,24
           c2,2 13,4 23,4"
-          transform="translate(190, 50) rotate(225, 80, 80)"
+          transform="translate(190, 30) rotate(90, 80, 80)"
         />
         <path d="
           m80, 154
@@ -80,7 +80,7 @@ export default function({ size, colour, baseColour, strokeColour }) {
           l15,1 -1,19
           c-1,11 0,23 2,24
           c2,2 13,4 23,4"
-          transform="translate(190, 190) rotate(135, 80, 80)"
+          transform="translate(190, 150) rotate(90, 80, 80)"
         />
         <path d="
           m80, 154
@@ -95,7 +95,7 @@ export default function({ size, colour, baseColour, strokeColour }) {
           l15,1 -1,19
           c-1,11 0,23 2,24
           c2,2 13,4 23,4"
-          transform="translate(50, 190) rotate(45, 80, 80)"
+          transform="translate(50, 210) rotate(270, 80, 80)"
         />
       </g>
     </svg>

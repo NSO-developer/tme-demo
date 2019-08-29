@@ -16,35 +16,32 @@ module tme-demo-ui {
   }
 
   typedef icon-type {
-    description "";
-
     type enumeration {
-      enum "service-chain";
-      enum "router";
+      enum "customer-router";
       enum "firewall";
-      enum "load-balancer";
-      enum "web-server";
       enum "generic";
+      enum "load-balancer";
+      enum "router";
+      enum "service-chain";
+      enum "switch";
+      enum "web-server";
     }
   }
 
   typedef icon-container {
-    description "";
-
     type enumeration {
-      enum "provider";
       enum "customer";
       enum "data-centre";
+      enum "provider";
     }
   }
 
   typedef icon-coordinate {
-    description "Normalized relative coordinate";
-
     type decimal64 {
       fraction-digits 18;
       range "0 .. 1";
     }
+    description "Normalized relative coordinate";
   }
 
   grouping icon-coordinates {
@@ -101,6 +98,16 @@ module tme-demo-ui {
         }
 
         uses icon-coordinates;
+
+        list zoomed {
+          key container;
+
+          leaf container {
+            type icon-container;
+          }
+
+          uses icon-coordinates;
+        }
       }
     }
   }

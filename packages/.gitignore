@@ -6,5 +6,7 @@ tailf-etsi-rel2-nfvo
 alu-sr
 cisco-ios
 cisco-iosxr
+cisco-nx
+dell-ftos
 juniper-junos
 l3vpn

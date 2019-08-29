@@ -1,5 +1,7 @@
 // Icons
 export const ROUTER = 'router';
+export const CUSTOMER_ROUTER = 'customer-router';
+export const SWITCH = 'switch';
 export const FIREWALL = 'firewall';
 export const SERVICE_CHAIN = 'service-chain';
 export const TEST_AGENT = 'test-agent';

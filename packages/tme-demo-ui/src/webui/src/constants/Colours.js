@@ -17,6 +17,10 @@ export const LABEL_BACKGROUND = 'rgba(255, 255, 255, 0.7)';
 
 //Icon colours
 export const ROUTER = '#36C6F4';
+export const CUSTOMER_ROUTER = 'Tan';
+export const CUSTOMER_ROUTER_STROKE = 'RosyBrown';
+export const SWITCH = 'MediumTurquoise';
+export const SWITCH_STROKE = 'CadetBlue';
 export const SERVICE_CHAIN = 'MediumTurquoise';
 export const FLAME = 'DarkOrange';
 export const BACKGROUND = 'WhiteSmoke';

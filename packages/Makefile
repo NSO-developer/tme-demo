@@ -4,7 +4,7 @@ PACKAGES = tme-demo-ui tme-demo
 PACKAGE_DEPENDENCIES = resource-manager esc tailf-etsi-rel2-nfvo cisco-asa l3vpn
 NED_STORE=$(NCS_DIR)/packages/neds
 
-all: cisco-ios cisco-iosxr juniper-junos alu-sr l3vpn
+all: cisco-ios cisco-iosxr juniper-junos alu-sr cisco-nx dell-ftos l3vpn
 	for i in $(PACKAGE_DEPENDENCIES) $(PACKAGES); do \
 	    $(MAKE) -C $${i}/src all || exit 1; \
 	done
@@ -23,6 +23,12 @@ juniper-junos:
 alu-sr:
 	ln -s $(NED_STORE)/alu-sr-cli-3.4 $@
 
+cisco-nx:
+	ln -s $(NED_STORE)/cisco-nx-cli-3.0 $@
+
+dell-ftos:
+	ln -s $(NED_STORE)/dell-ftos-cli-3.0 $@
+
 l3vpn:
 	ln -s $(NCS_DIR)/examples.ncs/service-provider/mpls-vpn/packages/$@
 
@@ -40,5 +46,7 @@ deep-clean: clean
 	rm -f alu-sr
 	rm -f juniper-junos
 	rm -f cisco-iosxr
+	rm -f cisco-nx
+	rm -f dell-ftos
 	rm -rf cisco-ios
 .PHONY: clean-deep

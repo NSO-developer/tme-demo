@@ -18,14 +18,15 @@ import Interface from './Interface';
 import IconHighlight from '../icons/IconHighlight';
 import IconSvg from '../icons/IconSvg';
 
-import { getIcon, getActualIconSize, getSelectedIcon, getIsIconExpanded,
-         getHighlightedDevices, getIconVnfs, getConnections,
-         getIconPosition, getDevice, getDimensions, getLayout,
-         getEditMode } from '../../reducers';
+import { getIcon, getZoomedIcon, getActualIconSize, getSelectedIcon,
+         getZoomedContainer, getIsIconExpanded, getHighlightedDevices,
+         getIconVnfs, getConnections, getIconPosition, getDevice,
+         getDimensions, getLayout, getEditMode } from '../../reducers';
 
 import { iconSelected, connectionSelected,
          itemDragged, iconExpandToggled } from '../../actions/uiState';
 import { moveIcon } from '../../actions/icons';
+import { moveZoomedIcon } from '../../actions/zoomedIcons';
 import { addConnection, moveConnection } from '../../actions/connections';
 
 import { pxCoordToSafePc, isSafari,
@@ -68,6 +69,7 @@ const mapStateToPropsFactory = (initialState, initialProps) => {
   const getIconHighlightedDevices = getIconHighlightedDevicesFactory(device);
   return state => ({
     ...getIcon(state, name),
+    ...(getZoomedContainer(state) ? getZoomedIcon(state, name) : {}),
     label: name,
     size: getActualIconSize(state),
     selected: getSelectedIcon(state) === name,
@@ -79,12 +81,13 @@ const mapStateToPropsFactory = (initialState, initialProps) => {
     positions: getIconPosition(state, name),
     dimensions: getDimensions(state),
     layout: getLayout(state),
-    editMode: getEditMode(state)
+    editMode: getEditMode(state),
+    zoomedContainer: getZoomedContainer(state)
   });
 };
 
 const mapDispatchToProps = {
-  itemDragged, iconSelected, iconExpandToggled, moveIcon,
+  itemDragged, iconSelected, iconExpandToggled, moveIcon, moveZoomedIcon,
   connectionSelected, addConnection, moveConnection
 };
 
@@ -201,8 +204,14 @@ class Icon extends PureComponent {
   }
 
   moveIcon = (x, y) => {
-    const { name, container, dimensions, layout, moveIcon } = this.props;
-    moveIcon(name, pxCoordToSafePc(x, y, layout[container], dimensions));
+    const { name, container, dimensions, layout, moveIcon,
+            moveZoomedIcon, zoomedContainer } = this.props;
+    if (zoomedContainer) {
+      moveZoomedIcon(name, pxCoordToSafePc(x, y, layout[container],
+                                           dimensions), zoomedContainer);
+    } else {
+      moveIcon(name, pxCoordToSafePc(x, y, layout[container], dimensions));
+    }
   }
 
   handleMouseDown = event => {
@@ -303,6 +312,7 @@ class Icon extends PureComponent {
     }
 
     let status = this.getStatus();
+    const { hidden } = positions[name];
     const hasVnfs = vnfs && vnfs.length > 0;
     const top = positions[hasVnfs ? vnfs[0].name : name];
     const outlineSize = expanded ? Math.round(size * ICON_VNF_SPACING) : size;
@@ -326,7 +336,8 @@ class Icon extends PureComponent {
           onClick={this.handleOnClick}
           id={`${name}-outline`}
           className={classNames('icon__outline', {
-            'icon__outline--expanded': expanded
+            'icon__outline--expanded': expanded,
+            'icon__container--hidden': hidden
           })}
           style={{
             left: `${top.pcX}%`,
@@ -343,7 +354,7 @@ class Icon extends PureComponent {
             vnf.linkToPrevious &&
               <div
                 className={classNames('icon__vnf-connection', {
-                  'icon__vnf-connection--expanded': expanded
+                  'icon__vnf-connection--expanded': expanded && !hidden
                 })}
                 style={{
                   height: `${expanded ? outlineSize : 0}px`,
@@ -363,7 +374,7 @@ class Icon extends PureComponent {
                 <div
                   className={classNames('icon__container', {
                     'icon__container--expanded': expanded,
-                    'icon__container--hidden': !expanded ||
+                    'icon__container--hidden': !expanded || hidden ||
                       editMode || !highlightedDevices ||
                       !highlightedDevices.includes(vm.device)
                   })}
@@ -375,7 +386,7 @@ class Icon extends PureComponent {
                   id={`${vnfVmName}-vnf-vm`}
                   className={classNames('icon__container', {
                     'icon__container--expanded': expanded,
-                    'icon__container--hidden': !expanded
+                    'icon__container--hidden': !expanded || hidden
                   })}
                   style={positionStyle(positions[vnfVmName], size)}
                 >
@@ -414,8 +425,9 @@ class Icon extends PureComponent {
         <div
           className={classNames('icon__container', {
             'icon__container--expanded': expanded,
-            'icon__container--hidden': editMode || expanded && vnfs.length > 0
-              || !highlightedDevices || highlightedDevices.length == 0
+            'icon__container--hidden': hidden || editMode ||
+              expanded && vnfs.length > 0 ||
+              !highlightedDevices || highlightedDevices.length == 0
           })}
           style={positionStyle(positions[name], size*2)}
         >
@@ -426,7 +438,8 @@ class Icon extends PureComponent {
             id={`${name}-icon`}
             className={classNames('icon__container', {
               'icon__container--expanded': expanded,
-              'icon__container--dragging': isDragging
+              'icon__container--dragging': isDragging,
+              'icon__container--hidden': hidden
             })}
             style={positionStyle(positions[name], size)}
           >
@@ -454,7 +467,8 @@ class Icon extends PureComponent {
                       onMouseDown={this.handleMouseDown}
                       className={classNames('icon__svg-wrapper',
                         'icon__svg-wrapper-absolute', {
-                        'icon__svg-wrapper--hidden': expanded && vnfs.length > 0
+                        'icon__svg-wrapper--hidden': hidden ||
+                          expanded && vnfs.length > 0
                       })}
                       style={svgStyle(size)}
                     >

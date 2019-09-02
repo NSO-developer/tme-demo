@@ -56,8 +56,8 @@ class Connection extends PureComponent {
 
   render() {
     console.debug('Connection Render');
-    const { name, x1, y1, x2, y2, disabled, dragging,
-      iconSize, selected, expanded, dimensions, editMode } = this.props;
+    const { name, x1, y1, x2, y2, hidden, expanded, colour, disabled,
+      dragging, iconSize, selected, dimensions, editMode } = this.props;
 
     const iconRadius = iconSize / 2;
     const circleSize = iconSize * CIRCLE_ICON_RATIO;
@@ -72,13 +72,15 @@ class Connection extends PureComponent {
     const pcP3 = pxToPc(p3, dimensions);
 
     // Always apply the shortest rotation
-    const newLineAngle = lineAngle(line);
-    if ((this.lineAngle - newLineAngle) > 180) {
-      this.lineAngle = newLineAngle + 360;
-    } else if ((this.lineAngle - newLineAngle) < -180) {
-      this.lineAngle = newLineAngle - 360;
-    } else {
-      this.lineAngle = newLineAngle;
+    if (length > 0) {
+      const newLineAngle = lineAngle(line);
+      if ((this.lineAngle - newLineAngle) > 180) {
+        this.lineAngle = newLineAngle + 360;
+      } else if ((this.lineAngle - newLineAngle) < -180) {
+        this.lineAngle = newLineAngle - 360;
+      } else {
+        this.lineAngle = newLineAngle;
+      }
     }
 
     return (
@@ -89,9 +91,11 @@ class Connection extends PureComponent {
           'topology__connection--selected': selected || expanded,
           'topology__connection--disabled': selected && disabled,
           'topology__connection--edit': editMode,
-          'topology__connection--dragging': dragging
+          'topology__connection--dragging': dragging,
+          'topology__connection--hidden': hidden
         })}
         style={{
+          background: !selected && !expanded && !disabled ? colour : null,
           height: `${lineWidth}px`,
           left: `${pcP1.pcX}%`,
           top: `${pcP1.pcY}%`,

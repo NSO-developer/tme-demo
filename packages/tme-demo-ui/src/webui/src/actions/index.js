@@ -14,6 +14,7 @@
  */
 
 import { fetchIcons, subscribeIcons } from './icons';
+import { fetchZoomedIcons } from './zoomedIcons';
 import { fetchConnections, subscribeConnections } from './connections';
 import { fetchVnfs, subscribeVnfs } from './vnfs';
 import { fetchDevices } from './devices';
@@ -31,6 +32,7 @@ export const fetchTopologyData = () => async dispatch => {
     dispatch(fetchIcons()),
     dispatch(fetchVnfs())
   ]);
+  dispatch(fetchZoomedIcons()),
   dispatch(fetchConnections());
   dispatch(fetchDevices());
 };

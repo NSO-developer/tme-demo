@@ -18,8 +18,9 @@ import IconSizeSlider from './IconSizeSlider';
 import LoadingOverlay from '../common/LoadingOverlay';
 
 import { getIcons, getConnectionPositions, getDimensions, getLayout,
-         getDraggedItem, getIsFetchingIcons, getIsFetchingVnfs,
-         getIsFetchingConnections, getEditMode } from '../../reducers';
+         getDraggedItem, getIsFetchingIcons, getIsFetchingZoomedIcons,
+         getIsFetchingVnfs, getIsFetchingConnections,
+         getEditMode } from '../../reducers';
 
 import { fetchTopologyData, subscribeTopologyData } from '../../actions';
 import { dimensionsChanged } from '../../actions/layout';
@@ -31,7 +32,7 @@ const mapStateToProps = state => ({
   dimensions: getDimensions(state),
   layout: getLayout(state),
   draggedItem: getDraggedItem(state),
-  isFetchingIcons: getIsFetchingIcons(state),
+  isFetchingIcons: getIsFetchingIcons(state) || getIsFetchingZoomedIcons(state),
   isFetchingConnections: getIsFetchingConnections(state),
   isFetchingVnfs: getIsFetchingVnfs(state),
   editMode: getEditMode(state)
@@ -77,31 +78,11 @@ class Topology extends PureComponent {
       })}>
         <div className="topology__body">
           <div className="topology__layer topology__layer--background">
-            {LAYOUT.map(({ name, width }, index) =>
-              <Container
-                key={index}
-                index={index}
-                name={name}
-                width={layout ? layout[name].pc.backgroundWidth : width}
-                length={LAYOUT.length}
-              />
-            )}
+            {layout && Object.keys(layout).map(name =>
+              <Container key={name} name={name}/>)}
           </div>
           <div className="topology__layer topology__layer--foreground">
-            <div className="topology__header">
-              {LAYOUT.map(({ name, width, title }, index) =>
-                <div
-                  key={index}
-                  className={classNames('container__title-text', {
-                    'container__background--not-first': index !== 0
-                  })}
-                  style={{
-                    width: `${layout ? layout[name].pc.backgroundWidth : width}%`,
-                }}>
-                  {title}
-                </div>
-              )}
-            </div>
+            <div className="topology__header"/>
             <div className="topology__body" ref={this.ref}>
               <ReactResizeDetector handleWidth handleHeight
                 onResize={this.resize}

@@ -10,7 +10,7 @@ import { CIRCLE_ICON_RATIO, LINE_ICON_RATIO } from '../../constants/Layout';
 
 import { getDraggedItem, getConnections,getVnfs, getIconPositions,
          getIconsByDevice, getIconsByNsInfo, getVnfsByDevice,
-         getDimensions, getLayout, getActualIconSize,
+         getDimensions, getLayout, getActualIconSize, getZoomedContainer,
          calculateConnectionPositions } from '../../reducers';
 
 import { restrictPos, pointAlongLine } from '../../utils/UiUtils';
@@ -28,12 +28,14 @@ const mapStateToProps = state => {
   const vnfsByDevice = getVnfsByDevice(state);
   const vnfs = getVnfs(state);
   const iconPositions = getIconPositions(state);
+  const zoomedContainer = getZoomedContainer(state);
   let overlayConnections = undefined;
   if (draggedItem) {
     const { icon, fromIcon, connection, endpoint } = draggedItem;
     overlayConnections = icon
         ? calculateConnectionPositions(connections, iconsByDevice,
-            iconsByNsInfo, vnfsByDevice, vnfs, iconPositions, icon)
+            iconsByNsInfo, vnfsByDevice, vnfs, iconPositions,
+            zoomedContainer, icon)
         : [ {
             name: connection,
             from: iconPositions[fromIcon ? fromIcon : getEndpointIcon(
@@ -45,7 +47,7 @@ const mapStateToProps = state => {
     iconPositions,
     dimensions: getDimensions(state),
     layout: getLayout(state),
-    iconSize: getActualIconSize(state),
+    iconSize: getActualIconSize(state)
   };
 };
 
@@ -161,8 +163,7 @@ class CustomDragLayer extends PureComponent {
 
     switch (itemType) {
       case ICON: {
-        const { x, y } = restrictPos(pos.x, pos.y, layout[item.container]
-        );
+        const { x, y } = restrictPos(pos.x, pos.y, layout[item.container]);
 
         Object.keys(overlayConnections).forEach(key => {
           const { from } = overlayConnections[key];

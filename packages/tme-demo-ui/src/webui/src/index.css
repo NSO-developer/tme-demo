@@ -35,6 +35,10 @@ table.tooltip > tbody > tr > td {
   padding-right: 1em;
 }
 
+.round-btn__svg-icon {
+  outline: none;
+}
+
 .inline-round-btn {
   border-radius: 1rem;
   cursor: pointer;

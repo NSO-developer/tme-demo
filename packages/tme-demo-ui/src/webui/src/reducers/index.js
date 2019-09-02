@@ -12,6 +12,7 @@ import tenants, * as fromTenants from './tenants.js';
 import endpoints, * as fromEndpoints from './endpoints.js';
 import networkServices, * as fromNetworkServices from './networkServices.js';
 import icons, * as fromIcons from './icons.js';
+import zoomedIcons, * as fromZoomedIcons from './zoomedIcons.js';
 import vnfs, * as fromVnfs from './vnfs.js';
 import connections, * as fromConnections from './connections.js';
 import devices, * as fromDevices from './devices.js';
@@ -35,6 +36,7 @@ export default combineReducers({
   endpoints,
   networkServices,
   icons,
+  zoomedIcons,
   vnfs,
   connections,
   devices
@@ -66,6 +68,11 @@ export const getIconHeightPc = state =>
 export const getLayout = state =>
   fromLayout.getLayout(state.layout);
 
+export const getZoomedContainer = state =>
+  fromLayout.getZoomedContainer(state.layout);
+
+export const getZoomedLayout = state =>
+  fromLayout.getLayout(state.layout);
 
 // === UiState selectors ======================================================
 
@@ -154,6 +161,19 @@ export const getIconsByNsInfo = state =>
   fromIcons.getIconsByNsInfo(state.icons);
 
 
+// === Zoomed Icons selectors =================================================
+
+export const getZoomedIcons = state =>
+  fromZoomedIcons.getItems(state.zoomedIcons);
+
+export const getIsFetchingZoomedIcons = state =>
+  fromZoomedIcons.getIsFetching(state.zoomedIcons);
+
+export const getZoomedIcon = (state, name) =>
+  fromZoomedIcons.getZoomedIcon(
+      state.zoomedIcons, name, getZoomedContainer(state));
+
+
 // === Vnfs selectors =========================================================
 
 export const getVnfs = state =>
@@ -202,24 +222,34 @@ export const getHighlightedDevices = state => {
   return tenant && tenant.deviceList ? tenant.deviceList : undefined;
 };
 
-const calculateIconPosition =
-  (name, icon, vnfs, dimensions, layout, iconHeightPc, expanded) => {
+const calculateIconPosition = (name, icon, zoomedIcon, vnfs, dimensions,
+  layout, iconHeightPc, expanded, zoomedContainer
+) => {
   console.debug(`Reselect iconPosition ${name}`);
   if (!dimensions) {
     return null;
   }
-  const { x, y, container } = icon;
+
+  const { x, y, container } =
+    (zoomedContainer && zoomedIcon) ? zoomedIcon : icon;
+
+  const { connectionColour } = layout[container];
+  const hidden = zoomedContainer && container !== zoomedContainer;
+
+  const position = (pcX, pcY) => ({
+    pcX, pcY,
+    x: Math.round(pcX * dimensions.width / 100),
+    y: Math.round(pcY * dimensions.height / 100),
+    expanded, hidden, connectionColour,
+  });
+
   const { left, top, width, height } = layout[container || 'provider'].pc;
   const pcX = roundPc(left + x * width);
   const pcY = roundPc(top + y * height);
   const ret = {
-    [name]: {
-      pcX,
-      pcY,
-      x: Math.round(pcX * dimensions.width / 100),
-      y: Math.round(pcY * dimensions.height / 100),
-      expanded: expanded
-  }};
+    [name]: position(pcX, pcY)
+  };
+
   if (vnfs) {
     const vnfOffset = ((vnfs.length + 1) * ICON_VNF_SPACING +
       vnfs.reduce((accumulator, vnf) => accumulator +=
@@ -234,13 +264,8 @@ const calculateIconPosition =
           ? roundPc(pcY + ((vnfIndex + 1) * ICON_VNF_SPACING +
             vmOffset * ICON_VM_SPACING) * iconHeightPc  - vnfOffset)
           : pcY;
-        ret[`${vnf.name}${vmIndex > 0 ? `-${vmIndex}` : ''}`] = {
-          pcX: vnfPcX,
-          pcY: vnfPcY,
-          x: Math.round(vnfPcX * dimensions.width / 100),
-          y: Math.round(vnfPcY * dimensions.height / 100),
-          expanded: expanded
-        };
+        const vnfName = `${vnf.name}${vmIndex > 0 ? `-${vmIndex}` : ''}`;
+        ret[vnfName] = position(vnfPcX, vnfPcY);
       });
     });
   }
@@ -249,8 +274,8 @@ const calculateIconPosition =
 
 const getIconPositionFactory = () =>
   createSelector(
-    [(state, name) => name, getIcon, getIconVnfs, getDimensions,
-      getLayout, getIconHeightPc, getIsIconExpanded],
+    [(state, name) => name, getIcon, getZoomedIcon, getIconVnfs, getDimensions,
+      getLayout, getIconHeightPc, getIsIconExpanded, getZoomedContainer],
     calculateIconPosition);
 
 export const getIconPosition = (state, name) => {
@@ -261,14 +286,15 @@ export const getIconPosition = (state, name) => {
 };
 
 export const getIconPositions = createSelector(
-  [getIcons, getLayoutStateSlice, getVnfs, getExpandedIcons],
-  (icons, layout, vnfs, expandedIcons) => {
+  [getIcons, getZoomedIcons, getLayoutStateSlice, getVnfs, getExpandedIcons],
+  (icons, zoomedIcons, layout, vnfs, expandedIcons) => {
     console.debug('Reselect iconPositions');
     const state = {
       icons: { items: icons },
+      zoomedIcons: { items: zoomedIcons },
+      layout,
       vnfs: { items: vnfs },
       uiState: { expandedIcons },
-      layout,
     };
     return Object.keys(icons).reduce((accumulator, key) => ({
       ...accumulator,
@@ -276,10 +302,9 @@ export const getIconPositions = createSelector(
     }), {});
   });
 
-
 export const calculateConnectionPositions = (
   connections, iconsByDevice, iconsByNsInfo, vnfsByDevice,
-  vnfs, iconPositions, fromIcon
+  vnfs, iconPositions, zoomed, fromIcon
 ) => {
   console.debug('Reselect connectionPositions');
   return Object.keys(connections).reduce((accumulator, key) => {
@@ -301,10 +326,15 @@ export const calculateConnectionPositions = (
     const [ ep1Icon, ep1Vnf ] = getEndpointIcon(ep1Device);
     const [ ep2Icon, ep2Vnf ] = getEndpointIcon(ep2Device);
 
-    if (fromIcon && (fromIcon === ep1Icon || fromIcon === ep2Icon)) {
+    const getEpIconProperty = property =>
+      iconPositions[ep1Icon][property] || iconPositions[ep2Icon][property];
+
+    const hidden = getEpIconProperty('hidden');
+
+    if (fromIcon && (fromIcon === ep1Icon || fromIcon === ep2Icon) && !hidden) {
       accumulator.push({
         name: key,
-        from: iconPositions[fromIcon === ep1Icon ? ep2Icon : ep1Icon]
+        from: iconPositions[fromIcon === ep1Icon ? ep2Icon : ep1Icon],
       });
     } else if (!fromIcon) {
       if (!(ep1Icon in iconPositions)) {
@@ -321,8 +351,9 @@ export const calculateConnectionPositions = (
           y1: iconPositions[ep1Vnf || ep1Icon].y,
           x2: iconPositions[ep2Vnf || ep2Icon].x,
           y2: iconPositions[ep2Vnf || ep2Icon].y,
-          expanded: iconPositions[ep1Icon].expanded ||
-                    iconPositions[ep2Icon].expanded,
+          hidden,
+          expanded: getEpIconProperty('expanded'),
+          colour: getEpIconProperty('connectionColour'),
           ep1Icon: ep1Icon,
           ep2Icon: ep2Icon,
           disabled: !!(ep1Vnf || ep2Vnf)
@@ -335,5 +366,5 @@ export const calculateConnectionPositions = (
 
 export const getConnectionPositions = createSelector([
   getConnections, getIconsByDevice, getIconsByNsInfo, getVnfsByDevice,
-  getVnfs, getIconPositions
+  getVnfs, getIconPositions, getZoomedContainer
 ], calculateConnectionPositions);

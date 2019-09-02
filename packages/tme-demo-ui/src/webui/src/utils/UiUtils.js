@@ -1,9 +1,13 @@
 export function pointAlongLine(x1, y1, x2, y2, n) {
   const d = lineLength({ x1, y1, x2, y2 });
-  const r = n / d;
-  const x = r * x2 + (1 - r) * x1;
-  const y = r * y2 + (1 - r) * y1;
-  return { x, y };
+  if (d > n) {
+    const r = n / d;
+    const x = r * x2 + (1 - r) * x1;
+    const y = r * y2 + (1 - r) * y1;
+    return { x, y };
+  } else {
+    return { x: x2, y: y2 };
+  }
 }
 
 export function lineLength({ x1, y1, x2, y2 }) {

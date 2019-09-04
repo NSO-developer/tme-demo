@@ -36,6 +36,17 @@ class ServiceCallbacks(Service):
             template.apply('l3vpn')
             l3vpn_plan.set_reached('ncs:ready')
 
+        if service.data_centre.exists():
+            self.log.info('Configuring data-centre connectivity')
+            data_centre_plan = PlanComponent(service, 'data-centre',
+                                             'tme-demo:data-centre')
+            data_centre_plan.append_state('ncs:init')
+            data_centre_plan.append_state('ncs:ready')
+            data_centre_plan.set_reached('ncs:init')
+            template = ncs.template.Template(service)
+            template.apply('data-centre')
+            data_centre_plan.set_reached('ncs:ready')
+
         if len(service.nfvo.network_service) == ns_ready_count:
             self_plan.set_reached('ncs:ready')
             self.log.info('Service ready')

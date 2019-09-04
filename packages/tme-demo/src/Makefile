@@ -17,6 +17,9 @@ YANGPATH += ../../cisco-ios/src/ncsc-out/modules/yang \
 	          ../../cisco-iosxr/src/ncsc-out/modules/yang \
 	          ../../juniper-junos/src/ncsc-out/modules/yang \
 	          ../../alu-sr/src/ncsc-out/modules/yang \
+	          ../../cisco-nx/src/yang \
+	          ../../cisco-nx/src/ncsc-out/modules/yang \
+	          ../../dell-ftos/src/ncsc-out/modules/yang \
 	          ../../esc/src/yang \
 	          ../../esc/src/ncsc-out/modules/yang \
 	          ../../tailf-etsi-rel2-nfvo/src/yang \

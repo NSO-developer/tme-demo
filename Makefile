@@ -89,6 +89,7 @@ netsim:
 ncs-cdb:
 	ncs-setup --no-netsim --dest .
 	cp initial-data/authgroups.xml ncs-cdb
+	cp initial-data/data-centre-topology.xml ncs-cdb
 	cp initial-data/device-groups.xml ncs-cdb
 	cp initial-data/esc-scaling-template.xml ncs-cdb
 	cp initial-data/icon-positions.xml ncs-cdb

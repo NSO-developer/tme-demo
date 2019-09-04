@@ -30,6 +30,12 @@ module tme-demo {
   import tailf-ned-alu-sr {
     prefix alu;
   }
+  import tailf-ned-cisco-nx {
+    prefix nx;
+  }
+  import tailf-ned-dell-ftos {
+    prefix force10;
+  }
 
   // NED IDs
   import cisco-ios-cli {
@@ -44,6 +50,13 @@ module tme-demo {
   import alu-sr-cli {
     prefix alu-ned-id;
   }
+  import cisco-nx-cli {
+    prefix nx-ned-id;
+  }
+  import dell-ftos-cli {
+    prefix force10-ned-id;
+  }
+
 
   // Package depenencies
   import tailf-etsi-rel2-nfvo {
@@ -62,6 +75,11 @@ module tme-demo {
   identity l3vpn {
     base ncs:plan-component-type;
     description "L3VPN plan component";
+  }
+
+  identity data-centre {
+    base ncs:plan-component-type;
+    description "Data-centre plan component";
   }
 
   identity network-service {
@@ -102,6 +120,103 @@ module tme-demo {
     }
   }
 
+  grouping interface-leafrefs {
+    choice interface-type {
+      leaf ios-GigabitEthernet{
+        when "derived-from(deref(../device)/../ncs:device-type" +
+             "/ncs:cli/ncs:ned-id, 'ios-ned-id:cisco-ios-cli')" {
+          tailf:dependency "../device";
+        }
+        tailf:info "Cisco IOS Gigabit Ethernet interface";
+        type leafref {
+          path "deref(../device)/../ncs:config" +
+               "/ios:interface/ios:GigabitEthernet/ios:name";
+        }
+      }
+      leaf ios-xr-GigabitEthernet {
+        when "derived-from(deref(../device)/../ncs:device-type" +
+             "/ncs:cli/ncs:ned-id," +
+             "'iosxr-ned-id:cisco-iosxr-cli')" {
+          tailf:dependency "../device";
+        }
+        tailf:info "Cisco IOS-XR Gigabit Ethernet interface";
+        type leafref {
+          path "deref(../device)/../ncs:config" +
+               "/cisco-ios-xr:interface" +
+               "/cisco-ios-xr:GigabitEthernet/cisco-ios-xr:id";
+        }
+      }
+      leaf ios-xr-TenGigE {
+        when "derived-from(deref(../device)/../ncs:device-type" +
+             "/ncs:cli/ncs:ned-id," +
+             "'iosxr-ned-id:cisco-iosxr-cli')" {
+          tailf:dependency "../device";
+        }
+        tailf:info "Cisco IOS-XR 10 Gigabit Ethernet interface";
+        type leafref {
+          path "deref(../device)/../ncs:config" +
+               "/cisco-ios-xr:interface" +
+               "/cisco-ios-xr:TenGigE/cisco-ios-xr:id";
+        }
+      }
+      leaf junos-interface {
+        when "derived-from(deref(../device)/../ncs:device-type" +
+             "/ncs:netconf/ncs:ned-id," +
+             "'junos-ned-id:juniper-junos-nc')" {
+          tailf:dependency "../device";
+        }
+        tailf:info "Junos interface";
+        type leafref {
+          path "deref(../device)/../ncs:config/junos:configuration" +
+               "/junos:interfaces/junos:interface/junos:name";
+        }
+      }
+      leaf alu-interface {
+        when "derived-from(deref(../device)/../ncs:device-type" +
+             "/ncs:cli/ncs:ned-id, 'alu-ned-id:alu-sr-cli')" {
+          tailf:dependency "../device";
+        }
+        tailf:info "ALU interface";
+        type leafref {
+          path "deref(../device)/../ncs:config/alu:port/alu:port-id";
+        }
+      }
+      leaf nx-Ethernet {
+        when "derived-from(deref(../device)/../ncs:device-type" +
+             "/ncs:cli/ncs:ned-id, 'nx-ned-id:-id:cisco-nx-cli')" {
+          tailf:dependency "../device";
+        }
+        tailf:info "Cisco NX Ethernet interface";
+        type leafref {
+          path "deref(../device)/../ncs:config/nx:interface" +
+               "/nx:Ethernet/nx:name";
+        }
+      }
+      leaf nx-port-channel {
+        when "derived-from(deref(../device)/../ncs:device-type" +
+             "/ncs:cli/ncs:ned-id, 'nx-ned-id:cisco-nx-cli')" {
+          tailf:dependency "../device";
+        }
+        tailf:info "Cisco NX Port Channel interface";
+        type leafref {
+          path "deref(../device)/../ncs:config/nx:interface" +
+               "/nx:port-channel/nx:name";
+        }
+      }
+      leaf f10-GigabitEthernet {
+        when "derived-from(deref(../device)/../ncs:device-type" +
+             "/ncs:cli/ncs:ned-id, 'force10-ned-id:dell-ftos-cli')" {
+          tailf:dependency "../device";
+        }
+        tailf:info "Dell Force10 GigabitEthernet interface";
+        type leafref {
+          path "deref(../device)/../ncs:config/force10:interface" +
+               "/force10:GigabitEthernet/force10:id";
+        }
+      }
+    }
+  }
+
   grouping network-service-connections {
     leaf sapd {
       type leafref {
@@ -124,68 +239,7 @@ module tme-demo {
         }
       }
 
-      choice interface-type {
-        leaf ios-GigabitEthernet{
-          when "derived-from(deref(../device)/../ncs:device-type" +
-               "/ncs:cli/ncs:ned-id, 'ios-ned-id:cisco-ios-cli')" {
-            tailf:dependency "../device";
-          }
-          tailf:info "Gigabit ethernet interface";
-          type leafref {
-            path "deref(../device)/../ncs:config" +
-                 "/ios:interface/ios:GigabitEthernet/ios:name";
-          }
-        }
-        leaf ios-xr-GigabitEthernet {
-          when "derived-from(deref(../device)/../ncs:device-type" +
-               "/ncs:cli/ncs:ned-id," +
-               "'iosxr-ned-id:cisco-iosxr-cli')" {
-            tailf:dependency "../device";
-          }
-          tailf:info "Gigabit ethernet interface";
-          type leafref {
-            path "deref(../device)/../ncs:config" +
-                 "/cisco-ios-xr:interface" +
-                 "/cisco-ios-xr:GigabitEthernet/cisco-ios-xr:id";
-          }
-        }
-        leaf ios-xr-TenGigE {
-          when "derived-from(deref(../device)/../ncs:device-type" +
-               "/ncs:cli/ncs:ned-id," +
-               "'iosxr-ned-id:cisco-iosxr-cli')" {
-            tailf:dependency "../device";
-          }
-          tailf:info "Gigabit ethernet interface";
-          type leafref {
-            path "deref(../device)/../ncs:config" +
-                 "/cisco-ios-xr:interface" +
-                 "/cisco-ios-xr:TenGigE/cisco-ios-xr:id";
-          }
-        }
-        leaf junos-interface {
-          when "derived-from(deref(../device)/../ncs:device-type" +
-               "/ncs:netconf/ncs:ned-id," +
-               "'junos-ned-id:juniper-junos-nc')" {
-            tailf:dependency "../device";
-          }
-
-          tailf:info "Interface";
-          type leafref {
-            path "deref(../device)/../ncs:config/junos:configuration" +
-                 "/junos:interfaces/junos:interface/junos:name";
-          }
-        }
-        leaf alu-interface {
-          when "derived-from(deref(../device)/../ncs:device-type" +
-               "/ncs:cli/ncs:ned-id, 'alu-ned-id:alu-sr-cli')" {
-            tailf:dependency "../device";
-          }
-          tailf:info "Gigabit ethernet interface";
-          type leafref {
-            path "deref(../device)/../ncs:config/alu:port/alu:port-id";
-          }
-        }
-      }
+      uses interface-leafrefs;
     }
   }
 
@@ -296,6 +350,58 @@ module tme-demo {
               range "0..65535";
             }
             default 500;
+          }
+        }
+      }
+
+      container data-centre {
+        tailf:info "Data centre connectivity parameters";
+        presence true;
+
+        leaf vlan {
+          tailf:info "Data centre tenant VLAN";
+          type uint32;
+          default 500;
+        }
+
+        leaf ip-network {
+          tailf:info "The private IP network";
+          type inet:ip-prefix;
+          default "50.0.0.0/24";
+        }
+
+        leaf preserve-vlan-tags {
+          type boolean;
+          default false;
+        }
+
+        list endpoint {
+          key "device compute";
+
+          leaf device {
+            tailf:info "TOR switch";
+            type leafref {
+              path "/ncs:devices/ncs:device/ncs:name";
+            }
+          }
+
+          leaf compute {
+            tailf:info "Compute node (not used)";
+            type enumeration {
+              enum compute0;
+              enum compute1;
+              enum compute2;
+              enum compute3;
+              enum compute4;
+            }
+          }
+
+          uses interface-leafrefs;
+
+          leaf connect-multiple-vlans {
+            tailf:info "Make the accessport a trunk";
+            type boolean;
+            default false;
           }
         }
       }

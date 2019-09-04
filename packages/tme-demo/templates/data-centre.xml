@@ -1,0 +1,40 @@
+<config-template xmlns="http://tail-f.com/ns/config/1.0">
+  <datacenter xmlns="http://com/example/connectivity">
+  <connectivity>
+    <name>{name}</name>
+    <vlan>{data-centre/vlan}</vlan>
+    <ip-network>{data-centre/ip-network}</ip-network>
+    <connectivity-settings when="{data-centre/preserve-vlan-tags = 'true'}">
+      <preserve-vlan-tags/>
+    </connectivity-settings>
+    <?foreach {data-centre/endpoint}?>
+      <?set INTERFACE = ""?>
+      <?if {ios-GigabitEthernet}?>
+        <?set INTERFACE = "GigabitEthernet{ios-GigabitEthernet}"?>
+      <?end?>
+      <?if {ios-xr-GigabitEthernet}?>
+        <?set INTERFACE = "GigabitEthernet{ios-xr-GigabitEthernet}"?>
+      <?end?>
+      <?if {ios-xr-TenGigE}?>
+        <?set INTERFACE = "TenGigE{ios-xr-TenGigE}"?>
+      <?end?>
+      <?if {nx-Ethernet}?>
+        <?set INTERFACE = "Ethernet{nx-Ethernet}"?>
+      <?end?>
+      <?if {nx-port-channel}?>
+        <?set INTERFACE = "port-channel{nx-port-channel}"?>
+      <?end?>
+      <?if {f10-GigabitEthernet}?>
+        <?set INTERFACE = "GigabitEthernet{f10-GigabitEthernet}"?>
+      <?end?>
+      <endpoint>
+        <device>{device}</device>
+        <interface>{$INTERFACE}</interface>
+        <endpoint-settings when="{connect-multiple-vlans = 'true'}">
+          <connect-multiple-vlans/>
+        </endpoint-settings>
+      </endpoint>
+    <?end?>
+  </connectivity>
+  </datacenter>
+</config-template>

@@ -1,10 +1,12 @@
 # The order of packages is significant as there are dependencies between
 # the packages. Typically generated namespaces are used by other packages.
 PACKAGES = tme-demo-ui tme-demo
-PACKAGE_DEPENDENCIES = resource-manager esc tailf-etsi-rel2-nfvo cisco-asa l3vpn
+PACKAGE_DEPENDENCIES = resource-manager esc tailf-etsi-rel2-nfvo cisco-asa \
+	                     l3vpn datacenter
 NED_STORE=$(NCS_DIR)/packages/neds
 
-all: cisco-ios cisco-iosxr juniper-junos alu-sr cisco-nx dell-ftos l3vpn
+all: cisco-ios cisco-iosxr juniper-junos alu-sr cisco-nx dell-ftos \
+	   l3vpn datacenter
 	for i in $(PACKAGE_DEPENDENCIES) $(PACKAGES); do \
 	    $(MAKE) -C $${i}/src all || exit 1; \
 	done
@@ -32,6 +34,9 @@ dell-ftos:
 l3vpn:
 	ln -s $(NCS_DIR)/examples.ncs/service-provider/mpls-vpn/packages/$@
 
+datacenter:
+	ln -s $(NCS_DIR)/examples.ncs/datacenter/datacenter/packages/connectivity $@
+
 clean:
 	for i in $(PACKAGES); do \
 	    $(MAKE) -C $${i}/src clean || exit 1; \
@@ -43,6 +48,7 @@ deep-clean: clean
 	    $(MAKE) -C $${i}/src clean || exit 0; \
 	done
 	rm -f l3vpn
+	rm -f datacenter
 	rm -f alu-sr
 	rm -f juniper-junos
 	rm -f cisco-iosxr

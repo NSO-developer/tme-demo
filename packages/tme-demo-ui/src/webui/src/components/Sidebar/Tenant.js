@@ -6,11 +6,13 @@ import { renderToStaticMarkup } from 'react-dom/server';
 import classNames from 'classnames';
 
 import { ENDPOINT, NETWORK_SERVICE } from '../../constants/ItemTypes';
+import { CUSTOMER_ROUTER, SWITCH } from '../../constants/Icons';
 import { CONFIGURATION_EDITOR_URL,
          COMMIT_MANAGER_URL } from '../../constants/Layout';
 import * as IconTypes from '../../constants/Icons';
 
 import Endpoint from './Endpoint';
+import DcEndpoint from './DcEndpoint';
 import NetworkService from './NetworkService';
 import NewItem from './NewItem';
 import Btn from '../icons/BtnWithTooltip';
@@ -19,7 +21,7 @@ import IconSvg from '../icons/IconSvg';
 import { getActualIconSize, getOpenTenant,
          getNewNetworkService } from '../../reducers';
 import { tenantToggled, bodyOverlayToggled, itemDragged,
-         newNetworkServiceToggled } from '../../actions/uiState';
+         newNetworkServiceToggled, handleError } from '../../actions/uiState';
 import { TENANT_PATH, deleteTenant } from '../../actions/tenants';
 
 import { connectPngDragPreview } from '../../utils/UiUtils';
@@ -29,7 +31,7 @@ import Comet from '../../utils/Comet';
 
 const mapDispatchToProps = {
   deleteTenant, tenantToggled, bodyOverlayToggled,
-  itemDragged, newNetworkServiceToggled
+  itemDragged, newNetworkServiceToggled, handleError
 };
 
 const mapStateToPropsFactory = (initialState, initialProps) => {
@@ -43,11 +45,17 @@ const mapStateToPropsFactory = (initialState, initialProps) => {
 };
 
 const dropTarget = {
-  drop(props, monitor, component) {
-    component.dropDevice(monitor.getItem().icon);
+  drop({ dcEndpoints, handleError}, monitor, component) {
+    const { icon, type } = monitor.getItem();
+    if (type === SWITCH) {
+      component.dropSwitch(icon, dcEndpoints, handleError);
+    } else {
+      component.dropDevice(icon);
+    }
   },
   canDrop(props, monitor) {
-    return true;
+    const { type } = monitor.getItem();
+    return type === SWITCH || type === CUSTOMER_ROUTER;
   }
 };
 
@@ -90,6 +98,7 @@ class Tenant extends PureComponent {
       openEndpointName: null,
       newEndpointDevice: null,
       newEndpointOpen: false,
+      openDcEndpointName: null,
       openNetworkServiceName: null,
     };
     this.ref = createRef();
@@ -100,6 +109,13 @@ class Tenant extends PureComponent {
     this.setState({
       openEndpointName: this.state.openEndpointName === endpointName
         ? null : endpointName
+    });
+  };
+
+  openDcEndpoint = dcEndpointName => {
+    this.setState({
+      openDcEndpointName: this.state.openDcEndpointName === dcEndpointName
+        ? null : dcEndpointName
     });
   };
 
@@ -166,6 +182,27 @@ class Tenant extends PureComponent {
     });
   };
 
+  dropSwitch = async (name, dcEndpoints, handleError) => {
+    let compute = 0;
+    while (compute < 5) {
+      if (!dcEndpoints.filter(dcEndpoint => dcEndpoint.Device === name).find(
+        dcEndpoint => dcEndpoint.Compute === `compute${compute}`)) {
+          break;
+      }
+      compute++;
+    }
+
+    const path = `${this.keyPath}/data-centre/endpoint{${
+                  name} compute${compute}}`;
+    const th = await JsonRpc.write();
+    try {
+      await JsonRpc.request('create', { th, path });
+      Comet.stopThenGoToUrl(CONFIGURATION_EDITOR_URL + path);
+    } catch (error) {
+      handleError(`Error creating data-centre endpiont ${name}`, error);
+    }
+  };
+
   componentDidMount() {
     const { connectDragPreview, iconSize, isOpen } = this.props;
     connectPngDragPreview(renderToStaticMarkup(
@@ -181,11 +218,11 @@ class Tenant extends PureComponent {
   render() {
     console.debug('Tenant Render');
     const { isOpen, fade, newNetworkService,
-            tenant, endpoints, networkServices,
+            tenant, endpoints, dcEndpoints, networkServices,
             connectDropTarget, connectDragSource,
             isOver, canDrop } = this.props;
     const { openEndpointName, newEndpointOpen, newEndpointDevice,
-            openNetworkServiceName } = this.state;
+            openDcEndpointName, openNetworkServiceName } = this.state;
     const { name, deviceList, ...rest } = tenant;
     return (
       connectDropTarget(
@@ -249,12 +286,23 @@ class Tenant extends PureComponent {
               close={this.closeNewEndpoint}
             />
           </div>
-          {endpoints && endpoints.map((endpoint, index) =>
+          {endpoints && endpoints.map(endpoint =>
             <Endpoint
               key={endpoint.name}
               toggle={() => this.openEndpoint(endpoint.name)}
               isOpen={openEndpointName === endpoint.name}
               {...endpoint}
+            />
+          )}
+          <div className="sidebar__sub-header">
+            <span className="sidebar__title-text">Data Centre Endpoints</span>
+          </div>
+          {dcEndpoints && dcEndpoints.map(dcEndpoint =>
+            <DcEndpoint
+              key={dcEndpoint.name}
+              toggle={() => this.openDcEndpoint(dcEndpoint.name)}
+              isOpen={openDcEndpointName === dcEndpoint.name}
+              {...dcEndpoint}
             />
           )}
           <div className="sidebar__sub-header">

@@ -21,6 +21,7 @@ import { fetchDevices } from './devices';
 
 import { fetchTenants } from './tenants';
 import { fetchEndpoints } from './endpoints';
+import { fetchDcEndpoints } from './dcEndpoints';
 import { fetchNetworkServices } from './networkServices';
 
 
@@ -28,11 +29,11 @@ import { fetchNetworkServices } from './networkServices';
 
 export const fetchTopologyData = () => async dispatch => {
   // Must fetch in order!
+  await dispatch(fetchZoomedIcons()),
   await Promise.all([
     dispatch(fetchIcons()),
     dispatch(fetchVnfs())
   ]);
-  dispatch(fetchZoomedIcons()),
   dispatch(fetchConnections());
   dispatch(fetchDevices());
 };
@@ -40,6 +41,7 @@ export const fetchTopologyData = () => async dispatch => {
 export const fetchSidebarData = () => dispatch => {
   dispatch(fetchTenants());
   dispatch(fetchEndpoints());
+  dispatch(fetchDcEndpoints());
   dispatch(fetchNetworkServices());
 };
 

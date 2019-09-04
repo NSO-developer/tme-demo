@@ -20,8 +20,18 @@ const tenantDeleted = name => ({
 
 // === jsonRpc Middleware =====================================================
 
-const selection = ['name', 'l3vpn/route-distinguisher', 'l3vpn/qos-policy'];
-const resultKeys = ['name', 'Route Distinguisher', 'QoS Policy'];
+const selection = ['name',
+                   'l3vpn/route-distinguisher',
+                   'l3vpn/qos-policy',
+                   'data-centre/ip-network',
+                   'data-centre/vlan',
+                   'data-centre/preserve-vlan-tags'];
+const resultKeys = ['name',
+                    'Route Distinguisher',
+                    'QoS Policy',
+                    'Data Centre IP Network',
+                    'Data Centre VLAN',
+                    'Preserve VLAN Tags'];
 
 export const fetchTenants = () => ({
   jsonRpcQuery: {

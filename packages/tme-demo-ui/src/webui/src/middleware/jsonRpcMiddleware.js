@@ -84,7 +84,13 @@ export default store => next => async action => {
 
       const result = json.results.reduce((resultAcc, resultArray) => {
         const item = resultArray.reduce((accumulator, current, index) => {
-          accumulator[resultKeys[index]] = current;
+          if (accumulator[resultKeys[index]]) {
+            if (resultKeys[index] === 'name') {
+              accumulator[resultKeys[index]] += ` ${current}`;
+            }
+          } else {
+            accumulator[resultKeys[index]] = current;
+          }
           return accumulator;
         }, {});
         if (objectKey) {

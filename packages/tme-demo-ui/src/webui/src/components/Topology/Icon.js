@@ -69,7 +69,7 @@ const mapStateToPropsFactory = (initialState, initialProps) => {
   const getIconHighlightedDevices = getIconHighlightedDevicesFactory(device);
   return state => ({
     ...getIcon(state, name),
-    ...(getZoomedContainer(state) ? getZoomedIcon(state, name) : {}),
+    ...getZoomedContainer(state) ? getZoomedIcon(state, name) : {},
     label: name,
     size: getActualIconSize(state),
     selected: getSelectedIcon(state) === name,
@@ -96,7 +96,7 @@ const mapDispatchToProps = {
 
 // Standard mode endpoint drag
 const endpointSource = {
-  beginDrag: ({ name }) => ({ icon: name }),
+  beginDrag: ({ name, type }) => ({ icon: name, type }),
   canDrag: ({editMode}) => !editMode
 };
 

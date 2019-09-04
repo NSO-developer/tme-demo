@@ -10,6 +10,7 @@ import layout, * as fromLayout from './layout.js';
 import uiState, * as fromUiState from './uiState.js';
 import tenants, * as fromTenants from './tenants.js';
 import endpoints, * as fromEndpoints from './endpoints.js';
+import dcEndpoints, * as fromDcEndpoints from './dcEndpoints.js';
 import networkServices, * as fromNetworkServices from './networkServices.js';
 import icons, * as fromIcons from './icons.js';
 import zoomedIcons, * as fromZoomedIcons from './zoomedIcons.js';
@@ -20,7 +21,7 @@ import devices, * as fromDevices from './devices.js';
 const layoutPersistConfig = {
   key: 'layout',
   storage: storage,
-  whitelist: ['iconSize']
+  whitelist: ['iconSize', 'zoomedContainer']
 };
 
 const uiStatePersistConfig = {
@@ -34,6 +35,7 @@ export default combineReducers({
   uiState: persistReducer(uiStatePersistConfig, uiState),
   tenants,
   endpoints,
+  dcEndpoints,
   networkServices,
   icons,
   zoomedIcons,
@@ -73,6 +75,7 @@ export const getZoomedContainer = state =>
 
 export const getZoomedLayout = state =>
   fromLayout.getLayout(state.layout);
+
 
 // === UiState selectors ======================================================
 
@@ -132,6 +135,15 @@ export const getEndpoints = state =>
 
 export const getIsFetchingEndpoints = state =>
   fromEndpoints.getIsFetching(state.endpoints);
+
+
+// === Data Centre Endpoints selectors ========================================
+
+export const getDcEndpoints = state =>
+  fromDcEndpoints.getItems(state.dcEndpoints);
+
+export const getIsFetchingDcEndpoints = state =>
+  fromDcEndpoints.getIsFetching(state.dcEndpoints);
 
 
 // === NetworkServices selectors ==============================================

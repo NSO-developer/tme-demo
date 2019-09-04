@@ -8,8 +8,8 @@ import Btn from '../icons/BtnWithTooltip';
 import { BTN_ADD } from '../../constants/Icons';
 import LoadingOverlay from '../common/LoadingOverlay';
 
-import { getTenants, getEndpoints, getNetworkServices,
-         getIsFetchingTenants, getIsFetchingEndpoints,
+import { getTenants, getEndpoints, getDcEndpoints, getNetworkServices,
+         getIsFetchingTenants, getIsFetchingEndpoints, getIsFetchingDcEndpoints,
          getIsFetchingNetworkServices } from '../../reducers';
 import { bodyOverlayToggled } from '../../actions/uiState';
 import { TENANT_PATH } from '../../actions/tenants';
@@ -22,9 +22,11 @@ const mapDispatchToProps = { fetchSidebarData, bodyOverlayToggled };
 const mapStateToProps = state => ({
   tenants: getTenants(state),
   endpoints: getEndpoints(state),
+  dcEndpoints: getDcEndpoints(state),
   networkServices: getNetworkServices(state),
   isFetchingTenants: getIsFetchingTenants(state),
-  isFetchingEndpoints: getIsFetchingEndpoints(state),
+  isFetchingEndpoints: getIsFetchingEndpoints(state) ||
+                       getIsFetchingDcEndpoints(state),
   isFetchingNetworkServices: getIsFetchingNetworkServices(state)
 });
 
@@ -51,7 +53,7 @@ class Tenants extends PureComponent {
 
   render() {
     console.debug('Tenants Render');
-    const { tenants, endpoints, networkServices, isFetchingTenants,
+    const { tenants, endpoints, dcEndpoints, networkServices, isFetchingTenants,
             isFetchingEndpoints, isFetchingNetworkServices } = this.props;
     const { newItemOpen } = this.state;
     return (
@@ -78,6 +80,9 @@ class Tenants extends PureComponent {
               tenant={tenant}
               endpoints={endpoints && endpoints.filter(
                 endpoint => endpoint.tenant === tenant.name
+              )}
+              dcEndpoints={dcEndpoints && dcEndpoints.filter(
+                dcEndpoint => dcEndpoint.tenant === tenant.name
               )}
               networkServices={networkServices && networkServices.filter(
                 networkService => networkService.tenant === tenant.name

@@ -259,143 +259,143 @@
     </connection>
 
     <connection>
-      <name>sw0-tor0</name>
+      <name>sw0-spine0</name>
       <endpoint-1>
         <device>sw0</device>
         <interface>GigabitEthernet0/23</interface>
       </endpoint-1>
       <endpoint-2>
-        <device>tor0</device>
-        <interface>Ethernet1/23</interface>
+        <device>spine0</device>
+        <interface>Ethernet1/22</interface>
       </endpoint-2>
     </connection>
     <connection>
-      <name>sw0-tor1</name>
+      <name>sw0-spine1</name>
       <endpoint-1>
         <device>sw0</device>
         <interface>GigabitEthernet0/24</interface>
       </endpoint-1>
       <endpoint-2>
-        <device>tor1</device>
-        <interface>Ethernet1/23</interface>
+        <device>spine1</device>
+        <interface>Ethernet1/22</interface>
       </endpoint-2>
     </connection>
     <connection>
-      <name>sw1-tor0</name>
+      <name>sw1-spine0</name>
       <endpoint-1>
         <device>sw1</device>
         <interface>GigabitEthernet0/23</interface>
       </endpoint-1>
       <endpoint-2>
-        <device>tor0</device>
-        <interface>Ethernet1/24</interface>
+        <device>spine0</device>
+        <interface>Ethernet1/23</interface>
       </endpoint-2>
     </connection>
     <connection>
-      <name>sw1-tor1</name>
+      <name>sw1-spine1</name>
       <endpoint-1>
         <device>sw1</device>
         <interface>GigabitEthernet0/24</interface>
       </endpoint-1>
       <endpoint-2>
-        <device>tor1</device>
-        <interface>Ethernet1/24</interface>
+        <device>spine1</device>
+        <interface>Ethernet1/23</interface>
       </endpoint-2>
     </connection>
     <connection>
-      <name>sw2-tor0</name>
+      <name>sw2-spine0</name>
       <endpoint-1>
         <device>sw2</device>
         <interface>GigabitEthernet0/11</interface>
       </endpoint-1>
       <endpoint-2>
-        <device>tor0</device>
-        <interface>Ethernet1/22</interface>
+        <device>spine0</device>
+        <interface>Ethernet1/24</interface>
       </endpoint-2>
     </connection>
     <connection>
-      <name>sw2-tor1</name>
+      <name>sw2-spine1</name>
       <endpoint-1>
         <device>sw2</device>
         <interface>GigabitEthernet0/12</interface>
       </endpoint-1>
       <endpoint-2>
-        <device>tor1</device>
-        <interface>Ethernet1/22</interface>
+        <device>spine1</device>
+        <interface>Ethernet1/24</interface>
       </endpoint-2>
     </connection>
 
     <connection>
-      <name>sw3-tor2</name>
+      <name>sw3-spine2</name>
       <endpoint-1>
         <device>sw3</device>
         <interface>GigabitEthernet0/23</interface>
       </endpoint-1>
       <endpoint-2>
-        <device>tor2</device>
-        <interface>Ethernet1/23</interface>
+        <device>spine2</device>
+        <interface>Ethernet1/22</interface>
       </endpoint-2>
     </connection>
     <connection>
-      <name>sw3-tor3</name>
+      <name>sw3-spine3</name>
       <endpoint-1>
         <device>sw3</device>
         <interface>GigabitEthernet0/24</interface>
       </endpoint-1>
       <endpoint-2>
-        <device>tor3</device>
-        <interface>Ethernet1/23</interface>
+        <device>spine3</device>
+        <interface>Ethernet1/22</interface>
       </endpoint-2>
     </connection>
     <connection>
-      <name>sw4-tor2</name>
+      <name>sw4-spine2</name>
       <endpoint-1>
         <device>sw4</device>
         <interface>GigabitEthernet0/23</interface>
       </endpoint-1>
       <endpoint-2>
-        <device>tor2</device>
-        <interface>Ethernet1/24</interface>
+        <device>spine2</device>
+        <interface>Ethernet1/23</interface>
       </endpoint-2>
     </connection>
     <connection>
-      <name>sw4-tor3</name>
+      <name>sw4-spine3</name>
       <endpoint-1>
         <device>sw4</device>
         <interface>GigabitEthernet0/24</interface>
       </endpoint-1>
       <endpoint-2>
-        <device>tor3</device>
-        <interface>Ethernet1/24</interface>
+        <device>spine3</device>
+        <interface>Ethernet1/23</interface>
       </endpoint-2>
     </connection>
     <connection>
-      <name>sw5-tor2</name>
+      <name>sw5-spine2</name>
       <endpoint-1>
         <device>sw5</device>
         <interface>GigabitEthernet0/11</interface>
       </endpoint-1>
       <endpoint-2>
-        <device>tor2</device>
-        <interface>Ethernet1/22</interface>
+        <device>spine2</device>
+        <interface>Ethernet1/24</interface>
       </endpoint-2>
     </connection>
     <connection>
-      <name>sw5-tor3</name>
+      <name>sw5-spine3</name>
       <endpoint-1>
         <device>sw5</device>
         <interface>GigabitEthernet0/12</interface>
       </endpoint-1>
       <endpoint-2>
-        <device>tor3</device>
-        <interface>Ethernet1/22</interface>
+        <device>spine3</device>
+        <interface>Ethernet1/24</interface>
       </endpoint-2>
     </connection>
 
     <connection>
-      <name>tor0-dci0</name>
+      <name>spine0-dci0</name>
       <endpoint-1>
-        <device>tor0</device>
+        <device>spine0</device>
         <interface>Ethernet1/20</interface>
       </endpoint-1>
       <endpoint-2>
@@ -404,9 +404,9 @@
       </endpoint-2>
     </connection>
     <connection>
-      <name>tor0-dci1</name>
+      <name>spine0-dci1</name>
       <endpoint-1>
-        <device>tor0</device>
+        <device>spine0</device>
         <interface>Ethernet1/21</interface>
       </endpoint-1>
       <endpoint-2>
@@ -415,9 +415,9 @@
       </endpoint-2>
     </connection>
     <connection>
-      <name>tor1-dci0</name>
+      <name>spine1-dci0</name>
       <endpoint-1>
-        <device>tor1</device>
+        <device>spine1</device>
         <interface>Ethernet1/20</interface>
       </endpoint-1>
       <endpoint-2>
@@ -426,9 +426,9 @@
       </endpoint-2>
     </connection>
     <connection>
-      <name>tor1-dci1</name>
+      <name>spine1-dci1</name>
       <endpoint-1>
-        <device>tor1</device>
+        <device>spine1</device>
         <interface>Ethernet1/21</interface>
       </endpoint-1>
       <endpoint-2>
@@ -438,9 +438,9 @@
     </connection>
 
     <connection>
-      <name>tor2-dci2</name>
+      <name>spine2-dci2</name>
       <endpoint-1>
-        <device>tor2</device>
+        <device>spine2</device>
         <interface>Ethernet1/20</interface>
       </endpoint-1>
       <endpoint-2>
@@ -449,9 +449,9 @@
       </endpoint-2>
     </connection>
     <connection>
-      <name>tor2-dci3</name>
+      <name>spine2-dci3</name>
       <endpoint-1>
-        <device>tor2</device>
+        <device>spine2</device>
         <interface>Ethernet1/21</interface>
       </endpoint-1>
       <endpoint-2>
@@ -460,9 +460,9 @@
       </endpoint-2>
     </connection>
     <connection>
-      <name>tor3-dci2</name>
+      <name>spine3-dci2</name>
       <endpoint-1>
-        <device>tor3</device>
+        <device>spine3</device>
         <interface>Ethernet1/20</interface>
       </endpoint-1>
       <endpoint-2>
@@ -471,9 +471,9 @@
       </endpoint-2>
     </connection>
     <connection>
-      <name>tor3-dci3</name>
+      <name>spine3-dci3</name>
       <endpoint-1>
-        <device>tor3</device>
+        <device>spine3</device>
         <interface>Ethernet1/21</interface>
       </endpoint-1>
       <endpoint-2>

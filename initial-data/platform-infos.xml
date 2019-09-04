@@ -177,7 +177,7 @@
       </platform>
     </device>
     <device>
-      <name>tor0</name>
+      <name>spine0</name>
       <platform>
         <name>Cisco NX</name>
         <version>3.0</version>
@@ -185,7 +185,7 @@
       </platform>
     </device>
     <device>
-      <name>tor1</name>
+      <name>spine1</name>
       <platform>
         <name>Cisco NX</name>
         <version>3.0</version>
@@ -193,7 +193,7 @@
       </platform>
     </device>
     <device>
-      <name>tor2</name>
+      <name>spine2</name>
       <platform>
         <name>Cisco NX</name>
         <version>3.0</version>
@@ -201,7 +201,7 @@
       </platform>
     </device>
     <device>
-      <name>tor3</name>
+      <name>spine3</name>
       <platform>
         <name>Cisco NX</name>
         <version>3.0</version>

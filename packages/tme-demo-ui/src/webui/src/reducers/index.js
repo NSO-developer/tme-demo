@@ -9,7 +9,7 @@ import { roundPc } from '../utils/UiUtils';
 import layout, * as fromLayout from './layout.js';
 import uiState, * as fromUiState from './uiState.js';
 import tenants, * as fromTenants from './tenants.js';
-import endpoints, * as fromEndpoints from './endpoints.js';
+import vpnEndpoints, * as fromVpnEndpoints from './vpnEndpoints.js';
 import dcEndpoints, * as fromDcEndpoints from './dcEndpoints.js';
 import networkServices, * as fromNetworkServices from './networkServices.js';
 import icons, * as fromIcons from './icons.js';
@@ -34,7 +34,7 @@ export default combineReducers({
   layout: persistReducer(layoutPersistConfig, layout),
   uiState: persistReducer(uiStatePersistConfig, uiState),
   tenants,
-  endpoints,
+  vpnEndpoints,
   dcEndpoints,
   networkServices,
   icons,
@@ -128,13 +128,13 @@ export const getTenant = (state, name) =>
   fromTenants.getTenant(state.tenants, name);
 
 
-// === Endpoints selectors ====================================================
+// === VPN Endpoints selectors ================================================
 
-export const getEndpoints = state =>
-  fromEndpoints.getItems(state.endpoints);
+export const getVpnEndpoints = state =>
+  fromVpnEndpoints.getItems(state.vpnEndpoints);
 
-export const getIsFetchingEndpoints = state =>
-  fromEndpoints.getIsFetching(state.endpoints);
+export const getIsFetchingVpnEndpoints = state =>
+  fromVpnEndpoints.getIsFetching(state.vpnEndpoints);
 
 
 // === Data Centre Endpoints selectors ========================================

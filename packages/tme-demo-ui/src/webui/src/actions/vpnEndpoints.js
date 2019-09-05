@@ -1,15 +1,15 @@
 import { TENANT_PATH } from './tenants';
 
-export const ENDPOINT_DELETED = 'endpoint-deleted';
+export const VPN_ENDPOINT_DELETED = 'vpn-endpoint-deleted';
 
-export const FETCH_ENDPOINTS_REQUEST = 'fetch-endpoints-request';
-export const FETCH_ENDPOINTS_SUCCESS = 'fetch-endpoints-success';
-export const FETCH_ENDPOINTS_FAILURE = 'fetch-endpoints-failure';
+export const FETCH_VPN_ENDPOINTS_REQUEST = 'fetch-vpn-endpoints-request';
+export const FETCH_VPN_ENDPOINTS_SUCCESS = 'fetch-vpn-endpoints-success';
+export const FETCH_VPN_ENDPOINTS_FAILURE = 'fetch-vpn-endpoints-failure';
 
 
 // === jsonRpc Middleware =====================================================
 
-export const fetchEndpoints = () => ({
+export const fetchVpnEndpoints = () => ({
   jsonRpcQuery: {
     xpathExpr   : `${TENANT_PATH}/l3vpn/endpoint`,
     selection   : [ 'id',
@@ -29,18 +29,18 @@ export const fetchEndpoints = () => ({
                     'AS Number' ]
   },
   types: [
-    FETCH_ENDPOINTS_REQUEST,
-    FETCH_ENDPOINTS_SUCCESS,
-    FETCH_ENDPOINTS_FAILURE
+    FETCH_VPN_ENDPOINTS_REQUEST,
+    FETCH_VPN_ENDPOINTS_SUCCESS,
+    FETCH_VPN_ENDPOINTS_FAILURE
   ],
-  errorMessage: 'Failed to fetch endpoints'
+  errorMessage: 'Failed to fetch VPN endpoints'
 });
 
-export const deleteEndpoint = (tenant, name) => ({
+export const deleteVpnEndpoint = (tenant, name) => ({
   jsonRpcDelete: {
     path: `${TENANT_PATH}{${tenant}}/l3vpn/endpoint`,
     name: name
   },
-  types: [ ENDPOINT_DELETED ],
-  errorMessage: `Failed to delete endpoint ${name}`
+  types: [ VPN_ENDPOINT_DELETED ],
+  errorMessage: `Failed to delete VPN endpoint ${name}`
 });

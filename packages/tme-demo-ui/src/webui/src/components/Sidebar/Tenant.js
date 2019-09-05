@@ -11,7 +11,7 @@ import { CONFIGURATION_EDITOR_URL,
          COMMIT_MANAGER_URL } from '../../constants/Layout';
 import * as IconTypes from '../../constants/Icons';
 
-import Endpoint from './Endpoint';
+import VpnEndpoint from './VpnEndpoint';
 import DcEndpoint from './DcEndpoint';
 import NetworkService from './NetworkService';
 import NewItem from './NewItem';
@@ -78,7 +78,7 @@ const getNetworkServiceDefaults = (tenant, { container, pos }) => [
     { path: 'coord/y', value: pos.y }
 ];
 
-const getEndpointDefaults = device => {
+const getVpnEndpointDefaults = device => {
   return (device ? [{ path: 'ce-device', value: device }] : []);
 };
 
@@ -95,9 +95,9 @@ class Tenant extends PureComponent {
   constructor(props) {
     super(props);
     this.state = {
-      openEndpointName: null,
-      newEndpointDevice: null,
-      newEndpointOpen: false,
+      openVpnEndpointName: null,
+      newVpnEndpointDevice: null,
+      newVpnEndpointOpen: false,
       openDcEndpointName: null,
       openNetworkServiceName: null,
     };
@@ -105,10 +105,10 @@ class Tenant extends PureComponent {
     this.keyPath = `${TENANT_PATH}{${props.tenant.name}}`;
   }
 
-  openEndpoint = endpointName => {
+  openVpnEndpoint = vpnEndpointName => {
     this.setState({
-      openEndpointName: this.state.openEndpointName === endpointName
-        ? null : endpointName
+      openVpnEndpointName: this.state.openVpnEndpointName === vpnEndpointName
+        ? null : vpnEndpointName
     });
   };
 
@@ -132,16 +132,16 @@ class Tenant extends PureComponent {
     tenantToggled(tenant.name);
   }
 
-  openNewEndpoint = () => {
+  openNewVpnEndpoint = () => {
     const { bodyOverlayToggled } = this.props;
-    this.setState({ newEndpointOpen: true });
+    this.setState({ newVpnEndpointOpen: true });
     bodyOverlayToggled(true);
   }
 
-  closeNewEndpoint = () => {
+  closeNewVpnEndpoint = () => {
     const { bodyOverlayToggled } = this.props;
-    this.setState({ newEndpointOpen: false });
-    this.setState({ newEndpointDevice: undefined });
+    this.setState({ newVpnEndpointOpen: false });
+    this.setState({ newVpnEndpointDevice: undefined });
     bodyOverlayToggled(false);
   }
 
@@ -177,8 +177,8 @@ class Tenant extends PureComponent {
     const { isOpen } = this.props;
     if (!isOpen) { this.toggle(); }
     requestAnimationFrame(() => {
-      this.setState({ newEndpointDevice: deviceName });
-      this.openNewEndpoint();
+      this.setState({ newVpnEndpointDevice: deviceName });
+      this.openNewVpnEndpoint();
     });
   };
 
@@ -218,10 +218,10 @@ class Tenant extends PureComponent {
   render() {
     console.debug('Tenant Render');
     const { isOpen, fade, newNetworkService,
-            tenant, endpoints, dcEndpoints, networkServices,
+            tenant, vpnEndpoints, dcEndpoints, networkServices,
             connectDropTarget, connectDragSource,
             isOver, canDrop } = this.props;
-    const { openEndpointName, newEndpointOpen, newEndpointDevice,
+    const { openVpnEndpointName, newVpnEndpointOpen, newVpnEndpointDevice,
             openDcEndpointName, openNetworkServiceName } = this.state;
     const { name, deviceList, ...rest } = tenant;
     return (
@@ -270,28 +270,28 @@ class Tenant extends PureComponent {
             )}
           </div>
           <div className="sidebar__sub-header">
-            <span className="sidebar__title-text">Endpoints</span>
+            <span className="sidebar__title-text">VPN Endpoints</span>
             <div
               className="inline-round-btn inline-round-btn--add"
-              onClick={this.openNewEndpoint}
+              onClick={this.openNewVpnEndpoint}
             >
-              <Btn type={IconTypes.BTN_ADD} tooltip="Add New Endpoint" />
+              <Btn type={IconTypes.BTN_ADD} tooltip="Add New VPN Endpoint" />
             </div>
             <NewItem
               path={`${this.keyPath}/l3vpn/endpoint`}
-              defaults={getEndpointDefaults(newEndpointDevice)}
-              label={`Endpoint Name${newEndpointDevice ?
-                ` (${newEndpointDevice})` : ''}`}
-              isOpen={isOpen && newEndpointOpen}
-              close={this.closeNewEndpoint}
+              defaults={getVpnEndpointDefaults(newVpnEndpointDevice)}
+              label={`Endpoint Name${newVpnEndpointDevice ?
+                ` (${newVpnEndpointDevice})` : ''}`}
+              isOpen={isOpen && newVpnEndpointOpen}
+              close={this.closeNewVpnEndpoint}
             />
           </div>
-          {endpoints && endpoints.map(endpoint =>
-            <Endpoint
-              key={endpoint.name}
-              toggle={() => this.openEndpoint(endpoint.name)}
-              isOpen={openEndpointName === endpoint.name}
-              {...endpoint}
+          {vpnEndpoints && vpnEndpoints.map(vpnEndpoint =>
+            <VpnEndpoint
+              key={vpnEndpoint.name}
+              toggle={() => this.openVpnEndpoint(vpnEndpoint.name)}
+              isOpen={openVpnEndpointName === vpnEndpoint.name}
+              {...vpnEndpoint}
             />
           )}
           <div className="sidebar__sub-header">

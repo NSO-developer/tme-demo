@@ -8,8 +8,9 @@ import Btn from '../icons/BtnWithTooltip';
 import { BTN_ADD } from '../../constants/Icons';
 import LoadingOverlay from '../common/LoadingOverlay';
 
-import { getTenants, getEndpoints, getDcEndpoints, getNetworkServices,
-         getIsFetchingTenants, getIsFetchingEndpoints, getIsFetchingDcEndpoints,
+import { getTenants, getVpnEndpoints, getDcEndpoints, getNetworkServices,
+         getIsFetchingTenants, getIsFetchingVpnEndpoints,
+         getIsFetchingDcEndpoints,
          getIsFetchingNetworkServices } from '../../reducers';
 import { bodyOverlayToggled } from '../../actions/uiState';
 import { TENANT_PATH } from '../../actions/tenants';
@@ -21,11 +22,11 @@ const mapDispatchToProps = { fetchSidebarData, bodyOverlayToggled };
 
 const mapStateToProps = state => ({
   tenants: getTenants(state),
-  endpoints: getEndpoints(state),
+  vpnEndpoints: getVpnEndpoints(state),
   dcEndpoints: getDcEndpoints(state),
   networkServices: getNetworkServices(state),
   isFetchingTenants: getIsFetchingTenants(state),
-  isFetchingEndpoints: getIsFetchingEndpoints(state) ||
+  isFetchingEndpoints: getIsFetchingVpnEndpoints(state) ||
                        getIsFetchingDcEndpoints(state),
   isFetchingNetworkServices: getIsFetchingNetworkServices(state)
 });
@@ -53,8 +54,9 @@ class Tenants extends PureComponent {
 
   render() {
     console.debug('Tenants Render');
-    const { tenants, endpoints, dcEndpoints, networkServices, isFetchingTenants,
-            isFetchingEndpoints, isFetchingNetworkServices } = this.props;
+    const { tenants, vpnEndpoints, dcEndpoints, networkServices,
+            isFetchingTenants, isFetchingEndpoints,
+            isFetchingNetworkServices } = this.props;
     const { newItemOpen } = this.state;
     return (
       <div className="tenants">
@@ -78,8 +80,8 @@ class Tenants extends PureComponent {
             <Tenant
               key={tenant.name}
               tenant={tenant}
-              endpoints={endpoints && endpoints.filter(
-                endpoint => endpoint.tenant === tenant.name
+              vpnEndpoints={vpnEndpoints && vpnEndpoints.filter(
+                vpnEndpoint => vpnEndpoint.tenant === tenant.name
               )}
               dcEndpoints={dcEndpoints && dcEndpoints.filter(
                 dcEndpoint => dcEndpoint.tenant === tenant.name

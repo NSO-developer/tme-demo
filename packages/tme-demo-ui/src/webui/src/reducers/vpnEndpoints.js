@@ -1,4 +1,4 @@
-import * as ActionTypes from '../actions/endpoints';
+import * as ActionTypes from '../actions/vpnEndpoints';
 import jsonRpcWrapper from './jsonRpcWrapper';
 
 
@@ -10,8 +10,8 @@ export { getItems, getIsFetching } from './jsonRpcWrapper';
 // === Reducer ================================================================
 
 export default jsonRpcWrapper([
-  ActionTypes.FETCH_ENDPOINTS_REQUEST,
-  ActionTypes.FETCH_ENDPOINTS_SUCCESS,
-  ActionTypes.FETCH_ENDPOINTS_FAILURE,
-  ActionTypes.ENDPOINT_DELETED
+  ActionTypes.FETCH_VPN_ENDPOINTS_REQUEST,
+  ActionTypes.FETCH_VPN_ENDPOINTS_SUCCESS,
+  ActionTypes.FETCH_VPN_ENDPOINTS_FAILURE,
+  ActionTypes.VPN_ENDPOINT_DELETED
 ]);

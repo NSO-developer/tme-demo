@@ -8,13 +8,13 @@ import * as IconTypes from '../../constants/Icons';
 
 import Btn from '../icons/BtnWithTooltip';
 
-import { deleteEndpoint } from '../../actions/endpoints';
+import { deleteVpnEndpoint } from '../../actions/vpnEndpoints';
 import { TENANT_PATH } from '../../actions/tenants';
 
 
-const mapDispatchToProps = { deleteEndpoint };
+const mapDispatchToProps = { deleteVpnEndpoint };
 
-class Endpoint extends PureComponent {
+class VpnEndpoint extends PureComponent {
   constructor(props) {
     super(props);
     this.ref = createRef();
@@ -24,8 +24,8 @@ class Endpoint extends PureComponent {
 
   delete = async (event) => {
     event.stopPropagation();
-    const { isOpen, toggle, deleteEndpoint, tenant, name } = this.props;
-    await deleteEndpoint(tenant, name);
+    const { isOpen, toggle, deleteVpnEndpoint, tenant, name } = this.props;
+    await deleteVpnEndpoint(tenant, name);
     if (isOpen) { toggle(); }
   }
 
@@ -35,8 +35,8 @@ class Endpoint extends PureComponent {
   }
 
   render() {
-    console.debug('Endpoint Render');
-    const { isOpen, toggle, deleteEndpoint,
+    console.debug('VPN Endpoint Render');
+    const { isOpen, toggle, deleteVpnEndpoint,
             name, tenant, ...rest } = this.props;
     return (
       <div className={classNames('accordion accordion--level2', {
@@ -51,14 +51,14 @@ class Endpoint extends PureComponent {
           >
             <Btn
               type={IconTypes.BTN_GOTO}
-              tooltip="View Endpoint in Configuration Editor"
+              tooltip="View VPN Endpoint in Configuration Editor"
             />
           </div>
           <div
             className="inline-round-btn inline-round-btn--delete"
             onClick={this.delete}
           >
-            <Btn type={IconTypes.BTN_DELETE} tooltip="Delete Endpoint"/>
+            <Btn type={IconTypes.BTN_DELETE} tooltip="Delete VPN Endpoint"/>
           </div>
         </div>
         <div
@@ -81,4 +81,4 @@ class Endpoint extends PureComponent {
   }
 }
 
-export default connect(null, mapDispatchToProps)(Endpoint);
+export default connect(null, mapDispatchToProps)(VpnEndpoint);

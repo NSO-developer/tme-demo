@@ -2,6 +2,7 @@ export const ITEM_DRAGGED = 'item-dragged';
 export const CONNECTION_SELECTED = 'connection-selected';
 export const ICON_SELECTED = 'icon-selected';
 export const ICON_EXPAND_TOGGLED = 'icon-expand-toggled';
+export const UNDERLAY_TOGGLED = 'underlay-toggled';
 
 export const NEW_NETWORK_SERVICE_TOGGLED = 'new-network-service-toggled';
 export const TENANT_TOGGLED = 'tenant-toggled';
@@ -29,6 +30,10 @@ export const iconSelected = name => ({
 
 export const iconExpandToggled = (name, override) => ({
   type: ICON_EXPAND_TOGGLED, name, override
+});
+
+export const underlayToggled = name => ({
+  type: UNDERLAY_TOGGLED, name
 });
 
 export const newNetworkServiceToggled = (container, pos) => ({

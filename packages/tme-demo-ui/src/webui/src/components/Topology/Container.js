@@ -5,34 +5,41 @@ import classNames from 'classnames';
 import { DropTarget } from 'react-dnd';
 
 import { NETWORK_SERVICE } from '../../constants/ItemTypes';
+import * as IconTypes from '../../constants/Icons';
 
-import BtnZoomIn from '../icons/BtnZoomIn';
-import BtnZoomOut from '../icons/BtnZoomOut';
+import Btn from '../icons/BtnWithTooltip';
 
 import { getDraggedItem, getDimensions, getLayout,
-         getZoomedContainer } from '../../reducers';
-import { newNetworkServiceToggled } from '../../actions/uiState';
+         getZoomedContainer, getVisibleUnderlays } from '../../reducers';
+import { newNetworkServiceToggled,
+         underlayToggled } from '../../actions/uiState';
 import { containerZoomToggled } from '../../actions/layout';
 
 import { pxCoordToSafePc } from '../../utils/UiUtils';
 
 
-const mapStateToProps = state => ({
-  draggedItem: getDraggedItem(state),
-  dimensions: getDimensions(state),
-  layout: getLayout(state),
-  zoomedContainer: getZoomedContainer(state)
-});
+const mapStateToProps = (state, props) => {
+  const layout = getLayout(state)[props.name];
+  const name = layout.parentName || props.name;
+  return {
+    name,
+    draggedItem: getDraggedItem(state),
+    dimensions: getDimensions(state),
+    layout,
+    zoomedContainer: getZoomedContainer(state),
+    underlayVisible: getVisibleUnderlays(state).includes(name)
+  };
+};
 
-const mapDispatchToProps = { newNetworkServiceToggled, containerZoomToggled };
+const mapDispatchToProps = { newNetworkServiceToggled,
+                             underlayToggled, containerZoomToggled };
 
 const dropTarget = {
   drop({ name, layout, dimensions, newNetworkServiceToggled }, monitor) {
-    const containerName = layout[name].parentName || name;
     const { x, y } = monitor.getClientOffset();
-    newNetworkServiceToggled(containerName,
+    newNetworkServiceToggled(name,
       pxCoordToSafePc(x - dimensions.left, y - dimensions.top,
-        layout[containerName], dimensions)
+        layout, dimensions)
     );
   }
 };
@@ -45,14 +52,11 @@ const dropTarget = {
 class Container extends PureComponent {
   render() {
     console.debug('Container Render');
-    let { name } = this.props;
-    const { layout, draggedItem, connectDropTarget, isOver,
-            zoomedContainer, containerZoomToggled } = this.props;
-    const { index, title, parentName, pc } = layout[name];
+    const { name, layout, draggedItem, connectDropTarget, isOver,
+            zoomedContainer, underlayToggled, containerZoomToggled,
+            underlayVisible } = this.props;
+    const { index, title, pc } = layout;
     const width = pc.backgroundWidth;
-    if (parentName) {
-      name = parentName;
-    }
 
     return (
       <div
@@ -70,10 +74,46 @@ class Container extends PureComponent {
             <div className="container__title">
               <span className="container__title-text">{title}</span>
               <div
-                className="inline-round-btn inline-round-btn--zoom"
+                className={classNames('inline-round-btn',
+                  'inline-round-btn--toggle-underlay', {
+                  'inline-round-btn--hidden': underlayVisible
+                })}
+                onClick={() => underlayToggled(name)}
+              >
+                <Btn
+                  type={IconTypes.BTN_SHOW_UNDERLAY}
+                  tooltip="Show underlay devices"
+                />
+              </div>
+              <div
+                className={classNames('inline-round-btn',
+                  'inline-round-btn--toggle-underlay', {
+                  'inline-round-btn--hidden': !underlayVisible
+                })}
+                onClick={() => underlayToggled(name)}
+              >
+                <Btn
+                  type={IconTypes.BTN_HIDE_UNDERLAY}
+                  tooltip="Hide underlay devices"
+                />
+              </div>
+              <div
+                className={classNames('inline-round-btn',
+                  'inline-round-btn--zoom', {
+                  'inline-round-btn--hidden': zoomedContainer
+                })}
                 onClick={() => containerZoomToggled(name)}
               >
-                {zoomedContainer ? <BtnZoomOut/> : <BtnZoomIn/>}
+                <Btn type={IconTypes.BTN_ZOOM_IN} tooltip="Zoom in"/>
+              </div>
+              <div
+                className={classNames('inline-round-btn',
+                  'inline-round-btn--zoom', {
+                  'inline-round-btn--hidden': !zoomedContainer
+                })}
+                onClick={() => containerZoomToggled(name)}
+              >
+                <Btn type={IconTypes.BTN_ZOOM_OUT} tooltip="Zoom out"/>
               </div>
             </div>
           </div>

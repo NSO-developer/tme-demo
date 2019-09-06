@@ -16,6 +16,10 @@ export const BTN_GOTO = 'btn-goto';
 export const BTN_REDEPLOY = 'btn-redeploy';
 export const BTN_CONFIRM = 'btn-confirm';
 export const BTN_DRAG = 'btn-drag';
+export const BTN_ZOOM_IN = 'btn-zoom-in';
+export const BTN_ZOOM_OUT = 'btn-zoom-out';
+export const BTN_HIDE_UNDERLAY = 'btn-hide-underlay';
+export const BTN_SHOW_UNDERLAY = 'btn-show-underlay';
 
 // Other
 export const LABEL_FONT = '0.875em CiscoSansLight';

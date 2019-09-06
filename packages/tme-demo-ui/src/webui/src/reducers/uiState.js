@@ -1,4 +1,5 @@
 import * as ActionTypes from '../actions/uiState';
+import { PROVIDER } from '../constants/Layout';
 
 
 // === Selectors ==============================================================
@@ -7,6 +8,7 @@ export const getDraggedItem = state => state.draggedItem;
 export const getSelectedConnection = state => state.selectedConnection;
 export const getSelectedIcon = state => state.selectedIcon;
 export const getExpandedIcons = state => state.expandedIcons;
+export const getVisibleUnderlays = state => state.visibleUnderlays;
 
 export const getNewNetworkService = state => state.newNetworkService;
 export const getOpenTenant = state => state.openTenant;
@@ -22,6 +24,7 @@ export const getError = state => state.error;
 
 export default function(state = {
   expandedIcons: [],
+  visibleUnderlays: [ PROVIDER ],
   editMode: false
 }, action) {
   const { type, name } = action;
@@ -50,6 +53,14 @@ export default function(state = {
         expandedIcons: state.expandedIcons.includes(name)
             ? state.expandedIcons.filter(icon => icon !== name)
             : [ ...state.expandedIcons, name ]
+      };
+
+    case ActionTypes.UNDERLAY_TOGGLED:
+      return {
+        ...state,
+        visibleUnderlays: state.visibleUnderlays.includes(name)
+            ? state.visibleUnderlays.filter(container => container !== name)
+            : [ ...state.visibleUnderlays, name ]
       };
 
     case ActionTypes.NEW_NETWORK_SERVICE_TOGGLED: {

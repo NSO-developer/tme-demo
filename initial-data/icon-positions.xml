@@ -161,6 +161,7 @@
         <x>0.4</x>
         <y>0.2</y>
       </coord>
+      <underlay>true</underlay>
     </icon>
     <icon>
       <name>p1</name>
@@ -171,6 +172,7 @@
         <x>0.6</x>
         <y>0.35</y>
       </coord>
+      <underlay>true</underlay>
     </icon>
     <icon>
       <name>p2</name>
@@ -181,6 +183,7 @@
         <x>0.6</x>
         <y>0.65</y>
       </coord>
+      <underlay>true</underlay>
     </icon>
     <icon>
       <name>p3</name>
@@ -191,6 +194,7 @@
         <x>0.4</x>
         <y>0.8</y>
       </coord>
+      <underlay>true</underlay>
     </icon>
     <icon>
       <name>pe0</name>
@@ -233,7 +237,6 @@
       </coord>
     </icon>
 
-
     <icon>
       <name>sw0</name>
       <device>sw0</device>
@@ -250,6 +253,7 @@
           <y>0.9</y>
         </coord>
       </zoomed>
+      <underlay>true</underlay>
     </icon>
     <icon>
       <name>sw1</name>
@@ -267,6 +271,7 @@
           <y>0.9</y>
         </coord>
       </zoomed>
+      <underlay>true</underlay>
     </icon>
     <icon>
       <name>sw2</name>
@@ -284,6 +289,7 @@
           <y>0.9</y>
         </coord>
       </zoomed>
+      <underlay>true</underlay>
     </icon>
     <icon>
       <name>sw3</name>
@@ -300,8 +306,9 @@
           <x>0.61</x>
           <y>0.9</y>
         </coord>
-    </zoomed>
-  </icon>
+      </zoomed>
+      <underlay>true</underlay>
+    </icon>
     <icon>
       <name>sw4</name>
       <device>sw4</device>
@@ -318,6 +325,7 @@
           <y>0.9</y>
         </coord>
       </zoomed>
+      <underlay>true</underlay>
     </icon>
     <icon>
       <name>sw5</name>
@@ -335,6 +343,7 @@
           <y>0.9</y>
         </coord>
       </zoomed>
+      <underlay>true</underlay>
     </icon>
 
     <icon>
@@ -353,6 +362,7 @@
           <y>0.5</y>
         </coord>
       </zoomed>
+      <underlay>true</underlay>
     </icon>
     <icon>
       <name>spine1</name>
@@ -370,6 +380,7 @@
           <y>0.5</y>
         </coord>
       </zoomed>
+      <underlay>true</underlay>
     </icon>
     <icon>
       <name>spine2</name>
@@ -387,6 +398,7 @@
           <y>0.5</y>
         </coord>
       </zoomed>
+      <underlay>true</underlay>
     </icon>
     <icon>
       <name>spine3</name>
@@ -404,6 +416,7 @@
           <y>0.5</y>
         </coord>
       </zoomed>
+      <underlay>true</underlay>
     </icon>
   </static-map>
   </data-stores>

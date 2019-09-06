@@ -29,6 +29,7 @@ const selection = [ 'name',
                     'ns-info',
                     'type',
                     'container',
+                    'underlay',
                     'coord/x',
                     'coord/y' ];
 const resultKeys =  [ 'name',
@@ -36,6 +37,7 @@ const resultKeys =  [ 'name',
                       'nsInfo',
                       'type',
                       'container',
+                      'underlay',
                       'x',
                       'y' ];
 

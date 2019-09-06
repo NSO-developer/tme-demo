@@ -108,6 +108,10 @@ module tme-demo-ui {
 
           uses icon-coordinates;
         }
+
+        leaf underlay {
+          type boolean;
+        }
       }
     }
   }

@@ -236,11 +236,18 @@
   float: left;
 }
 
-.inline-round-btn--zoom:hover {
+.inline-round-btn--zoom:hover, .inline-round-btn--toggle-underlay:hover  {
   background: var(--nso-background-grey);
   color: var(--nso-dark-grey);
 }
 
+.inline-round-btn--hidden {
+  opacity: 0;
+  padding: 0;
+  pointer-events: none;
+  width: 0;
+  visibility: hidden;
+}
 
 .icon__outline {
   background: PaleTurquoise;

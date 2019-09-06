@@ -27,7 +27,7 @@ const layoutPersistConfig = {
 const uiStatePersistConfig = {
   key: 'uiState',
   storage: storage,
-  whitelist: ['expandedIcons', 'openTenant']
+  whitelist: ['expandedIcons', 'visibleUnderlays', 'openTenant']
 };
 
 export default combineReducers({
@@ -90,6 +90,9 @@ export const getSelectedIcon = state =>
 
 export const getExpandedIcons = state =>
   fromUiState.getExpandedIcons(state.uiState);
+
+export const getVisibleUnderlays = state =>
+  fromUiState.getVisibleUnderlays(state.uiState);
 
 export const getIsIconExpanded = (state, name) =>
   fromUiState.getExpandedIcons(state.uiState).includes(name);
@@ -235,7 +238,7 @@ export const getHighlightedDevices = state => {
 };
 
 const calculateIconPosition = (name, icon, zoomedIcon, vnfs, dimensions,
-  layout, iconHeightPc, expanded, zoomedContainer
+  layout, iconHeightPc, expanded, zoomedContainer, visibleUnderlays
 ) => {
   console.debug(`Reselect iconPosition ${name}`);
   if (!dimensions) {
@@ -246,7 +249,8 @@ const calculateIconPosition = (name, icon, zoomedIcon, vnfs, dimensions,
     (zoomedContainer && zoomedIcon) ? zoomedIcon : icon;
 
   const { connectionColour } = layout[container];
-  const hidden = zoomedContainer && container !== zoomedContainer;
+  const hidden = zoomedContainer && container !== zoomedContainer ||
+                 icon.underlay && !visibleUnderlays.includes(icon.container);
 
   const position = (pcX, pcY) => ({
     pcX, pcY,
@@ -287,7 +291,8 @@ const calculateIconPosition = (name, icon, zoomedIcon, vnfs, dimensions,
 const getIconPositionFactory = () =>
   createSelector(
     [(state, name) => name, getIcon, getZoomedIcon, getIconVnfs, getDimensions,
-      getLayout, getIconHeightPc, getIsIconExpanded, getZoomedContainer],
+      getLayout, getIconHeightPc, getIsIconExpanded, getZoomedContainer,
+      getVisibleUnderlays],
     calculateIconPosition);
 
 export const getIconPosition = (state, name) => {
@@ -298,15 +303,16 @@ export const getIconPosition = (state, name) => {
 };
 
 export const getIconPositions = createSelector(
-  [getIcons, getZoomedIcons, getLayoutStateSlice, getVnfs, getExpandedIcons],
-  (icons, zoomedIcons, layout, vnfs, expandedIcons) => {
+  [getIcons, getZoomedIcons, getLayoutStateSlice, getVnfs, getExpandedIcons,
+   getVisibleUnderlays],
+  (icons, zoomedIcons, layout, vnfs, expandedIcons, visibleUnderlays) => {
     console.debug('Reselect iconPositions');
     const state = {
       icons: { items: icons },
       zoomedIcons: { items: zoomedIcons },
       layout,
       vnfs: { items: vnfs },
-      uiState: { expandedIcons },
+      uiState: { expandedIcons, visibleUnderlays },
     };
     return Object.keys(icons).reduce((accumulator, key) => ({
       ...accumulator,

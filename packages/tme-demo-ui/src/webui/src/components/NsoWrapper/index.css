@@ -32,10 +32,13 @@
   width: 6em;
 }
 
-.nso-btn--disabled {
+.nso-btn--inactive, .nso-btn--disabled {
   background: var(--nso-light-grey);
   border: 1px solid var(--nso-light-grey);
   color: White;
+}
+
+.nso-btn--disabled {
   cursor: not-allowed;
   pointer-events: none;
 }
@@ -59,10 +62,11 @@
   height: 100%;
   justify-content: center;
   left: 0px;
-  overflow: hidden;
+  overflow-x: hidden;
+  overflow-y: scroll;
+  padding: 1rem 0rem;
   position: absolute;
   top: 0px;
-  padding: 1rem;
   width: 100%;
 }
 

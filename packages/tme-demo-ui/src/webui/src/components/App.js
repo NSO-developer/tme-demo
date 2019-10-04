@@ -3,8 +3,9 @@ import { PureComponent } from 'react';
 import { DragDropContext } from 'react-dnd';
 import HTML5Backend from 'react-dnd-html5-backend';
 import { hot } from 'react-hot-loader';
-import Sidebar from './Sidebar';
+import Tenants from './Tenants';
 import Topology from './Topology';
+import ConfigViewer from './ConfigViewer';
 import NsoWrapper from './NsoWrapper';
 
 @DragDropContext(HTML5Backend, { window })
@@ -14,8 +15,9 @@ class App extends PureComponent {
     console.debug('App Render');
     return (
       <NsoWrapper>
-        <Sidebar/>
+        <Tenants/>
         <Topology/>
+        <ConfigViewer/>
       </NsoWrapper>
     );
   }

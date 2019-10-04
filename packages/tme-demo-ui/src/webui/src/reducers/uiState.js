@@ -52,7 +52,7 @@ export default function(state = {
         ...state,
         expandedIcons: state.expandedIcons.includes(name)
             ? state.expandedIcons.filter(icon => icon !== name)
-            : [ ...state.expandedIcons, name ]
+            : [ name, ...state.expandedIcons ]
       };
 
     case ActionTypes.UNDERLAY_TOGGLED:

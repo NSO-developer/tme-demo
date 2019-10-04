@@ -1,9 +1,11 @@
+import './index.css';
 import React from 'react';
-import { PureComponent } from 'react';
+import { PureComponent, createRef } from 'react';
 import { connect } from 'react-redux';
 
+import Sidebar from '../Sidebar';
+import NewItem from '../Sidebar/NewItem';
 import Tenant from './Tenant';
-import NewItem from './NewItem';
 import Btn from '../icons/BtnWithTooltip';
 import { BTN_ADD } from '../../constants/Icons';
 import LoadingOverlay from '../common/LoadingOverlay';
@@ -38,6 +40,7 @@ class Tenants extends PureComponent {
     this.state = {
       newItemOpen: false
     };
+    this.btnRef = createRef();
   }
 
   openNewItem = () => {
@@ -59,16 +62,18 @@ class Tenants extends PureComponent {
             isFetchingNetworkServices } = this.props;
     const { newItemOpen } = this.state;
     return (
-      <div className="tenants">
+      <Sidebar>
         <div className="sidebar__header">
           <span className="sidebar__title-text">Tenants</span>
           <div
+            ref={this.btnRef}
             className="inline-round-btn inline-round-btn--add"
             onClick={this.openNewItem}
           >
             <Btn type={BTN_ADD} tooltip="Add New Tenant" />
           </div>
             <NewItem
+              btnRef={this.btnRef}
               path={TENANT_PATH}
               label="Tenant Name"
               isOpen={newItemOpen}
@@ -98,7 +103,7 @@ class Tenants extends PureComponent {
               label: 'Fetching Network Services...' }
           ]}/>
         </div>
-      </div>
+      </Sidebar>
     );
   }
 

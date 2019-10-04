@@ -105,6 +105,15 @@ module tme-demo {
                 "topoloogy connections have been created";
   }
 
+  typedef config-format {
+    type enumeration {
+      enum cli;
+      enum curly-braces;
+      enum json;
+      enum xml;
+    }
+  }
+
   grouping connection-grouping {
     leaf ns-info-id {
       type leafref {
@@ -479,11 +488,31 @@ module tme-demo {
     }
   }
 
-//  augment "/l3vpn:topology/l3vpn:connection/l3vpn:endpoint-1" {
-//    uses connection-grouping;
-//  }
+  augment "/ncs:devices/ncs:device" {
+    tailf:action get-configuration {
+      tailf:info "Get full device configuration";
+      tailf:actionpoint get-device-configuration;
 
-//  augment "/l3vpn:topology/l3vpn:connection/l3vpn:endpoint-2" {
-//    uses connection-grouping;
-//  }
+      input {
+        leaf format {
+          type config-format;
+        }
+
+        leaf service-meta-data {
+          type boolean;
+        }
+      }
+
+      output {
+        leaf format {
+          type config-format;
+        }
+
+        leaf config {
+          type string;
+        }
+      }
+    }
+  }
+
 }

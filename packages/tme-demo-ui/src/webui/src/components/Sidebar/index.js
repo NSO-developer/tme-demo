@@ -1,14 +1,38 @@
 import './index.css';
 import React from 'react';
-import Tenants from './Tenants';
+import { PureComponent, createRef } from 'react';
+import ReactResizeDetector from 'react-resize-detector';
 
-function Sidebar() {
-  console.debug('Sidebar Render');
-  return (
-    <div className="sidebar">
-      <Tenants/>
-    </div>
-  );
+
+class Sidebar extends PureComponent {
+  constructor(props) {
+    super(props);
+    this.ref = createRef();
+    this.innerRef = createRef();
+  }
+
+  resize = () => {
+    console.debug('Sidebar resize');
+    const top = this.ref.current.clientHeight -
+                this.innerRef.current.scrollHeight;
+    this.ref.current.style.top = top > 0 ? 0 : `${top}px`;
+  };
+
+  render() {
+    console.debug('Sidebar Render');
+    return (
+      <div ref={this.ref} className="sidebar">
+        <div ref={this.innerRef} className="sidebar__inner">
+          <ReactResizeDetector handleHeight
+            onResize={this.resize}
+            refreshMode="debounce"
+            refreshRate={500}
+          />
+          {this.props.children}
+        </div>
+      </div>
+    );
+  }
 }
 
 export default Sidebar;

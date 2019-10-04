@@ -1,0 +1,36 @@
+.config-viewer__loading-dots {
+  display: inline-block;
+  float: right;
+}
+
+.config-viewer__panel {
+  position: relative;
+}
+
+.config-viewer__btn-row {
+  background: var(--nso-very-light-grey);
+  display: flex;
+  padding: 0.5rem 0.25rem;
+}
+
+.config-viewer__config-text {
+  background-color: White;
+  margin: 0;
+  overflow-x: scroll;
+  padding: 1rem;
+  user-select: text;
+}
+
+.nso-btn.nso-btn--config-viewer {
+  margin: 0rem 0.125rem;
+  padding: 0rem 0.75rem;
+}
+
+.nso-btn.nso-btn--right-align {
+  margin-left: auto;
+}
+
+
+.accordion--closed > .accordion__header > .config-viewer__loading-dots > .loading__dot {
+  background-color: var(--nso-medium-grey);
+}

@@ -1,0 +1,49 @@
+.tenant {
+  position: relative;
+}
+
+.tenant + .tenant > .accordion--closed {
+  margin-top: 1px;
+}
+
+.inline-round-btn--add {
+  background: var(--nso-blue);
+}
+
+.inline-round-btn--add:hover {
+  background: var(--nso-green);
+}
+
+.new-item__form > .inline-round-btn--delete {
+  background: var(--nso-light-grey);
+}
+
+.inline-round-btn__wrapper {
+  display: inline-block;
+}
+
+.inline-round-btn--delete:hover {
+  background: IndianRed;
+  color: White;
+}
+
+.inline-round-btn--go-to:hover,
+.inline-round-btn--redeploy:hover {
+  background: var(--nso-background-grey);
+  color: var(--nso-dark-grey);
+}
+
+.accordion--closed > .accordion__header > .inline-round-btn--go-to:hover,
+.accordion--closed > .accordion__header > .inline-round-btn--redeploy:hover {
+  background: var(--nso-green);
+  color: White;
+}
+
+.inline-round-btn--confirm-active {
+  background: var(--nso-green);
+}
+
+.inline-round-btn--confirm-inactive {
+  background: var(--nso-light-grey);
+  cursor: not-allowed;
+}

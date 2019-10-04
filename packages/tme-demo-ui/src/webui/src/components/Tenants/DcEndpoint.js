@@ -1,11 +1,11 @@
 import React from 'react';
-import { PureComponent, createRef } from 'react';
+import { PureComponent, Fragment } from 'react';
 import { connect } from 'react-redux';
-import classNames from 'classnames';
 
 import { CONFIGURATION_EDITOR_URL } from '../../constants/Layout';
 import * as IconTypes from '../../constants/Icons';
 
+import Accordion from '../Sidebar/Accordion';
 import Btn from '../icons/BtnWithTooltip';
 
 import { deleteDcEndpoint } from '../../actions/dcEndpoints';
@@ -17,7 +17,6 @@ const mapDispatchToProps = { deleteDcEndpoint };
 class DcEndpoint extends PureComponent {
   constructor(props) {
     super(props);
-    this.ref = createRef();
     const { tenant, name } = props;
     this.keyPath = `${TENANT_PATH}{${tenant}}/data-centre/endpoint{${name}}`;
   }
@@ -38,12 +37,10 @@ class DcEndpoint extends PureComponent {
     console.debug('Data Centre Endpoint Render');
     const { isOpen, toggle, deleteDcEndpoint,
             tenant, name, ...rest } = this.props;
+
     return (
-      <div className={classNames('accordion accordion--level2', {
-          'accordion--closed': !isOpen,
-          'accordion--open': isOpen
-      })}>
-        <div className="accordion__header" onClick={toggle} >
+      <Accordion level="2" isOpen={isOpen} toggle={toggle} header={
+        <Fragment>
           <span
             className="sidebar__title-text"
           >{rest['Device']} ({rest['Interface']})</span>
@@ -65,23 +62,16 @@ class DcEndpoint extends PureComponent {
               tooltip="Delete Data Centre Endpoint"
             />
           </div>
+        </Fragment>}>
+        <div className="field-group">
+          {rest && Object.keys(rest).map(key =>
+            <div key={key} className="field-group__row">
+              <span className="field-group__label">{key}</span>
+              <span className="field-group__value">{rest[key]}</span>
+            </div>
+          )}
         </div>
-        <div
-          ref={this.ref}
-          className="accordion__panel"
-          style={{ maxHeight: (isOpen && this.ref.current)
-            ? `${this.ref.current.scrollHeight}px` : undefined }}
-        >
-          <div className="field-group">
-            {rest && Object.keys(rest).map(key =>
-              <div key={key} className="field-group__row">
-                <span className="field-group__label">{key}</span>
-                <span className="field-group__value">{rest[key]}</span>
-              </div>
-            )}
-          </div>
-        </div>
-      </div>
+      </Accordion>
     );
   }
 }

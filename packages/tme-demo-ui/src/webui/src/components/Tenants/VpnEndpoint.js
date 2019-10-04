@@ -1,11 +1,11 @@
 import React from 'react';
-import { PureComponent, createRef } from 'react';
+import { PureComponent, Fragment } from 'react';
 import { connect } from 'react-redux';
-import classNames from 'classnames';
 
 import { CONFIGURATION_EDITOR_URL } from '../../constants/Layout';
 import * as IconTypes from '../../constants/Icons';
 
+import Accordion from '../Sidebar/Accordion';
 import Btn from '../icons/BtnWithTooltip';
 
 import { deleteVpnEndpoint } from '../../actions/vpnEndpoints';
@@ -17,7 +17,6 @@ const mapDispatchToProps = { deleteVpnEndpoint };
 class VpnEndpoint extends PureComponent {
   constructor(props) {
     super(props);
-    this.ref = createRef();
     const { tenant, name } = props;
     this.keyPath = `${TENANT_PATH}{${tenant}}/l3vpn/endpoint{${name}}`;
   }
@@ -38,12 +37,10 @@ class VpnEndpoint extends PureComponent {
     console.debug('VPN Endpoint Render');
     const { isOpen, toggle, deleteVpnEndpoint,
             name, tenant, ...rest } = this.props;
+
     return (
-      <div className={classNames('accordion accordion--level2', {
-          'accordion--closed': !isOpen,
-          'accordion--open': isOpen
-      })}>
-        <div className="accordion__header" onClick={toggle} >
+      <Accordion level="2" isOpen={isOpen} toggle={toggle} header={
+        <Fragment>
           <span className="sidebar__title-text">{name} ({rest['Device']})</span>
           <div
             className="inline-round-btn inline-round-btn--go-to"
@@ -60,23 +57,16 @@ class VpnEndpoint extends PureComponent {
           >
             <Btn type={IconTypes.BTN_DELETE} tooltip="Delete VPN Endpoint"/>
           </div>
+        </Fragment>}>
+        <div className="field-group">
+          {rest && Object.keys(rest).map(key =>
+            <div key={key} className="field-group__row">
+              <span className="field-group__label">{key}</span>
+              <span className="field-group__value">{rest[key]}</span>
+            </div>
+          )}
         </div>
-        <div
-          ref={this.ref}
-          className="accordion__panel"
-          style={{ maxHeight: (isOpen && this.ref.current)
-            ? `${this.ref.current.scrollHeight}px` : undefined }}
-        >
-          <div className="field-group">
-            {rest && Object.keys(rest).map(key =>
-              <div key={key} className="field-group__row">
-                <span className="field-group__label">{key}</span>
-                <span className="field-group__value">{rest[key]}</span>
-              </div>
-            )}
-          </div>
-        </div>
-      </div>
+      </Accordion>
     );
   }
 }

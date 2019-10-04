@@ -1,4 +1,5 @@
 import React from 'react';
+import ReactDOM from 'react-dom';
 import { PureComponent, createRef } from 'react';
 import { connect } from 'react-redux';
 import classNames from 'classnames';
@@ -6,7 +7,6 @@ import classNames from 'classnames';
 import { CONFIGURATION_EDITOR_URL } from '../../constants/Layout';
 import * as IconTypes from '../../constants/Icons';
 
-import Tenant from './Tenant';
 import Btn from '../icons/BtnWithTooltip';
 
 import { handleError } from '../../actions/uiState';
@@ -64,19 +64,30 @@ class NewItem extends PureComponent {
 
   render() {
     console.debug('New Item Render');
-    const { label, isOpen, close } = this.props;
+    const { label, isOpen, close, btnRef } = this.props;
     const { value } = this.state;
-    return (
-      <div className={classNames('new_item', {
-        'new-item--open': isOpen
-      })} ref={this.ref}>
+
+    const { left, top } = btnRef.current
+      && btnRef.current.getBoundingClientRect() || { left: 0, top: 0 };
+
+    return ReactDOM.createPortal(
+      <div
+        className={classNames('new_item', {
+          'new-item--open': isOpen
+        })}
+        style={{
+          top: `${top}px`,
+          left: `${left}px` }}
+        ref={this.ref}
+      >
         <form
           className="new-item__form"
           onSubmit={this.handleSubmit}
           ref={this.formRef}
         >
           <div
-            className="inline-round-btn inline-round-btn--delete"
+            className={classNames('inline-round-btn',
+              'inline-round-btn--new-item', 'inline-round-btn--delete')}
             onClick={close}
           >
             <Btn type={IconTypes.BTN_DELETE} tooltip="Cancel"/>
@@ -89,31 +100,49 @@ class NewItem extends PureComponent {
             type="text"
             value={value}
           />
-          <div className={classNames('inline-round-btn', {
-            'inline-round-btn--confirm-active': value !== '',
-            'inline-round-btn--confirm-inactive': value === ''
-          })} onClick={this.create}>
+          <div
+            className={classNames('inline-round-btn',
+              'inline-round-btn--new-item', {
+              'inline-round-btn--confirm-active': value !== '',
+              'inline-round-btn--confirm-inactive': value === ''
+            })} onClick={this.create}
+          >
             <Btn type={IconTypes.BTN_CONFIRM} tooltip="Create"/>
           </div>
         </form>
-      </div>
+      </div>,
+      document.body
     );
   }
+
+  onOpenTransitionEnd = () => {
+    this.ref.current.removeEventListener(
+      'transitionend', this.onOpenTransitionEnd);
+    this.inputRef.current.focus();
+  };
+
+  onCloseTransitionEnd = () => {
+    this.ref.current.removeEventListener(
+      'transitionend', this.onCloseTransitionEnd);
+    setTimeout(() => {
+      this.formRef.current.style.width = null;
+    }, 500);
+  };
 
   componentDidUpdate(prevProps) {
     const { isOpen } = this.props;
     if (isOpen != prevProps.isOpen) {
       requestAnimationFrame(() => {
         if (isOpen) {
-          // IE fix: Need to set display to block to get correct scrollWidth
-          this.formRef.current.style.display = 'block';
           const formWidth = this.formRef.current.scrollWidth;
           this.formRef.current.style.width = `${formWidth}px`;
-          this.formRef.current.style.display = 'flex';
-          this.ref.current.style.width = `${formWidth + 10}px`;
-          setTimeout(() => {this.inputRef.current.focus();}, 500);
+          this.ref.current.style.width = `${formWidth}px`;
+          this.ref.current.addEventListener(
+            'transitionend', this.onOpenTransitionEnd);
         } else {
-          this.ref.current.style.width = '0px';
+          this.ref.current.style.width = null;
+          this.ref.current.addEventListener(
+            'transitionend', this.onCloseTransitionEnd);
         }
       });
     }

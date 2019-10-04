@@ -38,7 +38,7 @@ export default jsonRpcWrapper([
   ActionTypes.ICON_DELETED,
   ActionTypes.ICON_ADDED
 ],
-(state = [], action) => {
+(state = {}, action) => {
   const { type, name, pos } = action;
   switch (type) {
 

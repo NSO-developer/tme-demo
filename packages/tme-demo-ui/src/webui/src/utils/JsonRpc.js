@@ -86,6 +86,16 @@ class JsonRpc {
     return this.request('query', params);
   }
 
+  async runAction(params) {
+    const th = await this.read();
+    params = { th: th, ...params };
+    const json = await this.request('run_action', params);
+    return json.reduce((accumulator, { name, value }) => {
+      accumulator[name] = value;
+      return accumulator;
+    }, {});
+  }
+
   async read() {
     const db = 'running';
 

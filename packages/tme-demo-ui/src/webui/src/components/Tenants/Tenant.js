@@ -1,5 +1,5 @@
 import React from 'react';
-import { PureComponent, createRef } from 'react';
+import { PureComponent, Fragment, createRef } from 'react';
 import { connect } from 'react-redux';
 import { DragSource, DropTarget } from 'react-dnd';
 import { renderToStaticMarkup } from 'react-dom/server';
@@ -11,10 +11,11 @@ import { CONFIGURATION_EDITOR_URL,
          COMMIT_MANAGER_URL } from '../../constants/Layout';
 import * as IconTypes from '../../constants/Icons';
 
+import Accordion from '../Sidebar/Accordion';
+import NewItem from '../Sidebar/NewItem';
 import VpnEndpoint from './VpnEndpoint';
 import DcEndpoint from './DcEndpoint';
 import NetworkService from './NetworkService';
-import NewItem from './NewItem';
 import Btn from '../icons/BtnWithTooltip';
 import IconSvg from '../icons/IconSvg';
 
@@ -101,8 +102,9 @@ class Tenant extends PureComponent {
       openDcEndpointName: null,
       openNetworkServiceName: null,
     };
-    this.ref = createRef();
     this.keyPath = `${TENANT_PATH}{${props.tenant.name}}`;
+    this.addVpnEndpointBtnRef = createRef();
+    this.addNetworkServiceBtnRef = createRef();
   }
 
   openVpnEndpoint = vpnEndpointName => {
@@ -209,10 +211,6 @@ class Tenant extends PureComponent {
       <IconSvg type={IconTypes.SERVICE_CHAIN} size={iconSize} />),
       iconSize, connectDragPreview, true
     );
-
-    if (isOpen) {
-      this.animateToggle();
-    }
   }
 
   render() {
@@ -224,43 +222,41 @@ class Tenant extends PureComponent {
     const { openVpnEndpointName, newVpnEndpointOpen, newVpnEndpointDevice,
             openDcEndpointName, openNetworkServiceName } = this.state;
     const { name, deviceList, ...rest } = tenant;
-    return (
-      connectDropTarget(
-      <div className={classNames('accordion accordion--level1', {
-        'accordion--open': isOpen,
-        'accordion--closed-fade': !isOpen && fade,
-        'accordion--closed': !isOpen
-      })}>
-        <div className="accordion__header" onClick={this.toggle}>
-          <span className="sidebar__title-text">{name}</span>
-          <div
-            className="inline-round-btn inline-round-btn--go-to"
-            onClick={this.goTo}
-          >
-            <Btn
-              type={IconTypes.BTN_GOTO}
-              tooltip="View Tenant in Configuration Editor"
-            />
-          </div>
-          <div
-            className="inline-round-btn inline-round-btn--redeploy"
-            onClick={this.redeploy}
-          >
-            <Btn
-              type={IconTypes.BTN_REDEPLOY}
-              tooltip="Touch L3 VPN and go to Commit Manager" />
-          </div>
-          <div
-            className="inline-round-btn inline-round-btn--delete"
-            onClick={this.delete}
-          >
-            <Btn type={IconTypes.BTN_DELETE} tooltip="Delete Tenant" />
-          </div>
-        </div>
-        <div
-          ref={this.ref}
-          className={'accordion__panel'}
-        >
+
+    return connectDropTarget(
+      <div className="tenant">
+        <Accordion
+          level="1"
+          isOpen={isOpen}
+          fade={fade}
+          toggle={this.toggle}
+          variableHeight={true}
+          header={<Fragment>
+            <span className="sidebar__title-text">{name}</span>
+            <div
+              className="inline-round-btn inline-round-btn--go-to"
+              onClick={this.goTo}
+            >
+              <Btn
+                type={IconTypes.BTN_GOTO}
+                tooltip="View Tenant in Configuration Editor"
+              />
+            </div>
+            <div
+              className="inline-round-btn inline-round-btn--redeploy"
+              onClick={this.redeploy}
+            >
+              <Btn
+                type={IconTypes.BTN_REDEPLOY}
+                tooltip="Touch L3 VPN and go to Commit Manager" />
+            </div>
+            <div
+              className="inline-round-btn inline-round-btn--delete"
+              onClick={this.delete}
+            >
+              <Btn type={IconTypes.BTN_DELETE} tooltip="Delete Tenant" />
+            </div>
+          </Fragment>}>
           <div className="field-group">
             {rest && Object.keys(rest).map(key =>
               <div key={key} className="field-group__row">
@@ -272,12 +268,14 @@ class Tenant extends PureComponent {
           <div className="sidebar__sub-header">
             <span className="sidebar__title-text">VPN Endpoints</span>
             <div
+              ref={this.addVpnEndpointBtnRef}
               className="inline-round-btn inline-round-btn--add"
               onClick={this.openNewVpnEndpoint}
             >
               <Btn type={IconTypes.BTN_ADD} tooltip="Add New VPN Endpoint" />
             </div>
             <NewItem
+              btnRef={this.addVpnEndpointBtnRef}
               path={`${this.keyPath}/l3vpn/endpoint`}
               defaults={getVpnEndpointDefaults(newVpnEndpointDevice)}
               label={`Endpoint Name${newVpnEndpointDevice ?
@@ -307,14 +305,19 @@ class Tenant extends PureComponent {
           )}
           <div className="sidebar__sub-header">
             <div className="sidebar__title-text">Network Services</div>
-            {connectDragSource(
-            <div className="inline-round-btn inline-round-btn--add">
-              <Btn
-                type={IconTypes.BTN_ADD}
-                tooltip="Add New Network Service (drag me)"
-              />
-            </div>)}
+              <div
+                ref={this.addNetworkServiceBtnRef}
+                className="inline-round-btn__wrapper"
+              >{connectDragSource(
+                <div className="inline-round-btn inline-round-btn--add">
+                  <Btn
+                    type={IconTypes.BTN_ADD}
+                    tooltip="Add New Network Service (drag me)"
+                  />
+                </div>)}
+              </div>
             <NewItem
+              btnRef={this.addNetworkServiceBtnRef}
               path={`${this.keyPath}/nfvo/network-service`}
               defaultsPath="/webui:webui/data-stores/tme-demo-ui:static-map/icon"
               defaults={newNetworkService ?
@@ -332,49 +335,14 @@ class Tenant extends PureComponent {
               {...networkService}
             />
           )}
-        </div>
+        </Accordion>
         <div className="accordion__overlay-wrapper">
           <div className={classNames('accordion__overlay', {
             'accordion__overlay--hovered': isOver && canDrop
           })}/>
         </div>
-      </div>)
+      </div>
     );
-  }
-
-  onTransitionEnd = () => {
-    this.ref.current.removeEventListener(
-      'transitionend', this.onTransitionEnd);
-    this.ref.current.style.maxHeight = 'none';
-  }
-
-  animateToggle = () => {
-    const { isOpen } = this.props;
-    if (isOpen) {
-      requestAnimationFrame(() => {
-        this.ref.current.style.maxHeight =
-          `${this.ref.current.scrollHeight}px`;
-        this.ref.current.addEventListener(
-          'transitionend', this.onTransitionEnd);
-      });
-    } else {
-      this.ref.current.removeEventListener(
-        'transitionend', this.onTransitionEnd);
-      requestAnimationFrame(() => {
-        this.ref.current.style.maxHeight =
-          `${this.ref.current.scrollHeight}px`;
-        requestAnimationFrame(() => {
-          this.ref.current.style.maxHeight = 0;
-        });
-      });
-    }
-  }
-
-  componentDidUpdate(prevProps) {
-    const { isOpen } = this.props;
-    if (isOpen !== prevProps.isOpen) {
-      this.animateToggle();
-    }
   }
 }
 

@@ -13,7 +13,7 @@ import { getDraggedItem, getDimensions, getLayout,
          getZoomedContainer, getVisibleUnderlays } from '../../reducers';
 import { newNetworkServiceToggled,
          underlayToggled } from '../../actions/uiState';
-import { containerZoomToggled } from '../../actions/layout';
+import { containerZoomToggled } from '../../actions/uiSizing';
 
 import { pxCoordToSafePc } from '../../utils/UiUtils';
 

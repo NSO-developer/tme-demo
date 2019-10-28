@@ -1,0 +1,36 @@
+<config xmlns="http://tail-f.com/ns/config/1.0">
+  <webui xmlns="http://tail-f.com/ns/webui">
+  <data-stores>
+  <topology-layout xmlns="http://com.example/tme-demo-ui">
+    <name>data-centre</name>
+    <width>30</width>
+    <title>Data Centre</title>
+    <connection-colour>CadetBlue</connection-colour>
+    <zoomed>
+      <title>Data Centre 1</title>
+      <width>50</width>
+    </zoomed>
+    <zoomed>
+      <title>Data Centre 2</title>
+      <width>50</width>
+    </zoomed>
+  </topology-layout>
+  <topology-layout xmlns="http://com.example/tme-demo-ui">
+    <name>transport</name>
+    <width>35</width>
+    <title>Transport</title>
+  </topology-layout>
+  <topology-layout xmlns="http://com.example/tme-demo-ui">
+    <name>access</name>
+    <width>15</width>
+    <title>Access</title>
+  </topology-layout>
+  <topology-layout xmlns="http://com.example/tme-demo-ui">
+    <name>branch</name>
+    <width>20</width>
+    <title>Branch</title>
+    <connection-colour>RosyBrown</connection-colour>
+  </topology-layout>
+  </data-stores>
+  </webui>
+</config>

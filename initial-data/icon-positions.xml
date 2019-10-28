@@ -6,7 +6,7 @@
       <name>ce0</name>
       <device>ce0</device>
       <type>customer-router</type>
-      <container>customer</container>
+      <container>branch</container>
       <coord>
         <x>1</x>
         <y>0.2</y>
@@ -16,7 +16,7 @@
       <name>ce1</name>
       <device>ce1</device>
       <type>customer-router</type>
-      <container>customer</container>
+      <container>branch</container>
       <coord>
         <x>0.5</x>
         <y>0.3</y>
@@ -26,7 +26,7 @@
       <name>ce2</name>
       <device>ce2</device>
       <type>customer-router</type>
-      <container>customer</container>
+      <container>branch</container>
       <coord>
         <x>0</x>
         <y>0.4</y>
@@ -36,7 +36,7 @@
       <name>ce3</name>
       <device>ce3</device>
       <type>customer-router</type>
-      <container>customer</container>
+      <container>branch</container>
       <coord>
         <x>0</x>
         <y>0.05</y>
@@ -46,7 +46,7 @@
       <name>ce4</name>
       <device>ce4</device>
       <type>customer-router</type>
-      <container>customer</container>
+      <container>branch</container>
       <coord>
         <x>1</x>
         <y>0.7</y>
@@ -56,7 +56,7 @@
       <name>ce5</name>
       <device>ce5</device>
       <type>customer-router</type>
-      <container>customer</container>
+      <container>branch</container>
       <coord>
         <x>0.5</x>
         <y>0.8</y>
@@ -66,7 +66,7 @@
       <name>ce6</name>
       <device>ce6</device>
       <type>customer-router</type>
-      <container>customer</container>
+      <container>branch</container>
       <coord>
         <x>0.5</x>
         <y>0.55</y>
@@ -76,7 +76,7 @@
       <name>ce7</name>
       <device>ce7</device>
       <type>customer-router</type>
-      <container>customer</container>
+      <container>branch</container>
       <coord>
         <x>0.0</x>
         <y>0.95</y>
@@ -87,7 +87,7 @@
       <name>dci0</name>
       <device>dci0</device>
       <type>router</type>
-      <container>provider</container>
+      <container>transport</container>
       <coord>
         <x>0.0</x>
         <y>0.1</y>
@@ -104,7 +104,7 @@
       <name>dci1</name>
       <device>dci1</device>
       <type>router</type>
-      <container>provider</container>
+      <container>transport</container>
       <coord>
         <x>0.0</x>
         <y>0.3</y>
@@ -121,7 +121,7 @@
       <name>dci2</name>
       <device>dci2</device>
       <type>router</type>
-      <container>provider</container>
+      <container>transport</container>
       <coord>
         <x>0.0</x>
         <y>0.7</y>
@@ -138,7 +138,7 @@
       <name>dci3</name>
       <device>dci3</device>
       <type>router</type>
-      <container>provider</container>
+      <container>transport</container>
       <coord>
         <x>0.0</x>
         <y>0.9</y>
@@ -156,7 +156,7 @@
       <name>p0</name>
       <device>p0</device>
       <type>router</type>
-      <container>provider</container>
+      <container>transport</container>
       <coord>
         <x>0.4</x>
         <y>0.2</y>
@@ -167,7 +167,7 @@
       <name>p1</name>
       <device>p1</device>
       <type>router</type>
-      <container>provider</container>
+      <container>transport</container>
       <coord>
         <x>0.6</x>
         <y>0.35</y>
@@ -178,7 +178,7 @@
       <name>p2</name>
       <device>p2</device>
       <type>router</type>
-      <container>provider</container>
+      <container>transport</container>
       <coord>
         <x>0.6</x>
         <y>0.65</y>
@@ -189,7 +189,7 @@
       <name>p3</name>
       <device>p3</device>
       <type>router</type>
-      <container>provider</container>
+      <container>transport</container>
       <coord>
         <x>0.4</x>
         <y>0.8</y>
@@ -200,7 +200,7 @@
       <name>pe0</name>
       <device>pe0</device>
       <type>router</type>
-      <container>provider</container>
+      <container>transport</container>
       <coord>
         <x>1</x>
         <y>0.3</y>
@@ -210,7 +210,7 @@
       <name>pe1</name>
       <device>pe1</device>
       <type>router</type>
-      <container>provider</container>
+      <container>transport</container>
       <coord>
         <x>1</x>
         <y>0.05</y>
@@ -220,7 +220,7 @@
       <name>pe2</name>
       <device>pe2</device>
       <type>router</type>
-      <container>provider</container>
+      <container>transport</container>
       <coord>
         <x>1</x>
         <y>0.75</y>
@@ -230,7 +230,7 @@
       <name>pe3</name>
       <device>pe3</device>
       <type>router</type>
-      <container>provider</container>
+      <container>transport</container>
       <coord>
         <x>1</x>
         <y>0.55</y>

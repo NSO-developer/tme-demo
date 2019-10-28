@@ -3,7 +3,7 @@ import { PureComponent } from 'react';
 import { connect } from 'react-redux';
 
 import { getIconSize, calculateInitialIconSize } from '../../reducers';
-import { iconSizeChanged } from '../../actions/layout';
+import { iconSizeChanged } from '../../actions/uiSizing';
 
 
 const mapDispatchToProps = { iconSizeChanged };

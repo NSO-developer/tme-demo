@@ -1,5 +1,4 @@
 import * as ActionTypes from '../actions/uiState';
-import { PROVIDER } from '../constants/Layout';
 
 
 // === Selectors ==============================================================
@@ -24,7 +23,7 @@ export const getError = state => state.error;
 
 export default function(state = {
   expandedIcons: [],
-  visibleUnderlays: [ PROVIDER ],
+  visibleUnderlays: [ 'transport' ],
   editMode: false
 }, action) {
   const { type, name } = action;

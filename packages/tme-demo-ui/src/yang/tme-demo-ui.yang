@@ -28,14 +28,6 @@ module tme-demo-ui {
     }
   }
 
-  typedef icon-container {
-    type enumeration {
-      enum "customer";
-      enum "data-centre";
-      enum "provider";
-    }
-  }
-
   typedef icon-coordinate {
     type decimal64 {
       fraction-digits 18;
@@ -94,7 +86,9 @@ module tme-demo-ui {
         }
 
         leaf container {
-          type icon-container;
+          type leafref {
+            path "/webui:webui/webui:data-stores/topology-layout/name";
+          }
         }
 
         uses icon-coordinates;
@@ -103,7 +97,9 @@ module tme-demo-ui {
           key container;
 
           leaf container {
-            type icon-container;
+            type leafref {
+              path "/webui:webui/webui:data-stores/topology-layout/name";
+            }
           }
 
           uses icon-coordinates;
@@ -111,6 +107,61 @@ module tme-demo-ui {
 
         leaf underlay {
           type boolean;
+        }
+      }
+    }
+
+    list topology-layout {
+      key name;
+      ordered-by user;
+      description
+        "List of layout sections (containers) and their widths.
+         The containers will be rendered in order, left to right";
+
+      leaf name {
+        type string;
+        description
+          "Name of the container.
+           This is referenced by each icon container leaf";
+      }
+
+      leaf width {
+        type uint8 {
+          range "0..100";
+        }
+        must "sum(../../topology-layout/width) = 100" {
+          error-message "The container widths must add up to 100%";
+        }
+        description "The width of the container in percent";
+      }
+
+      leaf title {
+        type string;
+      }
+
+      leaf connection-colour {
+        type string;
+      }
+
+      list zoomed {
+        key title;
+        ordered-by user;
+        description
+          "A list of child containers that will be rendered in as the
+           background when the container is zoomed";
+
+        leaf title {
+          type string;
+        }
+
+        leaf width {
+          type uint8 {
+            range "0..100";
+          }
+          must "sum(../../zoomed/width) = 100" {
+            error-message "The container widths must add up to 100%";
+          }
+          description "The width of the container in percent";
         }
       }
     }

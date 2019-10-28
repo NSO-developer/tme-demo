@@ -8,6 +8,7 @@ import { roundPc } from '../utils/UiUtils';
 
 import layout, * as fromLayout from './layout.js';
 import uiState, * as fromUiState from './uiState.js';
+import uiSizing, * as fromUiSizing from './uiSizing.js';
 import tenants, * as fromTenants from './tenants.js';
 import vpnEndpoints, * as fromVpnEndpoints from './vpnEndpoints.js';
 import dcEndpoints, * as fromDcEndpoints from './dcEndpoints.js';
@@ -18,7 +19,7 @@ import vnfs, * as fromVnfs from './vnfs.js';
 import connections, * as fromConnections from './connections.js';
 import devices, * as fromDevices from './devices.js';
 
-const layoutPersistConfig = {
+const uiSizingPersistConfig = {
   key: 'layout',
   storage: storage,
   whitelist: ['iconSize', 'zoomedContainer']
@@ -31,8 +32,9 @@ const uiStatePersistConfig = {
 };
 
 export default combineReducers({
-  layout: persistReducer(layoutPersistConfig, layout),
+  layout,
   uiState: persistReducer(uiStatePersistConfig, uiState),
+  uiSizing: persistReducer(uiSizingPersistConfig, uiSizing),
   tenants,
   vpnEndpoints,
   dcEndpoints,
@@ -52,29 +54,37 @@ const iconVnfsSelectors = [];
 
 export const getLayoutStateSlice = state => state.layout;
 
+export const getBasicLayout = state =>
+  fromLayout.getItems(state.layout);
+
+export const getIsFetchingLayout = state =>
+  fromLayout.getIsFetching(state.layout);
+
+
+// === Ui Sizing selectors ====================================================
+
+export const getUiSizingStateSlice = state => state.uiSizing;
+
 export const getDimensions = state =>
-  fromLayout.getDimensions(state.layout);
+  fromUiSizing.getDimensions(state.uiSizing);
 
 export const getIconSize = state =>
-  fromLayout.getIconSize(state.layout);
+  fromUiSizing.getIconSize(state.uiSizing);
 
 export const calculateInitialIconSize = state =>
-  fromLayout.calculateInitialIconSize(state.layout);
+  fromUiSizing.calculateInitialIconSize(state.uiSizing);
 
 export const getActualIconSize = state =>
-  fromLayout.getActualIconSize(state.layout);
+  fromUiSizing.getActualIconSize(state.uiSizing);
 
 export const getIconHeightPc = state =>
-  fromLayout.getIconHeightPc(state.layout);
+  fromUiSizing.getIconHeightPc(state.uiSizing);
 
-export const getLayout = state =>
-  fromLayout.getLayout(state.layout);
+export const getIconWidthPc = state =>
+  fromUiSizing.getIconWidthPc(state.uiSizing);
 
 export const getZoomedContainer = state =>
-  fromLayout.getZoomedContainer(state.layout);
-
-export const getZoomedLayout = state =>
-  fromLayout.getLayout(state.layout);
+  fromUiSizing.getZoomedContainer(state.uiSizing);
 
 
 // === UiState selectors ======================================================
@@ -232,6 +242,81 @@ export const getDevice = (state, name) =>
 
 // === Cross-slice selectors ==================================================
 
+const calculateLayout = (
+  basicLayout, dimensions, iconHeightPc, iconWidthPc, zoomedContainerName
+) => {
+  console.debug('Reselect layout');
+  if (!basicLayout || !dimensions) {
+    return undefined;
+  }
+  console.log(basicLayout);
+  const { width, height } = dimensions;
+  const ratio = width / height;
+  let afterZoomed = false;
+  let x = -iconWidthPc / 2;
+  return basicLayout.reduce((accumulator, container, index) => {
+    const containerZoomed = zoomedContainerName === container.name;
+    if (containerZoomed) {
+      afterZoomed = true;
+    }
+
+    const pc = zoomedContainerName ? {
+      left: containerZoomed ? iconWidthPc / 2 : afterZoomed ? 100 : 0,
+      right: containerZoomed ? 100 - iconWidthPc / 2: afterZoomed ? 100 : 0,
+      top: iconHeightPc / 2,
+      bottom: 100 - iconHeightPc,
+      width: containerZoomed ? 100 - iconWidthPc : 0,
+      height: 100 - iconHeightPc * 1.5,
+      backgroundWidth: containerZoomed && !container.zoomed ? 100 : 0
+    } : {
+      left: x += iconWidthPc,
+      right: x += container.width - iconWidthPc,
+      top: iconHeightPc / 2,
+      bottom: 100 - iconHeightPc,
+      width: container.width - iconWidthPc,
+      height: 100 - iconHeightPc * 1.5,
+      backgroundWidth: (index === 0)
+        ? container.width + iconWidthPc / 4
+        : (index === (basicLayout.length - 1))
+          ? container.width - iconWidthPc / 4
+          : (index % 2)
+            ? container.width - iconWidthPc / 2
+            : container.width + iconWidthPc / 2
+    };
+    accumulator[container.name] = {
+      index,
+      title: container.title,
+      connectionColour: container.connectionColour,
+      pc,
+      px: {
+        left: Math.round(pc.left * width / 100),
+        right: Math.round(pc.right * width / 100),
+        top: Math.round(pc.top * height / 100),
+        bottom: Math.round(pc.bottom * height / 100)
+      }
+    };
+
+    if (container.zoomed) {
+      container.zoomed.forEach((zoomedContainer, index) => {
+        accumulator[`${container.name}-${index}`] = {
+          index,
+          parentName: container.name,
+          title: zoomedContainer.title,
+          pc: {
+            backgroundWidth: containerZoomed ? zoomedContainer.width : 0
+          }
+        };
+      });
+    }
+    return accumulator;
+  }, {});
+};
+
+export const getLayout = createSelector(
+  [getBasicLayout, getDimensions, getIconHeightPc, getIconWidthPc,
+   getZoomedContainer],
+  calculateLayout);
+
 export const getHighlightedDevices = state => {
   const tenant = getTenant(state, getOpenTenant(state));
   return tenant && tenant.deviceList ? tenant.deviceList : undefined;
@@ -241,7 +326,7 @@ const calculateIconPosition = (name, icon, zoomedIcon, vnfs, dimensions,
   layout, iconHeightPc, expanded, zoomedContainer, visibleUnderlays
 ) => {
   console.debug(`Reselect iconPosition ${name}`);
-  if (!dimensions) {
+  if (!dimensions || !layout) {
     return null;
   }
 
@@ -303,14 +388,16 @@ export const getIconPosition = (state, name) => {
 };
 
 export const getIconPositions = createSelector(
-  [getIcons, getZoomedIcons, getLayoutStateSlice, getVnfs, getExpandedIcons,
-   getVisibleUnderlays],
-  (icons, zoomedIcons, layout, vnfs, expandedIcons, visibleUnderlays) => {
+  [getIcons, getZoomedIcons, getLayoutStateSlice, getUiSizingStateSlice,
+   getVnfs, getExpandedIcons, getVisibleUnderlays],
+  (icons, zoomedIcons, layout, uiSizing, vnfs, expandedIcons,
+   visibleUnderlays) => {
     console.debug('Reselect iconPositions');
     const state = {
       icons: { items: icons },
       zoomedIcons: { items: zoomedIcons },
       layout,
+      uiSizing,
       vnfs: { items: vnfs },
       uiState: { expandedIcons, visibleUnderlays },
     };

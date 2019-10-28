@@ -13,6 +13,7 @@
  *
  */
 
+import { fetchLayout } from './layout';
 import { fetchIcons, subscribeIcons } from './icons';
 import { fetchZoomedIcons } from './zoomedIcons';
 import { fetchConnections, subscribeConnections } from './connections';
@@ -29,6 +30,7 @@ import { fetchNetworkServices } from './networkServices';
 
 export const fetchTopologyData = () => async dispatch => {
   // Must fetch in order!
+  await dispatch(fetchLayout()),
   await dispatch(fetchZoomedIcons()),
   await Promise.all([
     dispatch(fetchIcons()),

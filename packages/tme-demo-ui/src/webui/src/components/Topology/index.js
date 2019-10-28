@@ -1,5 +1,4 @@
 import './index.css';
-
 import React from 'react';
 import { PureComponent, createRef, Fragment } from 'react';
 import { connect } from 'react-redux';
@@ -18,12 +17,12 @@ import IconSizeSlider from './IconSizeSlider';
 import LoadingOverlay from '../common/LoadingOverlay';
 
 import { getIcons, getConnectionPositions, getDimensions, getLayout,
-         getDraggedItem, getIsFetchingIcons, getIsFetchingZoomedIcons,
-         getIsFetchingVnfs, getIsFetchingConnections,
+         getDraggedItem, getIsFetchingLayout, getIsFetchingIcons,
+         getIsFetchingZoomedIcons, getIsFetchingVnfs, getIsFetchingConnections,
          getEditMode } from '../../reducers';
 
 import { fetchTopologyData, subscribeTopologyData } from '../../actions';
-import { dimensionsChanged } from '../../actions/layout';
+import { dimensionsChanged } from '../../actions/uiSizing';
 
 
 const mapStateToProps = state => ({
@@ -32,6 +31,7 @@ const mapStateToProps = state => ({
   dimensions: getDimensions(state),
   layout: getLayout(state),
   draggedItem: getDraggedItem(state),
+  isFetchingLayout: getIsFetchingLayout(state),
   isFetchingIcons: getIsFetchingIcons(state) || getIsFetchingZoomedIcons(state),
   isFetchingConnections: getIsFetchingConnections(state),
   isFetchingVnfs: getIsFetchingVnfs(state),
@@ -70,8 +70,8 @@ class Topology extends PureComponent {
   render() {
     console.debug('Topology Render');
     const { icons, connections, layout, dimensions, draggedItem,
-            isFetchingIcons, isFetchingVnfs, isFetchingConnections,
-            editMode } = this.props;
+            isFetchingLayout, isFetchingIcons, isFetchingVnfs,
+            isFetchingConnections, editMode } = this.props;
     return (
       <div className={classNames('topology', {
         'topology--edit-mode': editMode
@@ -89,7 +89,7 @@ class Topology extends PureComponent {
                 refreshMode="debounce"
                 refreshRate={500}
               />
-              {dimensions &&
+              {dimensions && layout &&
                 <div className="topology__layer">
                   {connections.map(connection =>
                     <Connection key={connection.key} {...connection}/>
@@ -115,6 +115,9 @@ class Topology extends PureComponent {
               }
             </div>
           </div>
+          <LoadingOverlay items={[
+            { isFetching: isFetchingLayout, label: 'Fetching Layout...' }
+          ]}/>
         </div>
         <div className="topology__footer">
           <div className="topology__footer-content">

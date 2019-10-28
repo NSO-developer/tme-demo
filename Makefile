@@ -97,6 +97,7 @@ ncs-cdb:
 	cp initial-data/qos.xml ncs-cdb
 	cp initial-data/resource-pools.xml ncs-cdb
 	cp initial-data/topology.xml ncs-cdb
+	cp initial-data/topology-layout.xml ncs-cdb
 	cp initial-data/vnfd-catalogue.xml ncs-cdb
 	cp initial-data/webui-applications.xml ncs-cdb
 	ncs-netsim ncs-xml-init > ncs-cdb/netsim-devices-init.xml

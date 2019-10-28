@@ -17,6 +17,7 @@ module tme-demo-ui {
 
   typedef icon-type {
     type enumeration {
+      enum "antenna";
       enum "customer-router";
       enum "firewall";
       enum "generic";

@@ -27,6 +27,8 @@ export const BACKGROUND = 'WhiteSmoke';
 export const FIREWALL = ROUTER;
 export const WEB_SERVER = 'MediumTurquoise';
 export const LOAD_BALANCER = NSO_BLUE;
+export const ANTENNA = 'Tan';
+export const ANTENNA_STROKE = 'RosyBrown';
 export const GENERIC = NSO_BLUE;
 
 //State colour map

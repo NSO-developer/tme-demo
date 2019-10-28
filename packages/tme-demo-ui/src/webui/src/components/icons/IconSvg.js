@@ -8,6 +8,7 @@ import Switch from './Switch';
 import ServiceChain from './ServiceChain';
 import LoadBalancer from './LoadBalancer';
 import WebServer from './WebServer';
+import Antenna from './Antenna';
 import Generic from './Generic';
 
 export default function(props) {
@@ -34,6 +35,8 @@ export default function(props) {
       return <LoadBalancer colour={colour} size={size} />;
     case Icons.WEB_SERVER:
       return <WebServer colour={colour} size={size} />;
+    case Icons.ANTENNA:
+      return <Antenna colour={colour} size={size} />;
     default:
       return <Generic colour={colour} size={size} />;
   }

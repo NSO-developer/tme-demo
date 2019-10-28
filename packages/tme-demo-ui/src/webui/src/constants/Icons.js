@@ -7,6 +7,7 @@ export const SERVICE_CHAIN = 'service-chain';
 export const TEST_AGENT = 'test-agent';
 export const LOAD_BALANCER = 'load-balancer';
 export const WEB_SERVER = 'web-server';
+export const ANTENNA = 'antenna';
 export const GENERIC = 'generic';
 
 // Button icons

@@ -28,7 +28,8 @@ const uiSizingPersistConfig = {
 const uiStatePersistConfig = {
   key: 'uiState',
   storage: storage,
-  whitelist: ['expandedIcons', 'visibleUnderlays', 'openTenant']
+  whitelist: [
+    'expandedIcons', 'visibleUnderlays', 'openTenant', 'configViewerVisible']
 };
 
 export default combineReducers({
@@ -124,6 +125,9 @@ export const getHasWriteTransaction = state =>
 
 export const getCommitInProgress = state =>
   fromUiState.getCommitInProgress(state.uiState);
+
+export const getConfigViewerVisible = state =>
+  fromUiState.getConfigViewerVisible(state.uiState);
 
 export const getError = state =>
   fromUiState.getError(state.uiState);
@@ -249,7 +253,6 @@ const calculateLayout = (
   if (!basicLayout || !dimensions) {
     return undefined;
   }
-  console.log(basicLayout);
   const { width, height } = dimensions;
   const ratio = width / height;
   let afterZoomed = false;
@@ -434,21 +437,22 @@ export const calculateConnectionPositions = (
     const getEpIconProperty = property =>
       iconPositions[ep1Icon][property] || iconPositions[ep2Icon][property];
 
-    const hidden = getEpIconProperty('hidden');
+    if (!(ep1Icon in iconPositions)) {
+      console.error(`Skipping connection ${key
+        }. Failed to find icon (or calculate position) for endpoint 1`);
+    } else if (!(ep2Icon in iconPositions)) {
+      console.error(`Skipping connection ${key
+        }. Failed to find icon (or calculate position) for endpoint 2`);
+    } else {
 
-    if (fromIcon && (fromIcon === ep1Icon || fromIcon === ep2Icon) && !hidden) {
-      accumulator.push({
-        name: key,
-        from: iconPositions[fromIcon === ep1Icon ? ep2Icon : ep1Icon],
-      });
-    } else if (!fromIcon) {
-      if (!(ep1Icon in iconPositions)) {
-        console.error(`Skipping connection ${key
-          }. Failed to find icon (or calculate position) for endpoint 1`);
-      } else if (!(ep2Icon in iconPositions)) {
-        console.error(`Skipping connection ${key
-          }. Failed to find icon (or calculate position) for endpoint 2`);
-      } else {
+      const hidden = getEpIconProperty('hidden');
+
+      if (fromIcon && (fromIcon === ep1Icon || fromIcon === ep2Icon) && !hidden) {
+        accumulator.push({
+          name: key,
+          from: iconPositions[fromIcon === ep1Icon ? ep2Icon : ep1Icon],
+        });
+      } else if (!fromIcon) {
         accumulator.push({
           key: key,
           name: key,

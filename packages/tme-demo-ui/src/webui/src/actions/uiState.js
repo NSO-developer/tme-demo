@@ -10,6 +10,7 @@ export const EDIT_MODE_TOGGLED = 'edit-mode-toggled';
 export const BODY_OVERLAY_TOGGLED = 'body-overlay-toggled';
 export const WRITE_TRANSACTION_TOGGLED = 'write-transaction-toggled';
 export const COMMIT_IN_PROGRESS_TOGGLED = 'commit-in-progress-toggled';
+export const CONFIG_VIEWER_TOGGLED = 'config-viewer-toggled';
 
 export const ERROR_RAISED = 'error-raised';
 
@@ -58,6 +59,10 @@ export const writeTransactionToggled = hasWriteTransaction => ({
 
 export const commitInProgressToggled = commitInProgress => ({
   type: COMMIT_IN_PROGRESS_TOGGLED, commitInProgress
+});
+
+export const configViewerToggled = configViewerVisible => ({
+  type: CONFIG_VIEWER_TOGGLED, configViewerVisible
 });
 
 export const errorRaised = error => ({

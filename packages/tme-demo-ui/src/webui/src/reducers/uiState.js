@@ -12,9 +12,10 @@ export const getVisibleUnderlays = state => state.visibleUnderlays;
 export const getNewNetworkService = state => state.newNetworkService;
 export const getOpenTenant = state => state.openTenant;
 export const getEditMode = state => state.editMode;
+export const getBodyOverlayVisible = state => state.bodyOverlayVisible;
 export const getHasWriteTransaction = state => state.hasWriteTransaction;
 export const getCommitInProgress = state => state.commitInProgress;
-export const getBodyOverlayVisible = state => state.bodyOverlayVisible;
+export const getConfigViewerVisible = state => state.configViewerVisible;
 
 export const getError = state => state.error;
 
@@ -79,7 +80,14 @@ export default function(state = {
 
     case ActionTypes.EDIT_MODE_TOGGLED: {
       const { editMode } = action;
-      return { ...state, expandedIcons: [], editMode };
+      return {
+        ...state, expandedIcons: [], bodyOverlayVisible: editMode, editMode
+      };
+    }
+
+    case ActionTypes.BODY_OVERLAY_TOGGLED: {
+      const { bodyOverlayVisible } = action;
+      return { ...state, bodyOverlayVisible };
     }
 
     case ActionTypes.WRITE_TRANSACTION_TOGGLED: {
@@ -92,9 +100,9 @@ export default function(state = {
       return { ...state, commitInProgress };
     }
 
-    case ActionTypes.BODY_OVERLAY_TOGGLED: {
-      const { bodyOverlayVisible } = action;
-      return { ...state, bodyOverlayVisible };
+    case ActionTypes.CONFIG_VIEWER_TOGGLED: {
+      const { configViewerVisible } = action;
+      return { ...state, configViewerVisible };
     }
 
     case ActionTypes.ERROR_RAISED: {

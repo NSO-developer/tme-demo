@@ -12,16 +12,17 @@ import Connection from './Connection';
 import Icon from './Icon';
 import DragLayerCanvas from './DragLayerCanvas';
 import CustomDragLayer from './CustomDragLayer';
-import EditToggle from './EditToggle';
+import ToggleButton from './ToggleButton';
 import IconSizeSlider from './IconSizeSlider';
 import LoadingOverlay from '../common/LoadingOverlay';
 
 import { getIcons, getConnectionPositions, getDimensions, getLayout,
          getDraggedItem, getIsFetchingLayout, getIsFetchingIcons,
          getIsFetchingZoomedIcons, getIsFetchingVnfs, getIsFetchingConnections,
-         getEditMode } from '../../reducers';
+         getEditMode, getConfigViewerVisible } from '../../reducers';
 
 import { fetchTopologyData, subscribeTopologyData } from '../../actions';
+import { editModeToggled, configViewerToggled } from '../../actions/uiState';
 import { dimensionsChanged } from '../../actions/uiSizing';
 
 
@@ -35,11 +36,13 @@ const mapStateToProps = state => ({
   isFetchingIcons: getIsFetchingIcons(state) || getIsFetchingZoomedIcons(state),
   isFetchingConnections: getIsFetchingConnections(state),
   isFetchingVnfs: getIsFetchingVnfs(state),
-  editMode: getEditMode(state)
+  editMode: getEditMode(state),
+  configViewerVisible: getConfigViewerVisible(state)
 });
 
 const mapDispatchToProps = {
-  dimensionsChanged, fetchTopologyData, subscribeTopologyData
+  dimensionsChanged, fetchTopologyData, subscribeTopologyData,
+  editModeToggled, configViewerToggled
 };
 
 
@@ -71,10 +74,12 @@ class Topology extends PureComponent {
     console.debug('Topology Render');
     const { icons, connections, layout, dimensions, draggedItem,
             isFetchingLayout, isFetchingIcons, isFetchingVnfs,
-            isFetchingConnections, editMode } = this.props;
+            isFetchingConnections, editMode, configViewerVisible,
+            editModeToggled, configViewerToggled } = this.props;
     return (
       <div className={classNames('topology', {
-        'topology--edit-mode': editMode
+        'topology--edit-mode': editMode,
+        'topology--expanded': !configViewerVisible
       })}>
         <div className="topology__body">
           <div className="topology__layer topology__layer--background">
@@ -121,7 +126,16 @@ class Topology extends PureComponent {
         </div>
         <div className="topology__footer">
           <div className="topology__footer-content">
-            <EditToggle/>
+            <ToggleButton
+              handleToggle={editModeToggled}
+              checked={editMode}
+              label="Edit Topology"
+              />
+            <ToggleButton
+              handleToggle={configViewerToggled}
+              checked={configViewerVisible}
+              label="Show Device Config"
+              />
             {dimensions && <IconSizeSlider/>}
           </div>
           <div className={classNames('container__layer', 'container__overlay', {

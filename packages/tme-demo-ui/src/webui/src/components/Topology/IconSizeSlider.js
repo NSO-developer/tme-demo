@@ -1,5 +1,5 @@
 import React from 'react';
-import { PureComponent } from 'react';
+import { PureComponent, Fragment } from 'react';
 import { connect } from 'react-redux';
 
 import { getIconSize, calculateInitialIconSize } from '../../reducers';
@@ -38,7 +38,10 @@ class IconSizeSlider extends PureComponent {
     console.debug('IconSizeSlider Render');
     const { iconSize } = this.props;
     return (iconSize !== null &&
-      <div className="topology-footer__item">
+      <Fragment>
+        <div className="topology-footer__label topology-footer__label--left">
+          <span className="topology-footer__label-text">Icon Size</span>
+        </div>
         <label className="slider">
           <input
             type="range"
@@ -48,10 +51,7 @@ class IconSizeSlider extends PureComponent {
             onChange={this.handleChange}
           />
         </label>
-        <div className="topology-footer__label">
-          <span className="topology-footer__label-text">Icon Size</span>
-        </div>
-      </div>
+      </Fragment>
     );
   }
 }

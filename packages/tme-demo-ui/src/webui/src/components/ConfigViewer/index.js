@@ -5,11 +5,13 @@ import { connect } from 'react-redux';
 
 import Sidebar from '../Sidebar';
 import Config from './Config';
-import { getExpandedIcons, getIcons } from '../../reducers';
+import { getExpandedIcons, getIcons,
+         getConfigViewerVisible } from '../../reducers';
 
 const mapStateToProps = state => ({
   expandedIcons: getExpandedIcons(state),
-  icons: getIcons(state)
+  icons: getIcons(state),
+  configViewerVisible: getConfigViewerVisible(state)
 });
 
 class ConfigViewer extends PureComponent {
@@ -19,9 +21,9 @@ class ConfigViewer extends PureComponent {
 
   render() {
     console.debug('Config Viewer Render');
-    const { expandedIcons, icons } = this.props;
+    const { expandedIcons, icons, configViewerVisible } = this.props;
     return (
-      <Sidebar right={true}>
+      <Sidebar right={true} hidden={!configViewerVisible}>
         <div className="sidebar__header">
           <div className="sidebar__title-text">Config Viewer</div>
         </div>

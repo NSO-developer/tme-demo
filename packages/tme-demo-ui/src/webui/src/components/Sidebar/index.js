@@ -2,6 +2,7 @@ import './index.css';
 import React from 'react';
 import { PureComponent, createRef } from 'react';
 import ReactResizeDetector from 'react-resize-detector';
+import classNames from 'classnames';
 
 
 class Sidebar extends PureComponent {
@@ -21,7 +22,9 @@ class Sidebar extends PureComponent {
   render() {
     console.debug('Sidebar Render');
     return (
-      <div ref={this.ref} className="sidebar">
+      <div ref={this.ref} className={classNames('sidebar', {
+        'sidebar--hidden': this.props.hidden
+      })}>
         <div ref={this.innerRef} className="sidebar__inner">
           <ReactResizeDetector handleHeight
             onResize={this.resize}

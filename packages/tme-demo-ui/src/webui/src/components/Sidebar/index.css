@@ -1,15 +1,26 @@
 .sidebar {
+  box-sizing: border-box;
   color: var(--nso-dark-grey);
   flex-shrink: 0;
-  margin: 0rem 1rem;
+  padding: 0rem 1rem;
   max-width: 500px;
   position: sticky;
+  transition: left 500ms ease-out, padding 500ms ease-out, width 500ms ease-out;
   white-space: nowrap;
-  width: 25%;
+  width: 26%;
   user-select: none;
   -moz-user-select: none;
   -ms-user-select: none;
   -webkit-user-select: none;
+}
+
+.sidebar--hidden {
+  width: 0px;
+  padding: 0rem 0rem 0rem 1rem;
+}
+
+.sidebar__inner {
+  overflow: hidden;
 }
 
 .sidebar__header {
@@ -41,21 +52,34 @@
 }
 
 .sidebar__body {
+  overflow: hidden;
   position: relative;
 }
 
 @supports (-ms-ime-align:auto) {
+  .nso-body__content {
+    -ms-overflow-style: -ms-autohiding-scrollbar;
+  }
+
   .nso-body__content > .topology {
     box-sizing: border-box;
     height: calc(100% - 70px - 2.5rem);
+    left: 26%;
     position: fixed;
     padding: 1rem 0rem;
+    max-width: none;
+    transition: width 500ms ease-out;
     top: 70px;
   }
 
+  .nso-body__content > .topology--expanded {
+    width: 74%;
+    padding-right: 1rem;
+  }
+
   .sidebar {
-    box-sizing: border-box;
     margin: 0rem;
+    max-width: none;
     padding: 0rem 1rem;
     position: absolute;
     top: 4rem !important;
@@ -66,13 +90,18 @@
   }
 
   .sidebar:last-child {
-    left: 75%;
+    left: 74%;
+  }
+
+  .sidebar:last-child.sidebar--hidden {
+    left: 100%;
+    width: 26%;
   }
 
   .sidebar > .sidebar__inner > .sidebar__header {
     position: fixed;
     top: calc(70px + 1rem);
-    width: calc(25% - 4rem);
+    width: calc(26% - 3.75rem);
   }
 }
 

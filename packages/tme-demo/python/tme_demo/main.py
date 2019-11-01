@@ -1,5 +1,7 @@
 # -*- mode: python; python-indent: 4 -*-
 import socket
+import json
+import yaml
 import ncs
 from ncs.application import Service
 from ncs.application import PlanComponent
@@ -154,6 +156,9 @@ class GetDeviceConfiguration(Action):
             elif input.format == 'json':
                 output.format = 'json'
                 format_flags = maapi.CONFIG_JSON
+            elif input.format == 'yaml':
+                output.format = 'yaml'
+                format_flags = maapi.CONFIG_JSON
             else:
                 output.format = 'xml'
                 format_flags = maapi.CONFIG_XML_PRETTY
@@ -177,7 +182,11 @@ class GetDeviceConfiguration(Action):
 
             sock.close()
 
-        output.config = config_bytes.decode('utf-8')
+        if input.format == 'yaml':
+            json_config = json.loads(config_bytes)
+            output.config = yaml.safe_dump(json_config)
+        else:
+            output.config = config_bytes.decode('utf-8')
 
 
 # ---------------------------------------------

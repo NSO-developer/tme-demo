@@ -13,6 +13,7 @@
     "@hot-loader/react-dom": "^16.8.6",
     "@tippy.js/react": "^1.1.1",
     "classnames": "^2.2.6",
+    "highlight.js": "^9.15.10",
     "react": "^16.8.6",
     "react-dnd": "^6.0.0",
     "react-dnd-html5-backend": "^6.0.0",

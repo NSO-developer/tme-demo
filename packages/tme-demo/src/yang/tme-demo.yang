@@ -111,6 +111,7 @@ module tme-demo {
       enum curly-braces;
       enum json;
       enum xml;
+      enum yaml;
     }
   }
 

@@ -1,5 +1,6 @@
 import './index.css';
 import 'tippy.js/dist/tippy.css';
+import 'highlight.js/styles/github.css';
 
 import React from 'react';
 import ReactDOM from 'react-dom';
@@ -18,6 +19,14 @@ import rootReducer from './reducers';
 import JsonRpc from './utils/JsonRpc';
 import Comet from './utils/Comet';
 
+import hljs from 'highlight.js/lib/highlight.js';
+import json from 'highlight.js/lib/languages/json';
+import xml from 'highlight.js/lib/languages/xml';
+import yaml from 'highlight.js/lib/languages/yaml';
+
+hljs.registerLanguage('json', json);
+hljs.registerLanguage('xml', xml);
+hljs.registerLanguage('yaml', yaml);
 
 const composeEnhancers = window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__ || compose;
 

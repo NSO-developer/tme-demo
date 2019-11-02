@@ -15,11 +15,13 @@
 }
 
 .sidebar--hidden {
-  width: 0px;
+  height: 100%;
+  overflow: hidden;
   padding: 0rem 0rem 0rem 1rem;
+  width: 0px;
 }
 
-.sidebar__inner {
+.sidebar--hidden > .sidebar__inner {
   overflow: hidden;
 }
 
@@ -52,7 +54,6 @@
 }
 
 .sidebar__body {
-  overflow: hidden;
   position: relative;
 }
 
@@ -94,6 +95,7 @@
   }
 
   .sidebar:last-child.sidebar--hidden {
+    height: calc(100% - 70px - 2.5rem);
     left: 100%;
     width: 26%;
   }

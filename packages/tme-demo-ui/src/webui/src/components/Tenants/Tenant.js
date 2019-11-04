@@ -47,11 +47,11 @@ const mapStateToPropsFactory = (initialState, initialProps) => {
 
 const dropTarget = {
   drop({ dcEndpoints, handleError}, monitor, component) {
-    const { icon, type } = monitor.getItem();
+    const { icon, type, device } = monitor.getItem();
     if (type === SWITCH) {
-      component.dropSwitch(icon, dcEndpoints, handleError);
+      component.dropSwitch(device, dcEndpoints, handleError);
     } else {
-      component.dropDevice(icon);
+      component.dropDevice(device);
     }
   },
   canDrop(props, monitor) {

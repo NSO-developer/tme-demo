@@ -96,8 +96,8 @@ const mapDispatchToProps = {
 
 // Standard mode endpoint drag
 const endpointSource = {
-  beginDrag: ({ name, type }) => ({ icon: name, type }),
-  canDrag: ({editMode}) => !editMode
+  beginDrag: ({ name, type, device }) => ({ icon: name, type, device }),
+  canDrag: ({ editMode  }) => !editMode
 };
 
 // Edit mode interface drop

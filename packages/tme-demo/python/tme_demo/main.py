@@ -184,7 +184,8 @@ class GetDeviceConfiguration(Action):
 
         if input.format == 'yaml':
             json_config = json.loads(config_bytes)
-            output.config = yaml.safe_dump(json_config)
+            output.config = yaml.safe_dump(json_config,
+                                           default_flow_style=False)
         else:
             output.config = config_bytes.decode('utf-8')
 

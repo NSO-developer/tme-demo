@@ -13,12 +13,27 @@
   padding: 0.5rem 0.25rem;
 }
 
-.config-viewer__config-text {
+.config-viewer__pre {
   background-color: White;
   margin: 0;
   overflow-x: scroll;
-  padding: 0.5rem;
   user-select: text;
+}
+
+.config-viewer__code {
+  display: block;
+  padding: 0.5rem;
+  transition: background 500ms;
+  width: max-content;
+}
+
+.config-viewer__line {
+  transition: background 500ms;
+  width: 100%;
+}
+
+.config-viewer__line--highlight {
+  background: PaleTurquoise;
 }
 
 .nso-btn.nso-btn--config-viewer {

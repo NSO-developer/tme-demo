@@ -6,24 +6,30 @@ class Accordion extends PureComponent {
   constructor(props) {
     super(props);
     this.ref = createRef();
-    this.state = {
-      isOpen: false
-    };
+    if (props.isOpen == undefined) {
+      this.localState = true;
+      this.state = {
+        isOpen: false
+      };
+    } else {
+      this.localState = false;
+    }
   }
 
   componentDidMount() {
-    const { variableHeight, isOpen, startOpen } = this.props;
+    const { variableHeight, startOpen } = this.props;
     if (startOpen) {
       this.toggle();
     }
-    if (variableHeight && isOpen) {
+    if (variableHeight && this.isOpen()) {
       this.animateToggle();
     }
   }
 
-  componentDidUpdate(prevProps) {
-    const { variableHeight, isOpen } = this.props;
-    if (variableHeight && isOpen !== prevProps.isOpen) {
+  componentDidUpdate(prevProps, prevState) {
+    const wasOpen = this.localState ? prevState.isOpen : prevProps.isOpen;
+    const { variableHeight } = this.props;
+    if (variableHeight && this.isOpen() !== wasOpen) {
       this.animateToggle();
     }
   }
@@ -37,13 +43,19 @@ class Accordion extends PureComponent {
     }
   };
 
+  isOpen = () => {
+    if (this.localState) {
+      return this.state.isOpen;
+    }
+    return this.props.isOpen;
+  }
+
   render() {
     console.debug('Accordion Render');
     const { fade, level, variableHeight, right, header, children } = this.props;
     const { isOver, canDrop } = this.props;
 
-    const isOpen = this.props.isOpen === undefined
-      ? this.state.isOpen : this.props.isOpen;
+    const isOpen = this.isOpen();
 
     const accordion =
       <div className={classNames(`accordion accordion--level${level}`, {
@@ -72,8 +84,7 @@ class Accordion extends PureComponent {
   }
 
   animateToggle = () => {
-    const { isOpen } = this.props;
-    if (isOpen) {
+    if (this.isOpen()) {
       requestAnimationFrame(() => {
         this.ref.current.style.maxHeight =
           `${this.ref.current.scrollHeight}px`;

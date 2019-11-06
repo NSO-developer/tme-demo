@@ -5,13 +5,14 @@ import { connect } from 'react-redux';
 
 import Sidebar from '../Sidebar';
 import Config from './Config';
-import { getExpandedIcons, getIcons,
-         getConfigViewerVisible } from '../../reducers';
+import { getExpandedIcons, getIcons, getConfigViewerVisible,
+         getOpenTenant } from '../../reducers';
 
 const mapStateToProps = state => ({
   expandedIcons: getExpandedIcons(state),
   icons: getIcons(state),
-  configViewerVisible: getConfigViewerVisible(state)
+  configViewerVisible: getConfigViewerVisible(state),
+  openTenant: getOpenTenant(state)
 });
 
 class ConfigViewer extends PureComponent {
@@ -21,7 +22,8 @@ class ConfigViewer extends PureComponent {
 
   render() {
     console.debug('Config Viewer Render');
-    const { expandedIcons, icons, configViewerVisible } = this.props;
+    const { expandedIcons, icons, configViewerVisible,
+            openTenant } = this.props;
     return (
       <Sidebar right={true} hidden={!configViewerVisible}>
         <div className="sidebar__header">
@@ -30,7 +32,9 @@ class ConfigViewer extends PureComponent {
         <div className="sidebar__body">
           {expandedIcons && expandedIcons.filter(
             key => key in icons && icons[key].device).map(
-              key => <Config key={key} device={icons[key].device}/>)}
+              key => <Config
+                key={key} device={icons[key].device} openTenant={openTenant}/>
+          )}
         </div>
       </Sidebar>
     );

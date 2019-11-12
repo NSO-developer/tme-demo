@@ -1,14 +1,26 @@
 :root {
-  --nso-blue: rgb(4, 159, 217);
-  --nso-green: rgb(20, 167, 146);
-  --nso-red: rgb(207, 32, 48);
-  --nso-background-grey: rgb(245, 247, 250);
-  --nso-very-light-grey: rgb(232, 235, 241);
-  --nso-border-grey: rgb(204, 204, 204);
-  --nso-light-grey: rgb(182, 185, 187);
-  --nso-shadow-grey: rgb(136, 136, 136);
-  --nso-medium-grey: rgb(88, 88, 91);
-  --nso-dark-grey: rgb(57, 57, 59);
+  --primary: rgb(4, 159, 217);
+  --secondary: rgb(20, 167, 146);
+  --danger: rgb(207, 32, 48);
+  --background: rgb(245, 247, 250);
+  --background-alt: rgb(232, 235, 241);
+  --border: rgb(204, 204, 204);
+  --disabled: rgb(182, 185, 187);
+  --header: rgb(57, 57, 59);
+  --sub-header: rgb(88, 88, 91);
+
+/* Alternative Orange theme */
+/*
+  --primary: #FF7900;
+  --secondary: #000000;
+  --danger: #CD3C14;
+  --background: #FFFFFF;
+  --background-alt: #EEEEEE;
+  --border: #CCCCCC;
+  --disabled: #AAAAAA;
+  --header: #333333;
+  --sub-header: #444444;
+*/
 }
 
 @font-face {
@@ -79,7 +91,7 @@ table.tooltip > tbody > tr > td {
 }
 
 .loading__line {
-  background-color: var(--nso-medium-grey);
+  background-color: var(--sub-header);
   border-radius: 1rem;
   display: inline-block;
   height: 1rem;

@@ -90,3 +90,6 @@ export const connectPngDragPreview = (imageMarkup, size, connect, centred) => {
       centred && { offsetX: size/2, offsetY: size/2 + (isSafari ? size : 0) });
   };
 };
+
+export const getCssVariable = name =>
+  getComputedStyle(document.documentElement).getPropertyValue(`--${name}`);

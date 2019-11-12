@@ -6,16 +6,21 @@
   margin-top: 1px;
 }
 
-.inline-round-btn--add {
-  background: var(--nso-blue);
+.inline-round-btn--add, .inline-round-btn--confirm-active {
+  background: var(--primary);
 }
 
-.inline-round-btn--add:hover {
-  background: var(--nso-green);
+.inline-round-btn--add:hover, .inline-round-btn--confirm-active:hover {
+  background: var(--secondary);
+}
+
+.inline-round-btn--confirm-inactive {
+  background: var(--disabled);
+  cursor: not-allowed;
 }
 
 .new-item__form > .inline-round-btn--delete {
-  background: var(--nso-light-grey);
+  background: var(--disabled);
 }
 
 .inline-round-btn__wrapper {
@@ -23,27 +28,18 @@
 }
 
 .inline-round-btn--delete:hover {
-  background: IndianRed;
+  background: var(--danger);
   color: White;
 }
 
 .inline-round-btn--go-to:hover,
 .inline-round-btn--redeploy:hover {
-  background: var(--nso-background-grey);
-  color: var(--nso-dark-grey);
+  background: var(--background);
+  color: var(--header);
 }
 
 .accordion--closed > .accordion__header > .inline-round-btn--go-to:hover,
 .accordion--closed > .accordion__header > .inline-round-btn--redeploy:hover {
-  background: var(--nso-green);
+  background: var(--secondary);
   color: White;
-}
-
-.inline-round-btn--confirm-active {
-  background: var(--nso-green);
-}
-
-.inline-round-btn--confirm-inactive {
-  background: var(--nso-light-grey);
-  cursor: not-allowed;
 }

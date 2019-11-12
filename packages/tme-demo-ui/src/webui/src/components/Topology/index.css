@@ -52,8 +52,8 @@
 
 .topology__footer-content {
   align-items: center;
-  background: var(--nso-background-grey);
-  border-top: solid var(--nso-border-grey) 0.0625rem;
+  background: var(--background);
+  border-top: solid var(--border) 0.0625rem;
   box-sizing: border-box;
   display: flex;
   overflow: hidden;
@@ -66,7 +66,7 @@
 }
 
 .topology__connection {
-  background: var(--nso-blue);
+  background: rgb(4, 159, 217);
   opacity: 1;
   position: absolute;
   transition-property: left, top, width, transform, background, z-index, opacity;
@@ -80,12 +80,12 @@
 }
 
 .topology__connection--selected {
-  background: var(--nso-green);
+  background: var(--secondary);
   z-index: 4;
 }
 
 .topology__connection--disabled {
-  background: var(--nso-light-grey);
+  background: var(--disabled);
 }
 
 .topology__connection--edit {
@@ -117,7 +117,7 @@
 }
 
 .topology__round-btn--add {
-  background: var(--nso-green);
+  background: var(--primary);
 }
 
 .topology__round-btn--hidden {
@@ -125,21 +125,21 @@
 }
 
 .topology__round-btn--enabled {
-  background: var(--nso-green);
+  background: var(--secondary);
   pointer-events: auto;
   cursor: pointer;
 }
 
 .topology__round-btn--disabled {
-  background: var(--nso-light-grey);
+  background: var(--disabled);
 }
 
 .topology__round-btn--expanded {
-  background: var(--nso-green);
+  background: var(--secondary);
 }
 
 .topology__round-btn--delete {
-  background: IndianRed;
+  background: var(--danger);
 }
 
 .topology__round-btn-svg-container {
@@ -176,15 +176,15 @@
 }
 
 .container__background {
-  background: var(--nso-very-light-grey);
+  background: var(--background-alt);
 }
 
 .container__background--alt {
-  background: var(--nso-background-grey);
+  background: var(--background);
 }
 
 .container__background--not-first {
-  border-left: 1px solid var(--nso-border-grey);
+  border-left: 1px solid var(--border);
   box-sizing: border-box;
 }
 
@@ -210,11 +210,11 @@
 
 .container__overlay--hovered {
   background: rgba(255, 255, 255, 0.7);
-  box-shadow: 0 0 0 5px var(--nso-green) inset;
+  box-shadow: 0 0 0 5px var(--primary) inset;
 }
 
 .container__header {
-  background: var(--nso-dark-grey);
+  background: var(--header);
   box-sizing: border-box;
   color: White;
   display: inline-block;
@@ -243,8 +243,8 @@
 }
 
 .inline-round-btn--zoom:hover, .inline-round-btn--toggle-underlay:hover  {
-  background: var(--nso-background-grey);
-  color: var(--nso-dark-grey);
+  background: var(--background);
+  color: var(--header);
 }
 
 .inline-round-btn--hidden {
@@ -257,7 +257,7 @@
 
 .icon__outline {
   background: PaleTurquoise;
-  border: solid Teal 0.125rem;
+  border: solid var(--secondary) 0.125rem;
   box-sizing: border-box;
   cursor: pointer;
   opacity: 0;
@@ -349,7 +349,7 @@ svg {
   line-height: 1.25;
   border-radius: 0.5em;
   padding: 0.125rem 0.25rem;
-  border: 0.0625rem solid var(--nso-border-grey);
+  border: 0.0625rem solid var(--border);
 }
 
 @-moz-document url-prefix() {
@@ -359,7 +359,7 @@ svg {
 }
 
 .icon__label:not(.icon__label--vnf) > .icon__label-text {
-  color: var(--nso-dark-grey);
+  color: var(--header);
   background: rgba(255, 255, 255, 0.7);
 }
 
@@ -392,7 +392,7 @@ svg {
 
 .slider > input[type=range]::-webkit-slider-runnable-track {
   animate: 0.2s;
-  background: var(--nso-light-grey);
+  background: var(--disabled);
   border-radius: 0.25em;
   cursor: pointer;
   height: 0.5em;
@@ -400,7 +400,7 @@ svg {
 
 .slider > input[type=range]::-moz-range-track {
   animate: 0.2s;
-  background: var(--nso-light-grey);
+  background: var(--disabled);
   border-radius: 0.25em;
   cursor: pointer;
   height: 0.5em;
@@ -427,7 +427,7 @@ svg {
 
 .slider > input[type=range]::-webkit-slider-thumb {
   background: White;
-  border: 1px solid var(--nso-light-grey);
+  border: 1px solid var(--disabled);
   border-radius: 2em;
   cursor: pointer;
   height: 2em;
@@ -438,7 +438,7 @@ svg {
 
 .slider > input[type=range]::-moz-range-thumb {
   background: White;
-  border: 1px solid var(--nso-light-grey);
+  border: 1px solid var(--disabled);
   border-radius: 1.75em;
   cursor: pointer;
   height: 1.75em;
@@ -480,7 +480,7 @@ svg {
   right: 0;
   bottom: 0;
   border-radius: 2em;
-  background-color: var(--nso-light-grey);
+  background-color: var(--disabled);
   transition: .4s;
 }
 
@@ -497,7 +497,7 @@ svg {
 }
 
 input:checked + .toggle__switch {
-  background-color: var(--nso-blue);
+  background-color: var(--primary);
 }
 
 input:checked + .toggle__switch:before {
@@ -517,7 +517,7 @@ input:checked + .toggle__switch:before {
 }
 
 .topology-footer__label-text {
-  color: var(--nso-dark-grey);
+  color: var(--header);
   font-size: 0.875em;
   vertical-align: middle;
 }

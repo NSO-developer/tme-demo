@@ -7,8 +7,8 @@
 }
 
 .nso-btn {
-  background: var(--nso-blue);
-  border: 1px solid var(--nso-blue);
+  background: var(--primary);
+  border: 1px solid var(--primary);
   border-radius: 1rem;
   color: White;
   font-size: 0.875rem;
@@ -25,7 +25,7 @@
 
 .nso-btn--alt {
   background: transparent;
-  color: var(--nso-blue);
+  color: var(--primary);
 }
 
 .nso-btn--header {
@@ -33,8 +33,8 @@
 }
 
 .nso-btn--inactive, .nso-btn--disabled {
-  background: var(--nso-light-grey);
-  border: 1px solid var(--nso-light-grey);
+  background: var(--disabled);
+  border: 1px solid var(--disabled);
   color: White;
 }
 
@@ -124,12 +124,12 @@
 }
 
 .nso-header__title {
-  color: var(--nso-dark-grey);
+  color: var(--header);
   font-size: 1.25rem;
 }
 
 .nso-header__version {
-  color: var(--nso-light-grey);
+  color: var(--disabled);
   font-size: 0.5625rem;
 }
 
@@ -150,9 +150,9 @@
 }
 
 .nso-footer__toggle-btn {
-  background-color: var(--nso-background-grey);
+  background-color: var(--background);
   border-style: solid none none none;
-  border-top: 1px solid var(--nso-border-grey);
+  border-top: 1px solid var(--border);
   display: flex;
   height: 0px;
   justify-content: center;
@@ -169,7 +169,7 @@
 
 .nso-footer__toggle-btn-text {
   align-self: center;
-  color: var(--nso-blue);
+  color: var(--primary);
   font-size: 1rem;
   padding: 0 1rem;
 }
@@ -179,7 +179,7 @@
 }
 
 .nso-footer__sc-menu {
-  background: var(--nso-background-grey);
+  background: var(--background);
   display: flex;
   height: 2.5rem;
   justify-content: center;
@@ -191,7 +191,7 @@
 }
 
 .nso-footer__sc-menu-toggle-btn {
-  background: var(--nso-background-grey);
+  background: var(--background);
   border-style: none;
   display: flex;
   justify-content: flex-end;
@@ -205,7 +205,7 @@
 .nso-footer__sc-item {
   background-color: White;
   cursor: pointer;
-  color: var(--nso-blue);
+  color: var(--primary);
   display: flex;
   overflow: hidden;
   text-decoration: none;
@@ -213,7 +213,7 @@
 }
 
 .nso-footer__sc-item--current {
-  background-color: var(--nso-blue);
+  background-color: var(--primary);
   color: White;
 }
 
@@ -231,7 +231,7 @@
 
 
 .nso-user-menu {
-  color: var(--nso-blue);
+  color: var(--primary);
   position: relative;
 }
 
@@ -271,12 +271,12 @@
 }
 
 .nso-user-menu__arrow--shadow {
-  box-shadow: var(--nso-shadow-grey) 0px 0px 3px 0px;
+  box-shadow: #888888 0px 0px 3px 0px;
 }
 
 .nso-user-menu__popup-inner {
   background: White;
-  box-shadow: var(--nso-shadow-grey) 0px 0px 3px 0px;
+  box-shadow: #888888 0px 0px 3px 0px;
   padding: 1rem 0px;
   position: absolute;
   width: 5.5rem;
@@ -288,7 +288,7 @@
 }
 
 .nso-user-menu__logout:hover {
-  background: var(--nso-blue);
+  background: var(--primary);
   color: White;
   cursor: pointer;
 }
@@ -296,11 +296,11 @@
 
 .nso-modal__content {
   background: White;
-  border: 0.0625rem solid var(--nso-border-grey);
+  border: 0.0625rem solid var(--border);
   border-radius: 0.25rem;
   bottom: auto;
   box-shadow: rgba(0, 0, 0, 0.2) 0 0 1rem 0;
-  color: var(--nso-dark-grey);
+  color: var(--header);
   left: 50%;
   margin-right: -50%;
   max-width: 60%;

@@ -8,7 +8,7 @@
 }
 
 .config-viewer__btn-row {
-  background: var(--nso-very-light-grey);
+  background: var(--background-alt);
   display: flex;
   padding: 0.5rem 0.25rem;
 }
@@ -47,5 +47,5 @@
 
 
 .accordion--closed > .accordion__header > .config-viewer__loading-dots > .loading__dot {
-  background-color: var(--nso-medium-grey);
+  background-color: var(--sub-header);
 }

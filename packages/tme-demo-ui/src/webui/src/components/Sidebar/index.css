@@ -1,6 +1,6 @@
 .sidebar {
   box-sizing: border-box;
-  color: var(--nso-dark-grey);
+  color: var(--header);
   flex-shrink: 0;
   padding: 0rem 1rem;
   max-width: 500px;
@@ -27,7 +27,7 @@
 
 .sidebar__header {
   color: White;
-  background-color: var(--nso-dark-grey);
+  background-color: var(--header);
   height: 2rem;
   padding: 0.5em 0.75rem 0.5em 1rem;
   position: sticky;
@@ -38,7 +38,7 @@
 
 .sidebar__sub-header {
   color: White;
-  background: var(--nso-medium-grey);
+  background: var(--sub-header);
   height: 2rem;
   padding: 0.5em 0.75rem 0.5em 1rem;
   text-align: right;
@@ -115,7 +115,7 @@
 }
 
 .accordion__header {
-  background: var(--nso-very-light-grey);
+  background: var(--background-alt);
   cursor: pointer;
   text-align: right;
   transition: all 400ms ease-out;
@@ -135,11 +135,11 @@
 }
 
 .accordion--level1.accordion--open > .accordion__header {
-  background: var(--nso-blue);
+  background: var(--primary);
 }
 
 .accordion--level2.accordion--open > .accordion__header {
-  background: var(--nso-green);
+  background: var(--secondary);
 }
 
 .accordion--level1 > .accordion__header {
@@ -151,26 +151,23 @@
 }
 
 .accordion--level1 > .accordion__header:hover {
-  box-shadow: 5px 0 0 var(--nso-dark-grey) inset;
+  box-shadow: 5px 0 0 var(--header) inset;
 }
 
 .accordion--level2 > .accordion__header:hover{
-  box-shadow: -5px 0 0 var(--nso-medium-grey) inset;
+  box-shadow: -5px 0 0 var(--sub-header) inset;
 }
 
 .accordion--closed > .accordion__header:hover {
-  background: var(--nso-border-grey);
-  color: var(--nso-dark-grey);
+  background: var(--border);
 }
 
 .accordion--closed-fade > .accordion__header {
-  background: var(--nso-border-grey);
-  color: var(--nso-dark-grey);
+  background: var(--border);
 }
 
 .accordion--closed-fade > .accordion__header:hover {
-  background: var(--nso-very-light-grey);
-  color: var(--nso-dark-grey);
+  background: var(--background-alt);
 }
 
 .accordion--closed + .accordion--closed {
@@ -184,11 +181,11 @@
 }
 
 .accordion--level1 > .accordion__panel {
-  border-left:solid 5px var(--nso-blue);
+  border-left:solid 5px var(--primary);
 }
 
 .accordion--level2 > .accordion__panel {
-  border-right:solid 5px var(--nso-green);
+  border-right:solid 5px var(--secondary);
 }
 
 .accordion__empty {
@@ -223,7 +220,7 @@
 
 .accordion__overlay--hovered {
   background: rgba(255, 255, 255, 0.7);
-  box-shadow: 0 0 0 5px var(--nso-green) inset;
+  box-shadow: 0 0 0 5px var(--secondary) inset;
 }
 
 .field-group {
@@ -232,7 +229,7 @@
 }
 
 .field-group__row {
-  border-bottom: solid 1px var(--nso-border-grey);
+  border-bottom: solid 1px var(--border);
   height: 1.25em;
   line-height: 1.25em;
   padding-top: 0.5em;
@@ -240,7 +237,7 @@
 }
 
 .field-group__label {
-  color: var(--nso-light-grey);
+  color: var(--disabled);
   font-size: 0.75em;
   float: left;
 }
@@ -264,7 +261,7 @@
 }
 
 .new-item--open {
-  box-shadow: 0 0 0 0.25rem white, 0 0 0.25rem 0.5rem var(--nso-blue);
+  box-shadow: 0 0 0 0.25rem white, 0 0 0.25rem 0.5rem var(--primary);
 }
 
 .new-item__form {
@@ -279,7 +276,7 @@
 .new-item__value {
   background: none;
   border: none;
-  border-bottom: solid 1px var(--nso-border-grey);
+  border-bottom: solid 1px var(--border);
   font-family: CiscoSansLight, Helvetica, sans-serif;
   font-size: 1em;
   margin-right: 1em;
@@ -288,7 +285,7 @@
 }
 
 .new-item__label {
-  color: var(--nso-dark-grey);
+  color: var(--header);
   line-height: 1em;
   margin: 0 0.75em 0 1em;
   white-space: nowrap;

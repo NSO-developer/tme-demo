@@ -20,7 +20,7 @@ import { fetchConnections, subscribeConnections } from './connections';
 import { fetchVnfs, subscribeVnfs } from './vnfs';
 import { fetchDevices } from './devices';
 
-import { fetchTenants } from './tenants';
+import { fetchTenants, subscribeTenants } from './tenants';
 import { fetchVpnEndpoints } from './vpnEndpoints';
 import { fetchDcEndpoints } from './dcEndpoints';
 import { fetchNetworkServices } from './networkServices';
@@ -56,4 +56,8 @@ export const subscribeTopologyData = () => dispatch => {
   dispatch(subscribeIcons());
   dispatch(subscribeConnections());
   dispatch(subscribeVnfs());
+};
+
+export const subscribeSidebarData = () => dispatch => {
+  dispatch(subscribeTenants());
 };

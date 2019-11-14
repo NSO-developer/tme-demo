@@ -207,12 +207,13 @@ const parseMatch = match => {
 export const subscribeVnfs = () => dispatch => {
   let path = '/nfvo-rel2:nfvo/vnf-info/nfvo-rel2-esc:esc/vnf-deployment';
   let cdbOper = false;
+  let skipLocal = false;
 
-  dispatch(subscriptionRequest(path, cdbOper));
+  dispatch(subscriptionRequest(path, cdbOper, skipLocal));
 
   try {
     Comet.subscribe({
-      path, cdbOper, skipLocalChanges: false,
+      path, cdbOper, skipLocal,
       callback : evt => {
         evt.changes.forEach(change => {
           const { keypath, op } = change;
@@ -234,15 +235,16 @@ export const subscribeVnfs = () => dispatch => {
         });
       }
     });
-    dispatch(subscriptionSuccess(path, cdbOper));
+    dispatch(subscriptionSuccess(path, cdbOper, skipLocal));
 
     path = '/nfvo-rel2:nfvo/vnf-info/nfvo-rel2-esc:esc/vnf-deployment-result';
     cdbOper = true;
+    skipLocal = true;
 
-    dispatch(subscriptionRequest(path, cdbOper));
+    dispatch(subscriptionRequest(path, cdbOper, skipLocal));
 
     Comet.subscribe({
-      path, cdbOper, skipLocalChanges: true,
+      path, cdbOper, skipLocal,
       callback : evt => {
         evt.changes.forEach(change => {
           const { keypath, op, value } = change;
@@ -283,7 +285,7 @@ export const subscribeVnfs = () => dispatch => {
         });
       }
     });
-    dispatch(subscriptionSuccess(path, cdbOper));
+    dispatch(subscriptionSuccess(path, cdbOper, skipLocal));
 
   } catch(exception) {
     dispatch(handleError(`Failed to subscribe to ${path}`,

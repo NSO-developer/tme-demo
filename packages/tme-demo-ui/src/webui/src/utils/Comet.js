@@ -62,16 +62,16 @@ class Comet {
     this.poll();
   }
 
-  subscribe = async ({ path, skipLocalChanges, callback, cdbOper }) => {
+  subscribe = async ({ path, cdbOper, skipLocal, callback }) => {
     const result = cdbOper
       ? await JsonRpc.request('subscribe_cdboper', {
-          comet_id : this.cometId,
-          path : path
+          comet_id: this.cometId,
+          path: path
         })
       : await JsonRpc.request('subscribe_changes', {
-          comet_id : this.cometId,
-          path : path,
-          skip_local_changes : skipLocalChanges
+          comet_id: this.cometId,
+          path: path,
+          skip_local_changes: Boolean(skipLocal)
         });
 
     const { handle } = result;

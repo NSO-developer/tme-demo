@@ -17,10 +17,11 @@ import { getTenants, getVpnEndpoints, getDcEndpoints, getNetworkServices,
 import { bodyOverlayToggled } from '../../actions/uiState';
 import { TENANT_PATH } from '../../actions/tenants';
 
-import { fetchSidebarData } from '../../actions';
+import { fetchSidebarData, subscribeSidebarData } from '../../actions';
 
 
-const mapDispatchToProps = { fetchSidebarData, bodyOverlayToggled };
+const mapDispatchToProps = {
+  fetchSidebarData, subscribeSidebarData, bodyOverlayToggled };
 
 const mapStateToProps = state => ({
   tenants: getTenants(state),
@@ -108,8 +109,9 @@ class Tenants extends PureComponent {
   }
 
   componentDidMount() {
-    const { fetchSidebarData } = this.props;
+    const { fetchSidebarData, subscribeSidebarData } = this.props;
     fetchSidebarData();
+    subscribeSidebarData();
   }
 }
 

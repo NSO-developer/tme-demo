@@ -6,12 +6,12 @@ export const SUBSCRIPTION_EVENT = 'subscription-event';
 
 // === Action Creators ========================================================
 
-export function subscriptionRequest(path, cdbOper) {
-  return ({ type: SUBSCRIPTION_REQUEST, path, cdbOper });
+export function subscriptionRequest(path, cdbOper, skipLocal, hideChanges) {
+  return ({ type: SUBSCRIPTION_REQUEST, path, cdbOper, skipLocal, hideChanges });
 }
 
-export function subscriptionSuccess(path, cdbOper) {
-  return ({ type: SUBSCRIPTION_SUCCESS, path, cdbOper });
+export function subscriptionSuccess(path, cdbOper, skipLocal, hideChanges) {
+  return ({ type: SUBSCRIPTION_SUCCESS, path, cdbOper, skipLocal, hideChanges });
 }
 
 export function subscriptionEvent(keypath, op) {

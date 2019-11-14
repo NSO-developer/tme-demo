@@ -1,4 +1,5 @@
 import JsonRpc from '../utils/JsonRpc';
+import { fetchSidebarData } from './index';
 
 export const TENANT_ADDED = 'tenant-added';
 export const TENANT_DELETED = 'tenant-deleted';
@@ -11,6 +12,7 @@ export const FETCH_ONE_TENANT_REQUEST = 'fetch-one-tenant-request';
 export const FETCH_ONE_TENANT_FAILURE = 'fetch-one-tenant-failure';
 
 export const TENANT_PATH = '/tme-demo:tme-demo/tenant';
+
 
 // === Action Creators ========================================================
 
@@ -87,3 +89,15 @@ export const addDeviceList = tenants => Promise.all(
     }
   })
 );
+
+
+// === Comet Middleware =======================================================
+
+export const subscribeTenants = () => ({
+  subscribe: {
+    path: TENANT_PATH,
+    cdbOper: false,
+    hideChanges: true
+  },
+  actions: [ fetchSidebarData ]
+});

@@ -126,58 +126,60 @@ class Config extends PureComponent {
     const { format, serviceMetaData } = this.state;
     const { openTenant } = this.props;
 
-    let highlightLine = false;
-    let highlightBlock = false;
-    let blockIndent = undefined;
+    const backpointerRegex = this.getBackpointerRegex();
+    const refcountRegex = this.getRefcountRegex();
 
-    return highlightedConfig.split('\n').reduce((acc, line) => {
-      if (['cli', 'curly-braces', 'xml'].includes(format)) {
-        const indent = line.search(/\S/);
-        const refcountMatch = line.search(this.getRefcountRegex()) != -1;
-        const backpointerMatch = line.match(this.getBackpointerRegex());
-        const backpointer = backpointerMatch ? backpointerMatch[1] : '';
+    const iter = highlightedConfig.split('\n')[Symbol.iterator]();
+    let { value, done } = iter.next();
+    let result = [];
+
+    const processBlock = highlight => {
+      const blockIndent = value.search(/\S/);
+      let indent = blockIndent + 1;
+      let backpointer = undefined;
+
+      if (format == 'xml' && !serviceMetaData) {
+        value = value.replace(refcountRegex, '').replace(backpointerRegex, '');
+      }
+      result.push([ value, highlight ]);
+      ({ value, done } = iter.next());
+
+      while (indent > blockIndent && !done) {
+        indent = value.search(/\S/);
+        const backpointerMatch = value.match(backpointerRegex);
+        const refcountMatch = value.search(refcountRegex) != -1;
         const isOnlyMeta = ['cli', 'curly-braces'].includes(format) &&
           (refcountMatch || backpointerMatch);
 
-        if (backpointer.includes(openTenant)) {
-          if (!highlightBlock) {
-            blockIndent = indent;
+        if (backpointerMatch && !backpointer) {
+          backpointer = backpointerMatch[1];
+        }
+
+        if (indent == blockIndent) {
+          // Only exit statement allowed at same indent
+          if (format == 'xml' && value.trim().startsWith(
+              '<span class="hljs-tag">&lt;/<span') ||
+              ['exit', '!', '}'].includes(value.trim())) {
+            result.push([ value, highlight ]);
+            ({ value, done } = iter.next());
           }
-        }
-
-        if (indent >= blockIndent) {
-          highlightLine = true;
-          if (backpointer && !backpointer.includes(openTenant)) {
-            highlightLine = false;
-          }
-        }
-
-        if (format == 'xml' && !serviceMetaData) {
-          line = line.replace(this.getRefcountRegex(), '').replace(
-            this.getBackpointerRegex(), '');
-        }
-
-        if (serviceMetaData || !isOnlyMeta) {
-          if (highlightLine) {
-            acc.push([ line, !isOnlyMeta ]);
-            highlightLine = false;
-            if (indent == blockIndent && !isOnlyMeta) {
-              if (highlightBlock) {
-                highlightBlock = false;
-                blockIndent = undefined;
-              } else {
-                highlightBlock = true;
-              }
+        } else if (indent > blockIndent) {
+          if (isOnlyMeta) {
+            if (serviceMetaData) {
+              result.push([ value, false ]);
             }
+            ({ value, done } = iter.next());
           } else {
-            acc.push([ line, false ]);
+            processBlock(backpointer ?
+              backpointer.includes(`name='${openTenant}']`) : highlight);
+            backpointer = undefined;
           }
         }
-      } else {
-        acc.push([ line, false ]);
       }
-      return acc;
-    }, []);
+    };
+
+    processBlock(false);
+    return result;
   }
 
   btn = (label, selectFormat, tooltip) => {

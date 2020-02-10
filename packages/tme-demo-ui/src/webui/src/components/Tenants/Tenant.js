@@ -25,7 +25,7 @@ import { tenantToggled, bodyOverlayToggled, itemDragged,
          newNetworkServiceToggled, handleError } from '../../actions/uiState';
 import { TENANT_PATH, deleteTenant } from '../../actions/tenants';
 
-import { connectPngDragPreview } from '../../utils/UiUtils';
+import { connectPngDragPreview, safeKey } from '../../utils/UiUtils';
 import JsonRpc from '../../utils/JsonRpc';
 import Comet from '../../utils/Comet';
 
@@ -102,7 +102,7 @@ class Tenant extends PureComponent {
       openDcEndpointName: null,
       openNetworkServiceName: null,
     };
-    this.keyPath = `${TENANT_PATH}{${props.tenant.name}}`;
+    this.keyPath = `${TENANT_PATH}{${safeKey(props.tenant.name)}}`;
     this.addVpnEndpointBtnRef = createRef();
     this.addNetworkServiceBtnRef = createRef();
   }
@@ -170,7 +170,7 @@ class Tenant extends PureComponent {
     await JsonRpc.request('action', {
       th: th,
 //      path: `${this.keyPath}/touch`
-      path: `/l3vpn:vpn/l3vpn{${this.props.tenant.name}}/touch`
+      path: `/l3vpn:vpn/l3vpn{${safeKey(this.props.tenant.name)}}/touch`
     });
     Comet.stopThenGoToUrl(COMMIT_MANAGER_URL);
   }
@@ -195,7 +195,7 @@ class Tenant extends PureComponent {
     }
 
     const path = `${this.keyPath}/data-centre/endpoint{${
-                  name} compute${compute}}`;
+      safeKey(name)} compute${compute}}`;
     const th = await JsonRpc.write();
     try {
       await JsonRpc.request('create', { th, path });

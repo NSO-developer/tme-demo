@@ -1,5 +1,6 @@
 import JsonRpc from '../utils/JsonRpc';
 import { fetchSidebarData } from './index';
+import { safeKey } from '../utils/UiUtils';
 
 export const TENANT_ADDED = 'tenant-added';
 export const TENANT_DELETED = 'tenant-deleted';
@@ -53,7 +54,7 @@ export const fetchTenants = () => ({
 export const fetchOneTenant = name => ({
   jsonRpcGetValues: {
     name        : name,
-    path        : `${TENANT_PATH}{${name}}`,
+    path        : `${TENANT_PATH}{${safeKey(name)}}`,
     leafs       : selection,
     resultKeys  : resultKeys,
     transform   : addDeviceList
@@ -75,7 +76,8 @@ export const deleteTenant = (name) => ({
 export const addDeviceList = tenants => Promise.all(
   tenants.map(async tenant => {
     try {
-      const deviceListPath = `${TENANT_PATH}{${tenant.name}}/modified/devices`;
+      const deviceListPath = `${TENANT_PATH}{${
+        safeKey(tenant.name)}}/modified/devices`;
       if (await JsonRpc.exists(deviceListPath)) {
         const deviceList = await JsonRpc.getValue(deviceListPath);
         return { ...tenant, deviceList: deviceList.value };

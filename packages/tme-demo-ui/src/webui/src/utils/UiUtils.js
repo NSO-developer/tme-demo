@@ -93,3 +93,7 @@ export const connectPngDragPreview = (imageMarkup, size, connect, centred) => {
 
 export const getCssVariable = name =>
   getComputedStyle(document.documentElement).getPropertyValue(`--${name}`);
+
+
+export const safeKey = key =>
+  (key.includes(' ') && !key.includes('"')) ? `"${key}"` : key;

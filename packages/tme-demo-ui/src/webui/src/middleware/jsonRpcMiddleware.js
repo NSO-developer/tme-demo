@@ -1,5 +1,6 @@
 import JsonRpc from '../utils/JsonRpc';
 import { handleError } from '../actions/uiState';
+import { safeKey } from '../utils/UiUtils';
 
 export default store => next => async action => {
   const { jsonRpcGetValues, jsonRpcSetValues, jsonRpcDelete, jsonRpcQuery,
@@ -52,12 +53,13 @@ export default store => next => async action => {
   }
 
   if (jsonRpcDelete) {
-    const { path, name } = jsonRpcDelete;
+    const { path, name, key } = jsonRpcDelete;
     const [ doneType ] = types;
 
     try {
       const th = await JsonRpc.write();
-      await JsonRpc.request('delete', {th, path: `${path}{${name}}`});
+      await JsonRpc.request('delete', {
+        th, path: `${path}{${key ? key : safeKey(name)}}`});
       return next({
         type: doneType,
         name: name
@@ -84,11 +86,14 @@ export default store => next => async action => {
 
       const result = json.results.reduce((resultAcc, resultArray) => {
         const item = resultArray.reduce((accumulator, current, index) => {
-          if (accumulator[resultKeys[index]]) {
-            if (resultKeys[index] === 'name') {
-              accumulator[resultKeys[index]] += ` ${current}`;
+          if (resultKeys[index] === 'name' &&
+              resultKeys.filter(value => value === 'name').length > 1) {
+            if (accumulator['name']) {
+              accumulator['name'] += ` ${safeKey(current)}`;
+            } else {
+              accumulator['name'] = safeKey(current);
             }
-          } else {
+          } else if (!accumulator[resultKeys[index]]) {
             accumulator[resultKeys[index]] = current;
           }
           return accumulator;

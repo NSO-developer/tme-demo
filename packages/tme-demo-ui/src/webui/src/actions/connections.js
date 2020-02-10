@@ -1,3 +1,5 @@
+import { safeKey } from '../utils/UiUtils';
+
 export const CONNECTION_ADDED = 'connection-added';
 export const CONNECTION_MOVED = 'connection-moved';
 export const CONNECTION_DELETED = 'connection-deleted';
@@ -52,8 +54,8 @@ export const fetchConnections = () => ({
 
 export const fetchOneConnection = name => ({
   jsonRpcGetValues: {
-    name          : name,
-    path        : `${path}{${name}}`,
+    name        : name,
+    path        : `${path}{${safeKey(name)}}`,
     leafs       : selection,
     resultKeys  : resultKeys,
   },
@@ -73,8 +75,8 @@ export const deleteConnection = name => ({
 
 export const addConnection = (name, ep1Device, ep2Device) => ({
   jsonRpcSetValues: { pathValues: [
-    { path: `${path}{${name}}/endpoint-1/device`, value: ep1Device },
-    { path: `${path}{${name}}/endpoint-2/device`, value: ep2Device }
+    { path: `${path}{${safeKey(name)}}/endpoint-1/device`, value: ep1Device },
+    { path: `${path}{${safeKey(name)}}/endpoint-2/device`, value: ep2Device }
   ]},
   actions: [ connectionAdded(name, ep1Device, ep2Device) ],
   errorMessage: `Failed to add connnection ${name}`
@@ -82,7 +84,7 @@ export const addConnection = (name, ep1Device, ep2Device) => ({
 
 export const moveConnection = (name, endpoint, device) => ({
   jsonRpcSetValues: { pathValues: [
-    { path: `${path}{${name}}/endpoint-${endpoint}/device`,
+    { path: `${path}{${safeKey(name)}}/endpoint-${endpoint}/device`,
       value: device || null }
   ]},
   actions: [ connectionMoved(name, endpoint, device) ],

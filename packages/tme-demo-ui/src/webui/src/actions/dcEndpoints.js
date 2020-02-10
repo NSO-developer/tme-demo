@@ -1,4 +1,5 @@
 import { TENANT_PATH } from './tenants';
+import { safeKey } from '../utils/UiUtils';
 
 export const DC_ENDPOINT_DELETED = 'dc-endpoint-deleted';
 
@@ -51,8 +52,9 @@ export const fetchDcEndpoints = () => ({
 
 export const deleteDcEndpoint = (tenant, name) => ({
   jsonRpcDelete: {
-    path: `${TENANT_PATH}{${tenant}}/data-centre/endpoint`,
-    name: name
+    path: `${TENANT_PATH}{${safeKey(tenant)}}/data-centre/endpoint`,
+    name: name,
+    key: name
   },
   types: [ DC_ENDPOINT_DELETED ],
   errorMessage: `Failed to delete data-centre endpoint ${name}`

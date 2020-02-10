@@ -1,3 +1,5 @@
+import { safeKey } from '../utils/UiUtils';
+
 export const ICON_ADDED = 'icon-added';
 export const ICON_MOVED = 'icon-moved';
 export const ICON_DELETED = 'icon-deleted';
@@ -59,7 +61,7 @@ export const fetchIcons = () => ({
 export const fetchOneIcon = name => ({
   jsonRpcGetValues: {
     name        : name,
-    path        : `${path}{${name}}`,
+    path        : `${path}{${safeKey(name)}}`,
     leafs       : selection,
     resultKeys  : resultKeys
   },
@@ -73,8 +75,8 @@ export const fetchOneIcon = name => ({
 
 export const moveIcon = (name, pos) => ({
   jsonRpcSetValues: { pathValues: [
-    { path: `${path}{"${name}"}/coord/x`, value: pos.x },
-    { path: `${path}{"${name}"}/coord/y`, value: pos.y }
+    { path: `${path}{${safeKey(name)}}/coord/x`, value: pos.x },
+    { path: `${path}{${safeKey(name)}}/coord/y`, value: pos.y }
   ]},
   actions: [ iconMoved(name, pos) ],
   errorMessage: `Failed to move icon ${name}`

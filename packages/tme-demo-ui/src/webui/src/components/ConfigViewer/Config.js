@@ -10,7 +10,9 @@ import Accordion from '../Sidebar/Accordion';
 import LoadingOverlay from '../common/LoadingOverlay';
 
 import JsonRpc from '../../utils/JsonRpc';
+import { safeKey } from '../../utils/UiUtils';
 import { handleError } from '../../actions/uiState';
+
 
 const mapDispatchToProps = { handleError };
 
@@ -86,7 +88,8 @@ class Config extends PureComponent {
     this.setState({ isFetching: true });
     try {
       const result = await JsonRpc.runAction({
-        path: `/ncs:devices/ncs:device{${device}}/tme-demo:get-configuration`,
+        path: `/ncs:devices/ncs:device{${
+          safeKey(device)}}/tme-demo:get-configuration`,
         params: { format, 'service-meta-data': true }
       });
       this.setState({

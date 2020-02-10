@@ -1,4 +1,5 @@
 import JsonRpc from '../utils/JsonRpc';
+import { safeKey } from '../utils/UiUtils';
 
 export const FETCH_LAYOUT_REQUEST = 'fetch-layout-request';
 export const FETCH_LAYOUT_SUCCESS = 'fetch-layout-success';
@@ -35,9 +36,9 @@ export const fetchLayout = () => ({
 export const addZoomedLayout = layout => Promise.all(
   layout.map(async container => {
     try {
-      const zoomedLayoutPath = `${path}{${container.name}}/zoomed`;
+      const zoomedLayoutPath = `${path}{${safeKey(container.name)}}/zoomed`;
       const zoomedLayout = await JsonRpc.query({
-        path: `${path}{${container.name}}/zoomed`,
+        path: `${path}{${safeKey(container.name)}}/zoomed`,
         selection: [ 'title', 'width' ]
       });
       return {

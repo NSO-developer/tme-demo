@@ -10,8 +10,8 @@ export default store => next => async action => {
   if (subscribe) {
     const { path, cdbOper, skipLocal, hideChanges } = subscribe;
     const [ getAction, deleteAction, modifyAction ] = actions;
-    const regex = new RegExp(`${path}{([^{]+?)}$`);
-    const planRegex = new RegExp(`${path}{[^{]+?}/plan/component.*$`);
+    const regex = new RegExp(`${path}{"?([^}]+?)"?}$`);
+    const planRegex = new RegExp(`${path}{[^{]+}/plan/component.*$`);
 
     next(subscriptionRequest(path, cdbOper, skipLocal, hideChanges));
     try {

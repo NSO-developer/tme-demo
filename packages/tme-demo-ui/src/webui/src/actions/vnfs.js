@@ -196,6 +196,30 @@ export const fetchOneVnf =
 
 // === Thunk Middleware (Comet subscriptions) =================================
 
+const stripQuotes = value => {
+  const match = /^"([^"]*)"$/.exec(value);
+  return match ? match[1] : value;
+};
+
+const reExec = (regex, string) => {
+  const match = regex.exec(string);
+  return match ? match.map(value => stripQuotes(value)) : match;
+};
+
+const key = '("[^}"]+"|[^} ]+)';
+
+const vnfDeploymentPath = '/nfvo-rel2:nfvo/vnf-info/nfvo-rel2-esc:esc/vnf-deployment';
+const vnfDeploymentResultPath = '/nfvo-rel2:nfvo/vnf-info/nfvo-rel2-esc:esc/vnf-deployment-result';
+const vduPath = `${vnfDeploymentResultPath}{${key} ${key} ${key}}/vdu{${key} ${key}}`;
+const vmDevicePath = `${vduPath}/vm-device{${key} ${key}}`;
+
+const vnfInfoRegex = new RegExp(`${vnfDeploymentPath}{${key} ${key} ${key}}(?:/vnf-info{${key}}/vdu{${key}})?$`);
+const vmDeviceRegex = new RegExp(`${vmDevicePath}$`);
+const vmDeviceStatusRegex = new RegExp(`${vmDevicePath}/status/${key}$`);
+const vmDeviceNameRegex = new RegExp(`${vmDevicePath}/device-name$`);
+const vmsScalingRegex = new RegExp(`${vduPath}/l3vpn:vms-scaling/${key}$`);
+
+
 const parseMatch = match => {
   const [ all, tenant, depName, esc, vnfInfo, vdu ] = match;
   const nsInfo = `${tenant}-${depName}`;
@@ -205,7 +229,7 @@ const parseMatch = match => {
 };
 
 export const subscribeVnfs = () => dispatch => {
-  let path = '/nfvo-rel2:nfvo/vnf-info/nfvo-rel2-esc:esc/vnf-deployment';
+  let path = vnfDeploymentPath;
   let cdbOper = false;
   let skipLocal = false;
 
@@ -217,7 +241,7 @@ export const subscribeVnfs = () => dispatch => {
       callback : evt => {
         evt.changes.forEach(change => {
           const { keypath, op } = change;
-          const match = /\/nfvo-rel2:nfvo\/vnf-info\/nfvo-rel2-esc:esc\/vnf-deployment\{([^{} ]+) ([^{} ]+) ([^{} ]+)\}(?:\/vnf-info\{([^{} ]+)\}(?:\/vdu\{([^{} ]+)\}))?$/.exec(keypath);
+          const match = reExec(vnfInfoRegex, keypath);
 
           if (match) {
             dispatch(subscriptionEvent(keypath, op));
@@ -237,7 +261,7 @@ export const subscribeVnfs = () => dispatch => {
     });
     dispatch(subscriptionSuccess(path, cdbOper, skipLocal));
 
-    path = '/nfvo-rel2:nfvo/vnf-info/nfvo-rel2-esc:esc/vnf-deployment-result';
+    path = vnfDeploymentResultPath;
     cdbOper = true;
     skipLocal = true;
 
@@ -249,7 +273,7 @@ export const subscribeVnfs = () => dispatch => {
         evt.changes.forEach(change => {
           const { keypath, op, value } = change;
 
-          let match = /\/nfvo-rel2:nfvo\/vnf-info\/nfvo-rel2-esc:esc\/vnf-deployment-result\{([^{} ]+) ([^{} ]+) ([^{} ]+)\}\/vdu\{([^{} ]+) ([^{} ]+)\}\/vm-device\{([^{} ]+) ([^{} ]+)\}\/status\/([^{} ]+)$/.exec(keypath);
+          let match = reExec(vmDeviceStatusRegex, keypath);
           if (match && op !== 'deleted') {
             dispatch(subscriptionEvent(keypath, op));
             const { vnfVduName } = parseMatch(match);
@@ -258,7 +282,7 @@ export const subscribeVnfs = () => dispatch => {
             dispatch(vnfVmStatusUpdated(vnfVduName, vmId, status));
           }
 
-          match = /\/nfvo-rel2:nfvo\/vnf-info\/nfvo-rel2-esc:esc\/vnf-deployment-result\{([^{} ]+) ([^{} ]+) ([^{} ]+)\}\/vdu\{([^{} ]+) ([^{} ]+)\}\/vm-device\{([^{} ]+) ([^{} ]+)\}\/device-name$/.exec(keypath);
+          match = reExec(vmDeviceNameRegex, keypath);
           if (match && op !== 'deleted') {
             dispatch(subscriptionEvent(keypath, op));
             const { vnfVduName } = parseMatch(match);
@@ -267,7 +291,7 @@ export const subscribeVnfs = () => dispatch => {
             dispatch(vnfVmDeviceUpdated(vnfVduName, vmId, device));
           }
 
-          match = /\/nfvo-rel2:nfvo\/vnf-info\/nfvo-rel2-esc:esc\/vnf-deployment-result\{([^{} ]+) ([^{} ]+) ([^{} ]+)\}\/vdu\{([^{} ]+) ([^{} ]+)\}\/vm-device\{([^{} ]+) ([^{} ]+)\}$/.exec(keypath);
+          match = reExec(vmDeviceRegex, keypath);
           if (match && op === 'deleted') {
             dispatch(subscriptionEvent(keypath, op));
             const { vnfVduName } = parseMatch(match);
@@ -275,7 +299,7 @@ export const subscribeVnfs = () => dispatch => {
             dispatch(vnfVmDeleted(vnfVduName, vmId));
           }
 
-          match = /\/nfvo-rel2:nfvo\/vnf-info\/nfvo-rel2-esc:esc\/vnf-deployment-result\{([^{} ]+) ([^{} ]+) ([^{} ]+)\}\/vdu\{([^{} ]+) ([^{} ]+)\}\/l3vpn:vms-scaling\/([^{} ]+)$/.exec(keypath);
+          match = reExec(vmsScalingRegex, keypath);
           if (match) {
             dispatch(subscriptionEvent(keypath, op));
             const { vnfVduName } = parseMatch(match);

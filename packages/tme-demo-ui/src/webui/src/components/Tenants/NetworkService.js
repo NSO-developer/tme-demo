@@ -10,6 +10,7 @@ import Btn from '../icons/BtnWithTooltip';
 
 import { deleteNetworkService } from '../../actions/networkServices';
 import { TENANT_PATH } from '../../actions/tenants';
+import { safeKey } from '../../utils/UiUtils';
 
 
 const mapDispatchToProps = { deleteNetworkService };
@@ -18,7 +19,8 @@ class NetworkService extends PureComponent {
   constructor(props) {
     super(props);
     const { tenant, name } = props;
-    this.keyPath = `${TENANT_PATH}{${tenant}}/nfvo/network-service{${name}}`;
+    this.keyPath = `${TENANT_PATH}{${
+      safeKey(tenant)}}/nfvo/network-service{${safeKey(name)}}`;
   }
 
   delete = async (event) => {

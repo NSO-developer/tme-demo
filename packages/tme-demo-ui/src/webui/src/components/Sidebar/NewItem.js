@@ -12,6 +12,7 @@ import Btn from '../icons/BtnWithTooltip';
 import { handleError } from '../../actions/uiState';
 import JsonRpc from '../../utils/JsonRpc';
 import Comet from '../../utils/Comet';
+import { safeKey } from '../../utils/UiUtils';
 
 
 const mapDispatchToProps = { handleError };
@@ -37,9 +38,9 @@ class NewItem extends PureComponent {
     const { value } = this.state;
     const { path, defaultsPath, defaults, close, handleError } = this.props;
     if (value) {
-      const keyPath = `${path}{${value}}`;
+      const keyPath = `${path}{${safeKey(value)}}`;
       const defaultsKeyPath = defaultsPath
-        ? `${defaultsPath}{${value}}` : keyPath;
+        ? `${defaultsPath}{${safeKey(value)}}` : keyPath;
       const th = await JsonRpc.write();
       try {
         await JsonRpc.request('create', { th: th, path: keyPath });

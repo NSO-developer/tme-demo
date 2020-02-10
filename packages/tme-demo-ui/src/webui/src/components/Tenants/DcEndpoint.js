@@ -10,6 +10,7 @@ import Btn from '../icons/BtnWithTooltip';
 
 import { deleteDcEndpoint } from '../../actions/dcEndpoints';
 import { TENANT_PATH } from '../../actions/tenants';
+import { safeKey } from '../../utils/UiUtils';
 
 
 const mapDispatchToProps = { deleteDcEndpoint };
@@ -18,7 +19,8 @@ class DcEndpoint extends PureComponent {
   constructor(props) {
     super(props);
     const { tenant, name } = props;
-    this.keyPath = `${TENANT_PATH}{${tenant}}/data-centre/endpoint{${name}}`;
+    this.keyPath = `${TENANT_PATH}{${
+      safeKey(tenant)}}/data-centre/endpoint{${name}}`;
   }
 
   delete = async (event) => {

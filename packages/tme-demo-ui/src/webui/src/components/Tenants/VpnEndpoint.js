@@ -10,6 +10,7 @@ import Btn from '../icons/BtnWithTooltip';
 
 import { deleteVpnEndpoint } from '../../actions/vpnEndpoints';
 import { TENANT_PATH } from '../../actions/tenants';
+import { safeKey } from '../../utils/UiUtils';
 
 
 const mapDispatchToProps = { deleteVpnEndpoint };
@@ -18,7 +19,8 @@ class VpnEndpoint extends PureComponent {
   constructor(props) {
     super(props);
     const { tenant, name } = props;
-    this.keyPath = `${TENANT_PATH}{${tenant}}/l3vpn/endpoint{${name}}`;
+    this.keyPath = `${TENANT_PATH}{${
+      safeKey(tenant)}}/l3vpn/endpoint{${safeKey(name)}}`;
   }
 
   delete = async (event) => {

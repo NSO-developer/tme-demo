@@ -12,6 +12,9 @@ def get_ip_prefix(addr):
     parts = addr.split('/')
     return parts[1]
 
+def safe_key(key):
+    return key.replace(' ', '-')
+
 class IpAddressHelper(object):
     def __init__(self, log, username, root, tenant, ns_info_id):
         self.stitching_ready = True,
@@ -55,7 +58,7 @@ class IpAddressHelper(object):
 
                 allocation_name = '%s-%s' % (self.ns_info_id, vld)
                 resource_pool = self.root.ralloc__resource_pools.\
-                    ipalloc__ip_address_pool.create(allocation_name)
+                    ipalloc__ip_address_pool.create(safe_key(allocation_name))
                 resource_pool.subnet.create(get_ip_address(ip_network),
                                             get_ip_prefix(ip_network))
 
@@ -102,17 +105,17 @@ class IpAddressHelper(object):
             })
 
     def allocate_ip_network(self, pool_name, request_name, subnet):
-        allocation_name = '%s-%s' % (self.ns_info_id, request_name)
+        allocation_name = safe_key('%s-%s' % (self.ns_info_id, request_name))
         service_xpath = ("/tme-demo:tme-demo/tenant[name='%s']" %
                          self.tenant.name)
 
         ipaddress_allocator.net_request(self.tenant, service_xpath,
-                                        self.username, pool_name,
+                                        self.username, safe_key(pool_name),
                                         allocation_name, subnet)
 
-        ip_network = ipaddress_allocator.net_read(self.username,
-                                                  self.root,
-                                                  pool_name, allocation_name)
+        ip_network = ipaddress_allocator.net_read(self.username, self.root,
+                                                  safe_key(pool_name),
+                                                  allocation_name)
         if not ip_network:
             self.log.info('%s ip network allocation not ready' %
                           allocation_name)

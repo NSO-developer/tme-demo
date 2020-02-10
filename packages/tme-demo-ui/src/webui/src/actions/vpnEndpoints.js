@@ -1,4 +1,5 @@
 import { TENANT_PATH } from './tenants';
+import { safeKey } from '../utils/UiUtils';
 
 export const VPN_ENDPOINT_DELETED = 'vpn-endpoint-deleted';
 
@@ -38,7 +39,7 @@ export const fetchVpnEndpoints = () => ({
 
 export const deleteVpnEndpoint = (tenant, name) => ({
   jsonRpcDelete: {
-    path: `${TENANT_PATH}{${tenant}}/l3vpn/endpoint`,
+    path: `${TENANT_PATH}{${safeKey(tenant)}}/l3vpn/endpoint`,
     name: name
   },
   types: [ VPN_ENDPOINT_DELETED ],

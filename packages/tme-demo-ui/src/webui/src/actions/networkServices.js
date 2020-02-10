@@ -1,4 +1,5 @@
 import { TENANT_PATH } from './tenants';
+import { safeKey } from '../utils/UiUtils';
 
 export const NETWORK_SERVICE_DELETED = 'network-service-deleted';
 
@@ -34,7 +35,7 @@ export const fetchNetworkServices = () => ({
 
 export const deleteNetworkService = (tenant, name) => ({
   jsonRpcDelete: {
-    path: `${TENANT_PATH}{${tenant}}/nfvo/network-service`,
+    path: `${TENANT_PATH}{${safeKey(tenant)}}/nfvo/network-service`,
     name: name
   },
   types: [ NETWORK_SERVICE_DELETED ],

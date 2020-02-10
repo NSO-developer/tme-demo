@@ -1,3 +1,5 @@
+import { safeKey } from '../utils/UiUtils';
+
 export const ZOOMED_ICON_MOVED = 'zoomed-icon-moved';
 
 export const FETCH_ZOOMED_ICONS_REQUEST = 'fetch-zoomed-icons-request';
@@ -32,7 +34,7 @@ export const fetchZoomedIcons = () => ({
 });
 
 export const moveZoomedIcon = (name, pos, container) => {
-  const iconPath = `${path}{"${name}"}/zoomed{"${container}"}`;
+  const iconPath = `${path}{${safeKey(name)}}/zoomed{${safeKey(container)}}`;
 
   return {
     jsonRpcSetValues: { pathValues: [

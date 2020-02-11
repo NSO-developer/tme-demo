@@ -21,9 +21,10 @@ import { pxCoordToSafePc } from '../../utils/UiUtils';
 const mapStateToProps = (state, props) => {
   const layout = getLayout(state)[props.name];
   const name = layout.parentName || props.name;
+  const draggedItem = getDraggedItem(state);
   return {
     name,
-    draggedItem: getDraggedItem(state),
+    draggedIcon: draggedItem && draggedItem.icon ? draggedItem : undefined,
     dimensions: getDimensions(state),
     layout,
     zoomedContainer: getZoomedContainer(state),
@@ -52,7 +53,7 @@ const dropTarget = {
 class Container extends PureComponent {
   render() {
     console.debug('Container Render');
-    const { name, layout, draggedItem, connectDropTarget, isOver,
+    const { name, layout, draggedIcon, connectDropTarget, isOver,
             zoomedContainer, underlayToggled, containerZoomToggled,
             underlayVisible } = this.props;
     const { index, title, pc } = layout;
@@ -122,14 +123,13 @@ class Container extends PureComponent {
           <div className={classNames(
             'container__layer', 'container__overlay', {
             'container__overlay--inactive':
-              draggedItem && draggedItem.icon &&
-              draggedItem.container !== name &&
-              draggedItem.icon !== 'new-network-service',
+              draggedIcon && draggedIcon.container !== name &&
+              draggedIcon.icon !== 'new-network-service',
             'container__overlay--active-not-first': (index !== 0) &&
-              draggedItem && draggedItem.container === name &&
-              draggedItem.icon !== 'new-network-service',
+              draggedIcon && draggedIcon.container === name &&
+              draggedIcon.icon !== 'new-network-service',
             'container__overlay--dragging':
-              draggedItem && draggedItem.icon === 'new-network-service',
+              draggedIcon && draggedIcon.icon === 'new-network-service',
             'container__overlay--hovered': isOver
           })}
           />)}

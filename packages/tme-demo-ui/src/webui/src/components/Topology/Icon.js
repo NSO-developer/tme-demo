@@ -103,44 +103,24 @@ const endpointSource = {
 // Edit mode interface drop
 const iconTarget = {
   drop: (
-    { device, nsInfo, connectionSelected, addConnection, moveConnection },
-    monitor
+    { device, nsInfo, iconSelected, connectionSelected, addConnection,
+      moveConnection }, monitor, component
   ) => {
-    const { connection, fromDevice, endpoint } = monitor.getItem();
+    const { connection, endpoint, fromIcon, fromDevice } = monitor.getItem();
+    if (component.getDecoratedComponentInstance().canDrop()) {
+      if (fromDevice) {
+        const newConnectionName = `${fromDevice}-${device}`;
+        addConnection(newConnectionName, fromDevice, device);
+        connectionSelected(newConnectionName);
 
-    if (fromDevice) {
-      const newConnectionName = `${fromDevice}-${device}`;
-      addConnection(newConnectionName, fromDevice, device);
-      connectionSelected(newConnectionName);
-
+      } else {
+        moveConnection(connection, endpoint, device, nsInfo);
+        connectionSelected(connection);
+      }
     } else {
-      moveConnection(connection, endpoint, device, nsInfo);
-      connectionSelected(connection);
+      fromIcon ? iconSelected(fromIcon) : connectionSelected(connection);
     }
   },
-
-  canDrop: ({ name, device, connections }, monitor) => {
-    const { connection, fromDevice, endpoint } = monitor.getItem();
-    const from = fromDevice ? fromDevice :
-      connections[connection][`ep${endpoint === 1 ? 2 : 1}Device`];
-    // Can't drop interface if:
-    //  - From icon is the same as the target icon
-    //  - From icon is not a device
-    //  - Target icon is not a device
-    //  - Connection from icon to target already exists (return statement)
-    if (from === device || !from || !device) {
-      return false;
-    }
-    return (
-      Object.keys(connections).findIndex(key => {
-        const conn = connections[key];
-        return (
-          (conn.ep1Device === from && conn.ep2Device === device) ||
-          (conn.ep1Device === device && conn.ep2Device === from)
-        );
-      }) === -1
-    );
-  }
 };
 
 // Edit mode icon drag
@@ -180,7 +160,7 @@ const iconSource = {
 @DropTarget(INTERFACE, iconTarget, (connect, monitor) => ({
   connectIconDropTarget: connect.dropTarget(),
   isOver: monitor.isOver(),
-  canDrop: monitor.canDrop()
+  hoveredInterface: monitor.isOver() && monitor.getItem()
 }))
 @DragSource(ICON, iconSource, (connect, monitor) => ({
   connectIconDragPreview: connect.dragPreview(),
@@ -274,6 +254,33 @@ class Icon extends PureComponent {
     );
   }
 
+  canDrop = () => {
+    const { device, connections, hoveredInterface } = this.props;
+    if (!hoveredInterface) {
+      return false;
+    }
+    const { connection, fromDevice, endpoint } = hoveredInterface;
+    const from = fromDevice ? fromDevice :
+      connections[connection][`ep${endpoint === 1 ? 2 : 1}Device`];
+    // Can't drop interface if:
+    //  - From icon is the same as the target icon
+    //  - From icon is not a device
+    //  - Target icon is not a device
+    //  - Connection from icon to target already exists (return statement)
+    if (from === device || !from || !device) {
+      return false;
+    }
+    return (
+      Object.keys(connections).findIndex(key => {
+        const conn = connections[key];
+        return (
+          (conn.ep1Device === from && conn.ep2Device === device) ||
+          (conn.ep1Device === device && conn.ep2Device === from)
+        );
+      }) === -1
+    );
+  }
+
   componentDidMount() {
     const { connectIconDragPreview } = this.props;
     connectIconDragPreview(getEmptyImage(), {});
@@ -301,11 +308,10 @@ class Icon extends PureComponent {
       connectIconDropTarget,
       connectIconDragSource,
       isOver,
-      canDrop,
       isDragging,
       hoveredIcon
     } = this.props;
-    if (isOver && hoveredIcon.name !== name && canDrop) {
+    if (this.canDrop() && hoveredIcon.name !== name) {
       hoveredIcon.name = name;
     } else if (!isOver && hoveredIcon.name === name) {
       hoveredIcon.name = null;

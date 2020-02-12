@@ -75,10 +75,6 @@
   z-index: 1;
 }
 
-.topology__connection--hidden {
-  opacity: 0;
-}
-
 .topology__connection--selected {
   background: var(--secondary);
   z-index: 4;
@@ -94,6 +90,10 @@
 
 .topology__connection--dragging {
   opacity: 0.25;
+}
+
+.topology__connection--hidden {
+  opacity: 0;
 }
 
 .topology__svg-icon {

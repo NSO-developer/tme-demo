@@ -1,6 +1,9 @@
+.config-viewer__title-text {
+  flex: 1 1 auto;
+  overflow: hidden;
+}
+
 .config-viewer__loading-dots {
-  display: inline-block;
-  float: right;
 }
 
 .config-viewer__panel {

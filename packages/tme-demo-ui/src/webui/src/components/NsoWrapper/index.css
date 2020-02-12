@@ -113,6 +113,7 @@
 }
 
 .nso-header__cisco-logo {
+  display: block;
   margin-left: 6px;
   margin-right: 2rem;
   width: 60px;

@@ -211,8 +211,9 @@ class Config extends PureComponent {
         right={true}
         startOpen={true}
         variableHeight={true}
-        header={<Fragment>{device}{isFetching &&
-          <div className="config-viewer__loading-dots">
+        header={<Fragment>
+          <span className="config-viewer__title-text">{device}</span>{
+          isFetching && <div className="config-viewer__loading-dots">
             <span className="loading__dot"/>
             <span className="loading__dot"/>
             <span className="loading__dot"/>

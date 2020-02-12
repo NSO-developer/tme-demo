@@ -28,20 +28,20 @@
 .sidebar__header {
   color: White;
   background-color: var(--header);
+  display: flex;
   height: 2rem;
   padding: 0.5em 0.75rem 0.5em 1rem;
   position: sticky;
   top: -1rem;
-  text-align: right;
   z-index: 1;
 }
 
 .sidebar__sub-header {
   color: White;
   background: var(--sub-header);
+  display: flex;
   height: 2rem;
   padding: 0.5em 0.75rem 0.5em 1rem;
-  text-align: right;
 }
 
 .sidebar__sub-header + .sidebar__sub-header {
@@ -49,8 +49,9 @@
 }
 
 .sidebar__title-text {
-  float: left;
+  flex: 1 1 auto;
   line-height: 2rem;
+  overflow: hidden;
 }
 
 .sidebar__body {
@@ -117,12 +118,11 @@
 .accordion__header {
   background: var(--background-alt);
   cursor: pointer;
-  text-align: right;
+  display: flex;
   transition: all 400ms ease-out;
 }
 
 .accordion--right > .accordion__header {
-  text-align: left;
 }
 
 .accordion--open > .accordion__header {
@@ -230,19 +230,21 @@
 
 .field-group__row {
   border-bottom: solid 1px var(--border);
+  display: flex;
   height: 1.25em;
   line-height: 1.25em;
   padding-top: 0.5em;
-  text-align: right;
 }
 
 .field-group__label {
   color: var(--disabled);
+  flex: 1 1 auto;
   font-size: 0.75em;
-  float: left;
+  overflow: hidden;
 }
 
 .field-group__value {
+  padding-left: 0.5em;
   user-select: text;
   -moz-user-select: text;
   -ms-user-select: text;

@@ -3,8 +3,26 @@
   <webui xmlns="http://tail-f.com/ns/webui">
     <applications xmlns="http://tail-f.com/ns/webui-one">
       <application>
+        <id>cisco-etsi-nfvo</id>
+        <href>/custom/cisco-etsi-nfvo</href>
+        <title>NFVO</title>
+        <description>ETSI NFV MANO Network Function Virtualisation Orchestrator</description>
+        <promo-label>NFVO</promo-label>
+        <category>NFVO</category>
+        <abbreviation>N</abbreviation>
+        <shortcut>gn</shortcut>
+      </application>
+      <application>
+        <id>cisco-etsi-nfvo-nsd-editor</id>
+        <href>/custom/cisco-etsi-nfvo/nsd-editor</href>
+        <title>NSD editor</title>
+        <description>Create and edit NSDs</description>
+        <promo-label>NFVO</promo-label>
+        <category>NFVO</category>
+      </application>
+      <application>
         <id>tme-demo-ui</id>
-        <href>/custom/tme-demo-ui/index.html</href>
+        <href>/custom/tme-demo-ui</href>
         <title>TME Demo</title>
         <description>
           Graphical topology viewer for devices and VNF service chains.

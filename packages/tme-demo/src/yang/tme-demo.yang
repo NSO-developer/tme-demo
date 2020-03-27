@@ -59,11 +59,11 @@ module tme-demo {
 
 
   // Package depenencies
-  import tailf-etsi-rel2-nfvo {
-    prefix nfvo-rel2;
+  import cisco-etsi-nfvo {
+    prefix cisco-nfvo;
   }
-  import tailf-etsi-rel2-nfvo-esc {
-    prefix nfvo-rel2-esc;
+  import etsi-nfv-descriptors {
+    prefix nfv;
   }
   import resource-allocator {
     prefix ralloc;
@@ -115,22 +115,7 @@ module tme-demo {
     }
   }
 
-  grouping connection-grouping {
-    leaf ns-info-id {
-      type leafref {
-        path "/nfvo-rel2:nfvo/nfvo-rel2:ns-info/nfvo-rel2-esc:esc" +
-             "/nfvo-rel2-esc:ns-info/nfvo-rel2-esc:id";
-      }
-    }
-    leaf connection-point {
-      type leafref {
-        path "deref(../ns-info-id)/../nfvo-rel2-esc:sap-info" +
-             "/nfvo-rel2-esc:sapd";
-      }
-    }
-  }
-
-  grouping interface-leafrefs {
+  grouping interface-leafrefs-grouping {
     choice interface-type {
       leaf ios-GigabitEthernet{
         when "derived-from(deref(../device)/../ncs:device-type" +
@@ -193,7 +178,7 @@ module tme-demo {
       }
       leaf nx-Ethernet {
         when "derived-from(deref(../device)/../ncs:device-type" +
-             "/ncs:cli/ncs:ned-id, 'nx-ned-id:-id:cisco-nx-cli')" {
+             "/ncs:cli/ncs:ned-id, 'nx-ned-id:cisco-nx-cli')" {
           tailf:dependency "../device";
         }
         tailf:info "Cisco NX Ethernet interface";
@@ -227,52 +212,34 @@ module tme-demo {
     }
   }
 
-  grouping network-service-connections {
+  grouping sap-topology-connection-grouping {
     leaf sapd {
       type leafref {
-        path "deref(../../nsd)/.." +
-             "/nfvo-rel2:service-access-point-descriptor/nfvo-rel2:id";
+        path "deref(../../nsd)/../nfv:sapd/nfv:id";
       }
     }
 
-    leaf network {
+    leaf device {
       type leafref {
-        path "/ralloc:resource-pools/ipalloc:ip-address-pool" +
-             "/ipalloc:name";
+        path "/ncs:devices/ncs:device/ncs:name";
       }
     }
 
-    container topology-connection {
-      leaf device {
-        type leafref {
-          path "/ncs:devices/ncs:device/ncs:name";
-        }
-      }
-
-      uses interface-leafrefs;
-    }
+    uses interface-leafrefs-grouping;
   }
 
   container tme-demo {
-    list default-ns-connections {
-      must "count(connection-points) = count(deref(nsd)/.." +
-           "/nfvo-rel2:service-access-point-descriptor)" {
-        tailf:dependency "connection-points";
-        tailf:dependency "/nfvo-rel2:nfvo/nfvo-rel2:nsd" +
-                         "/nfvo-rel2:service-access-point-descriptor";
-        error-message "A connection-point must be defined for each " +
-                      "service-access-point-descriptor in the NSD";
-      }
+    list default-ns-topology-connections {
       key nsd;
       leaf nsd {
         type leafref {
-          path "/nfvo-rel2:nfvo/nfvo-rel2:nsd/nfvo-rel2:id";
+          path "/nfv:nfv/nfv:nsd/nfv:id";
         }
       }
 
-      list connection-points {
+      list sap-topology-connection {
         key sapd;
-        uses network-service-connections;
+        uses sap-topology-connection-grouping;
       }
     }
 
@@ -406,7 +373,7 @@ module tme-demo {
             }
           }
 
-          uses interface-leafrefs;
+          uses interface-leafrefs-grouping;
 
           leaf connect-multiple-vlans {
             tailf:info "Make the accessport a trunk";
@@ -421,16 +388,6 @@ module tme-demo {
         presence true;
 
         list network-service {
-          must "use-default-connections or " +
-               "count(connection-points) = count(deref(nsd)/.." +
-               "/nfvo-rel2:service-access-point-descriptor)" {
-            tailf:dependency "connection-points";
-            tailf:dependency "/nfvo-rel2:nfvo/nfvo-rel2:nsd" +
-                             "/nfvo-rel2:service-access-point-descriptor";
-            error-message "A connection-point must be defined for each " +
-                          "service-access-point-descriptor in the NSD";
-          }
-
           key name;
           leaf name {
             type string;
@@ -438,14 +395,14 @@ module tme-demo {
 
           leaf nsd {
             type leafref {
-              path "/nfvo-rel2:nfvo/nfvo-rel2:nsd/nfvo-rel2:id";
+              path "/nfv:nfv/nfv:nsd/nfv:id";
             }
             mandatory true;
           }
 
           leaf flavour {
             type leafref {
-              path "deref(../nsd)/../nfvo-rel2:deployment-flavor/nfvo-rel2:id";
+              path "deref(../nsd)/../nfv:df/nfv:id";
             }
             mandatory true;
           }
@@ -462,15 +419,15 @@ module tme-demo {
           }
 
           choice connections-choice {
-            default use-default-connections;
-            leaf use-default-connections {
+            mandatory true;
+            leaf use-default-topology-connections {
               when "/tme-demo:tme-demo" +
-                   "/default-ns-connections[nsd=current()/../nsd]";
+                   "/default-ns-topology-connections[nsd=current()/../nsd]";
               type empty;
             }
-            list connection-points {
+            list sap-topology-connection {
               key sapd;
-              uses network-service-connections;
+              uses sap-topology-connection-grouping;
             }
           }
         }
@@ -478,8 +435,7 @@ module tme-demo {
     }
   }
 
-  augment "/nfvo-rel2:nfvo/nfvo-rel2:vnf-info/nfvo-rel2-esc:esc" +
-          "/nfvo-rel2-esc:vnf-deployment-result/nfvo-rel2-esc:vdu" {
+  augment "/nfv:nfv/cisco-nfvo:internal/cisco-nfvo:netconf-deployment-result/cisco-nfvo:vm-group" {
     leaf vms-scaling {
       type uint8;
       config false;

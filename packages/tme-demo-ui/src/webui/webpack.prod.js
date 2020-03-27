@@ -83,7 +83,7 @@ module.exports = {
           }
         ]
       }, {
-        test: /\.(svg|ttf|eot)$/,
+        test: /\.(svg|ttf|eot|png)$/,
         use: {
           loader: 'file-loader',
           options: {

@@ -10,8 +10,8 @@ export { getItems, getIsFetching } from './jsonRpcWrapper';
 export const getVnfsByDevice = createSelector(getItems, vnfs => {
   console.debug('Reselect vnfsByDevice');
   return Object.keys(vnfs).reduce((acc, key) => {
-    Object.keys(vnfs[key].vmDevices).forEach(vmDeviceKey => {
-      acc[vnfs[key].vmDevices[vmDeviceKey].device] = key; });
+    Object.keys(vnfs[key].vmDevices).forEach(device => {
+      acc[device] = key; });
     return acc;
   }, {});
 });
@@ -21,6 +21,9 @@ export const getNsInfoVnfs = (nsInfo, vnfs) => {
 
   const result = [];
   const vnfKeys = Object.keys(vnfs).filter(key => vnfs[key].nsInfo === nsInfo);
+  vnfKeys.sort((a, b) => vnfs[a].virtualLinks.length -
+                         vnfs[b].virtualLinks.length);
+  vnfKeys.sort((a, b) => vnfs[a].sapds.length - vnfs[b].sapds.length);
 
   const pushVnf = (vnf, linkToPrevious) => {
     if (vnfKeys.includes(vnf.name)) {
@@ -102,18 +105,7 @@ export const getNsInfoVnfs = (nsInfo, vnfs) => {
   };
 
   while (vnfKeys.length > 0) {
-    let first = vnfKeys.find(key => vnfs[key].virtualLinks.length === 0 &&
-                             vnfs[key].sapds.length > 0);
-
-    if (!first) {
-      first = vnfKeys.find(key => vnfs[key].virtualLinks.length === 1);
-    }
-
-    if (!first) {
-      first = vnfKeys[0];
-    }
-
-    next(first);
+    next(vnfKeys[0]);
   }
   return result;
 };
@@ -129,7 +121,7 @@ export default jsonRpcWrapper([
   ActionTypes.VNF_ADDED
 ],
 (state = [], action) => {
-  const { type, name, vmsScaling, vmId, status, device } = action;
+  const { type, vnf, name, vmsScaling, vmId, status } = action;
 
   switch (type) {
 
@@ -142,44 +134,56 @@ export default jsonRpcWrapper([
       }, {});
 
     case ActionTypes.VNF_SCALE_EVENT:
-      return { ...state, [name]: { ...state[name], vmsScaling } };
+      return { ...state, [name]: { ...state[name],
+        vmsScaling: vmsScaling > state[name].vmsScaling
+          ? vmsScaling : state[name].vmsScaling} };
 
-    case ActionTypes.VNF_VM_STATUS_UPDATED:
-      return { ...state,
-        [name]: {
-          ...state[name],
-          vmDevices: {
-            ...state[name].vmDevices,
-            [vmId]: {
-              ...state[name].vmDevices[vmId],
-              status
+    case ActionTypes.VNF_VM_STATUS_UPDATED: {
+      let device = undefined;
+      const vnf = Object.keys(state).find(vnf => {
+        device = Object.keys(state[vnf].vmDevices).find(
+          device => state[vnf].vmDevices[device].vmId == vmId
+        );
+        return device;
+      });
+
+      if (vnf && device) {
+        return { ...state,
+          [vnf]: {
+            ...state[vnf],
+            vmDevices: {
+              ...state[vnf].vmDevices,
+              [device]: {
+                ...state[vnf].vmDevices[device],
+                status
+              }
             }
+          }
+        };
+      }
+      return state;
+    }
+
+    case ActionTypes.VNF_VM_DEVICE_CREATED:
+      return { ...state,
+        [vnf]: {
+          ...state[vnf],
+          vmsScaling: state[vnf].vmsScaling == 0 ? 0 : state[vnf].vmsScaling - 1,
+          vmDevices: {
+            ...state[vnf].vmDevices,
+            [name]: { vmId, status: 'init' }
           }
         }
       };
 
-    case ActionTypes.VNF_VM_DEVICE_UPDATED:
+    case ActionTypes.VNF_VM_DEVICE_DELETED:
       return { ...state,
-        [name]: {
-          ...state[name],
-          vmDevices: {
-            ...state[name].vmDevices,
-            [vmId]: {
-              ...state[name].vmDevices[vmId],
-              device
-            }
-          }
-        }
-      };
-
-    case ActionTypes.VNF_VM_DELETED:
-      return { ...state,
-        [name]: {
-          ...state[name],
-          vmDevices: Object.keys(state[name].vmDevices).reduce(
+        [vnf]: {
+          ...state[vnf],
+          vmDevices: Object.keys(state[vnf].vmDevices).reduce(
             (accumulator, current) => {
-              if (current !== vmId) {
-                accumulator[current] = state[name].vmDevices[current];
+              if (current !== name) {
+                accumulator[current] = state[vnf].vmDevices[current];
               }
               return accumulator;
             }, {}

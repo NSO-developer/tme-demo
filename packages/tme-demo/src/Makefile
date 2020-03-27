@@ -22,7 +22,7 @@ YANGPATH += ../../cisco-ios/src/ncsc-out/modules/yang \
 	          ../../dell-ftos/src/ncsc-out/modules/yang \
 	          ../../esc/src/yang \
 	          ../../esc/src/ncsc-out/modules/yang \
-	          ../../tailf-etsi-rel2-nfvo/src/yang \
+	          ../../cisco-etsi-nfvo/src/yang \
 	          ../../resource-manager/src/yang \
 	          ../../l3vpn/src/yang
 

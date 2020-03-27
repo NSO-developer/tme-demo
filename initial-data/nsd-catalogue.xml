@@ -1,572 +1,1011 @@
 <?xml version="1.0"?>
 <config xmlns="http://tail-f.com/ns/config/1.0">
-  <nfvo xmlns="http://tail-f.com/pkg/tailf-etsi-rel2-nfvo">
+  <nfv xmlns="urn:etsi:nfv:yang:etsi-nfv-descriptors">
     <nsd>
-      <id>vPE-basic</id>
-      <service-access-point-descriptor>
+      <id>vPE</id>
+      <vnfd-id>Cisco-ASA</vnfd-id>
+      <vnfd-id>Cisco-CSR1kv</vnfd-id>
+      <vnfd-id>Netrounds-VTA</vnfd-id>
+      <sapd>
         <id>a</id>
-      </service-access-point-descriptor>
-      <service-access-point-descriptor>
+        <virtual-link-desc>p_net</virtual-link-desc>
+        <topology-point xmlns="http://cisco.com/ns/nso/cfp/cisco-etsi-nfvo">
+          <x>-900</x>
+          <y>0</y>
+        </topology-point>
+      </sapd>
+      <sapd>
         <id>z</id>
-      </service-access-point-descriptor>
-      <service-access-point-descriptor>
+        <virtual-link-desc>ce_net</virtual-link-desc>
+        <topology-point xmlns="http://cisco.com/ns/nso/cfp/cisco-etsi-nfvo">
+          <x>900</x>
+          <y>0</y>
+        </topology-point>
+      </sapd>
+      <sapd>
         <id>mgmt</id>
-      </service-access-point-descriptor>
-      <vnfd>
-        <vnfd>Cisco-CSR1kv</vnfd>
-      </vnfd>
-      <deployment-flavor>
+        <virtual-link-desc>net_osmgmt</virtual-link-desc>
+        <topology-point xmlns="http://cisco.com/ns/nso/cfp/cisco-etsi-nfvo">
+          <x>0</x>
+          <y>-400</y>
+        </topology-point>
+      </sapd>
+      <virtual-link-desc>
+        <id>p_net</id>
+        <connectivity-type>
+          <layer-protocol>ipv4</layer-protocol>
+        </connectivity-type>
+        <df>
+          <id>small</id>
+          <qos>
+            <latency>10</latency>
+            <packet-delay-variation>5</packet-delay-variation>
+          </qos>
+        </df>
+      </virtual-link-desc>
+      <virtual-link-desc>
+        <id>ce_net</id>
+        <connectivity-type>
+          <layer-protocol>ipv4</layer-protocol>
+        </connectivity-type>
+        <df>
+          <id>small</id>
+          <qos>
+            <latency>10</latency>
+            <packet-delay-variation>5</packet-delay-variation>
+          </qos>
+        </df>
+      </virtual-link-desc>
+      <virtual-link-desc>
+        <id>router-to-fw</id>
+        <connectivity-type>
+          <layer-protocol>ipv4</layer-protocol>
+        </connectivity-type>
+        <df>
+          <id>small</id>
+          <qos>
+            <latency>10</latency>
+            <packet-delay-variation>5</packet-delay-variation>
+          </qos>
+        </df>
+      </virtual-link-desc>
+      <virtual-link-desc>
+        <id>net_osmgmt</id>
+        <connectivity-type>
+          <layer-protocol>ipv4</layer-protocol>
+        </connectivity-type>
+        <df>
+          <id>small</id>
+          <qos>
+            <latency>10</latency>
+            <packet-delay-variation>5</packet-delay-variation>
+          </qos>
+        </df>
+      </virtual-link-desc>
+      <df>
         <id>basic</id>
         <vnf-profile>
           <id>CSR1kv-bronze</id>
-          <vnfd>Cisco-CSR1kv</vnfd>
-          <flavor>bronze</flavor>
+          <vnfd-id>Cisco-CSR1kv</vnfd-id>
+          <flavour-id>bronze</flavour-id>
           <instantiation-level>small</instantiation-level>
           <min-number-of-instances>1</min-number-of-instances>
           <max-number-of-instances>1</max-number-of-instances>
-          <sapd-connectivity>
-            <sapd>a</sapd>
-            <cp>left</cp>
-          </sapd-connectivity>
-          <sapd-connectivity>
-            <sapd>mgmt</sapd>
-            <cp>mgmt</cp>
-          </sapd-connectivity>
-          <sapd-connectivity>
-            <sapd>z</sapd>
-            <cp>right</cp>
-          </sapd-connectivity>
+          <virtual-link-connectivity>
+            <virtual-link-profile-id>inside</virtual-link-profile-id>
+            <constituent-cpd-id>
+              <constituent-base-element-id>CSR1kv-bronze</constituent-base-element-id>
+              <constituent-cpd-id>left</constituent-cpd-id>
+            </constituent-cpd-id>
+          </virtual-link-connectivity>
+          <virtual-link-connectivity>
+            <virtual-link-profile-id>outside</virtual-link-profile-id>
+            <constituent-cpd-id>
+              <constituent-base-element-id>CSR1kv-bronze</constituent-base-element-id>
+              <constituent-cpd-id>right</constituent-cpd-id>
+            </constituent-cpd-id>
+          </virtual-link-connectivity>
+          <virtual-link-connectivity>
+            <virtual-link-profile-id>management</virtual-link-profile-id>
+            <constituent-cpd-id>
+              <constituent-base-element-id>CSR1kv-bronze</constituent-base-element-id>
+              <constituent-cpd-id>mgmt</constituent-cpd-id>
+            </constituent-cpd-id>
+          </virtual-link-connectivity>
+          <topology-point xmlns="http://cisco.com/ns/nso/cfp/cisco-etsi-nfvo">
+            <x>0</x>
+            <y>0</y>
+          </topology-point>
         </vnf-profile>
-        <instantiation-level>
+        <virtual-link-profile>
+          <id>inside</id>
+          <virtual-link-desc-id>p_net</virtual-link-desc-id>
+          <flavour-id>small</flavour-id>
+          <max-bitrate-requirements>
+            <root>1000</root>
+          </max-bitrate-requirements>
+          <min-bitrate-requirements>
+            <root>500</root>
+          </min-bitrate-requirements>
+          <topology-point xmlns="http://cisco.com/ns/nso/cfp/cisco-etsi-nfvo">
+            <x>-400</x>
+            <y>0</y>
+          </topology-point>
+        </virtual-link-profile>
+        <virtual-link-profile>
+          <id>outside</id>
+          <virtual-link-desc-id>ce_net</virtual-link-desc-id>
+          <flavour-id>small</flavour-id>
+          <max-bitrate-requirements>
+            <root>1000</root>
+          </max-bitrate-requirements>
+          <min-bitrate-requirements>
+            <root>500</root>
+          </min-bitrate-requirements>
+          <topology-point xmlns="http://cisco.com/ns/nso/cfp/cisco-etsi-nfvo">
+            <x>400</x>
+            <y>0</y>
+          </topology-point>
+        </virtual-link-profile>
+        <virtual-link-profile>
+          <id>management</id>
+          <virtual-link-desc-id>net_osmgmt</virtual-link-desc-id>
+          <flavour-id>small</flavour-id>
+          <max-bitrate-requirements>
+            <root>1000</root>
+          </max-bitrate-requirements>
+          <min-bitrate-requirements>
+            <root>500</root>
+          </min-bitrate-requirements>
+          <topology-point xmlns="http://cisco.com/ns/nso/cfp/cisco-etsi-nfvo">
+            <x>0</x>
+            <y>-200</y>
+          </topology-point>
+        </virtual-link-profile>
+        <ns-instantiation-level>
           <id>small</id>
           <description>Small instance</description>
           <vnf-to-level-mapping>
-            <vnf-profile>CSR1kv-bronze</vnf-profile>
+            <vnf-profile-id>CSR1kv-bronze</vnf-profile-id>
             <number-of-instances>1</number-of-instances>
           </vnf-to-level-mapping>
-        </instantiation-level>
-      </deployment-flavor>
-    </nsd>
-    <nsd>
-      <id>vPE-basic-assurance</id>
-      <service-access-point-descriptor>
-        <id>a</id>
-      </service-access-point-descriptor>
-      <service-access-point-descriptor>
-        <id>z</id>
-      </service-access-point-descriptor>
-      <service-access-point-descriptor>
-        <id>mgmt</id>
-      </service-access-point-descriptor>
-      <vnfd>
-        <vnfd>Cisco-CSR1kv</vnfd>
-      </vnfd>
-      <vnfd>
-        <vnfd>Netrounds-VTA</vnfd>
-      </vnfd>
-      <deployment-flavor>
+        </ns-instantiation-level>
+      </df>
+      <df>
         <id>basic-assurance</id>
         <vnf-profile>
           <id>CSR1kv-bronze</id>
-          <vnfd>Cisco-CSR1kv</vnfd>
-          <flavor>bronze</flavor>
+          <vnfd-id>Cisco-CSR1kv</vnfd-id>
+          <flavour-id>bronze</flavour-id>
           <instantiation-level>small</instantiation-level>
           <min-number-of-instances>1</min-number-of-instances>
           <max-number-of-instances>1</max-number-of-instances>
-          <sapd-connectivity>
-            <sapd>a</sapd>
-            <cp>left</cp>
-          </sapd-connectivity>
-          <sapd-connectivity>
-            <sapd>mgmt</sapd>
-            <cp>mgmt</cp>
-          </sapd-connectivity>
-          <sapd-connectivity>
-            <sapd>z</sapd>
-            <cp>right</cp>
-          </sapd-connectivity>
+          <virtual-link-connectivity>
+            <virtual-link-profile-id>inside</virtual-link-profile-id>
+            <constituent-cpd-id>
+              <constituent-base-element-id>CSR1kv-bronze</constituent-base-element-id>
+              <constituent-cpd-id>left</constituent-cpd-id>
+            </constituent-cpd-id>
+          </virtual-link-connectivity>
+          <virtual-link-connectivity>
+            <virtual-link-profile-id>outside</virtual-link-profile-id>
+            <constituent-cpd-id>
+              <constituent-base-element-id>CSR1kv-bronze</constituent-base-element-id>
+              <constituent-cpd-id>right</constituent-cpd-id>
+            </constituent-cpd-id>
+          </virtual-link-connectivity>
+          <virtual-link-connectivity>
+            <virtual-link-profile-id>management</virtual-link-profile-id>
+            <constituent-cpd-id>
+              <constituent-base-element-id>CSR1kv-bronze</constituent-base-element-id>
+              <constituent-cpd-id>mgmt</constituent-cpd-id>
+            </constituent-cpd-id>
+          </virtual-link-connectivity>
+          <topology-point xmlns="http://cisco.com/ns/nso/cfp/cisco-etsi-nfvo">
+            <x>0</x>
+            <y>0</y>
+          </topology-point>
         </vnf-profile>
         <vnf-profile>
           <id>VTA-bronze</id>
-          <vnfd>Netrounds-VTA</vnfd>
-          <flavor>bronze</flavor>
+          <vnfd-id>Netrounds-VTA</vnfd-id>
+          <flavour-id>bronze</flavour-id>
           <instantiation-level>small</instantiation-level>
           <min-number-of-instances>1</min-number-of-instances>
           <max-number-of-instances>1</max-number-of-instances>
-          <sapd-connectivity>
-            <sapd>z</sapd>
-            <cp>test</cp>
-          </sapd-connectivity>
-          <sapd-connectivity>
-            <sapd>mgmt</sapd>
-            <cp>mgmt</cp>
-          </sapd-connectivity>
+          <virtual-link-connectivity>
+            <virtual-link-profile-id>outside</virtual-link-profile-id>
+            <constituent-cpd-id>
+              <constituent-base-element-id>VTA-bronze</constituent-base-element-id>
+              <constituent-cpd-id>test</constituent-cpd-id>
+            </constituent-cpd-id>
+          </virtual-link-connectivity>
+          <virtual-link-connectivity>
+            <virtual-link-profile-id>management</virtual-link-profile-id>
+            <constituent-cpd-id>
+              <constituent-base-element-id>VTA-bronze</constituent-base-element-id>
+              <constituent-cpd-id>mgmt</constituent-cpd-id>
+            </constituent-cpd-id>
+          </virtual-link-connectivity>
+          <topology-point xmlns="http://cisco.com/ns/nso/cfp/cisco-etsi-nfvo">
+            <x>400</x>
+            <y>-200</y>
+          </topology-point>
         </vnf-profile>
-        <instantiation-level>
+        <virtual-link-profile>
+          <id>inside</id>
+          <virtual-link-desc-id>p_net</virtual-link-desc-id>
+          <flavour-id>small</flavour-id>
+          <max-bitrate-requirements>
+            <root>1000</root>
+          </max-bitrate-requirements>
+          <min-bitrate-requirements>
+            <root>500</root>
+          </min-bitrate-requirements>
+          <topology-point xmlns="http://cisco.com/ns/nso/cfp/cisco-etsi-nfvo">
+            <x>-400</x>
+            <y>0</y>
+          </topology-point>
+        </virtual-link-profile>
+        <virtual-link-profile>
+          <id>outside</id>
+          <virtual-link-desc-id>ce_net</virtual-link-desc-id>
+          <flavour-id>small</flavour-id>
+          <max-bitrate-requirements>
+            <root>1000</root>
+          </max-bitrate-requirements>
+          <min-bitrate-requirements>
+            <root>500</root>
+          </min-bitrate-requirements>
+          <topology-point xmlns="http://cisco.com/ns/nso/cfp/cisco-etsi-nfvo">
+            <x>400</x>
+            <y>0</y>
+          </topology-point>
+        </virtual-link-profile>
+        <virtual-link-profile>
+          <id>management</id>
+          <virtual-link-desc-id>net_osmgmt</virtual-link-desc-id>
+          <flavour-id>small</flavour-id>
+          <max-bitrate-requirements>
+            <root>1000</root>
+          </max-bitrate-requirements>
+          <min-bitrate-requirements>
+            <root>500</root>
+          </min-bitrate-requirements>
+          <topology-point xmlns="http://cisco.com/ns/nso/cfp/cisco-etsi-nfvo">
+            <x>0</x>
+            <y>-200</y>
+          </topology-point>
+        </virtual-link-profile>
+        <ns-instantiation-level>
           <id>small</id>
           <description>Small instance</description>
           <vnf-to-level-mapping>
-            <vnf-profile>CSR1kv-bronze</vnf-profile>
+            <vnf-profile-id>CSR1kv-bronze</vnf-profile-id>
             <number-of-instances>1</number-of-instances>
           </vnf-to-level-mapping>
           <vnf-to-level-mapping>
-            <vnf-profile>VTA-bronze</vnf-profile>
+            <vnf-profile-id>VTA-bronze</vnf-profile-id>
             <number-of-instances>1</number-of-instances>
           </vnf-to-level-mapping>
-        </instantiation-level>
-      </deployment-flavor>
-    </nsd>
-    <nsd>
-      <id>vPE-advanced</id>
-      <service-access-point-descriptor>
-        <id>a</id>
-      </service-access-point-descriptor>
-      <service-access-point-descriptor>
-        <id>mgmt</id>
-      </service-access-point-descriptor>
-      <service-access-point-descriptor>
-        <id>z</id>
-      </service-access-point-descriptor>
-      <vnfd>
-        <vnfd>Cisco-ASA</vnfd>
-      </vnfd>
-      <vnfd>
-        <vnfd>Cisco-CSR1kv</vnfd>
-      </vnfd>
-      <deployment-flavor>
+        </ns-instantiation-level>
+      </df>
+      <df>
         <id>advanced</id>
         <vnf-profile>
           <id>CSR1kv-bronze</id>
-          <vnfd>Cisco-CSR1kv</vnfd>
-          <flavor>bronze</flavor>
+          <vnfd-id>Cisco-CSR1kv</vnfd-id>
+          <flavour-id>bronze</flavour-id>
           <instantiation-level>small</instantiation-level>
           <min-number-of-instances>1</min-number-of-instances>
           <max-number-of-instances>1</max-number-of-instances>
           <virtual-link-connectivity>
-            <virtual-link-profile>inside-net</virtual-link-profile>
-            <cp>left</cp>
+            <virtual-link-profile-id>inside</virtual-link-profile-id>
+            <constituent-cpd-id>
+              <constituent-base-element-id>CSR1kv-bronze</constituent-base-element-id>
+              <constituent-cpd-id>left</constituent-cpd-id>
+            </constituent-cpd-id>
           </virtual-link-connectivity>
-          <sapd-connectivity>
-            <sapd>mgmt</sapd>
-            <cp>mgmt</cp>
-          </sapd-connectivity>
-          <sapd-connectivity>
-            <sapd>z</sapd>
-            <cp>right</cp>
-          </sapd-connectivity>
+          <virtual-link-connectivity>
+            <virtual-link-profile-id>router-to-fw</virtual-link-profile-id>
+            <constituent-cpd-id>
+              <constituent-base-element-id>CSR1kv-bronze</constituent-base-element-id>
+              <constituent-cpd-id>right</constituent-cpd-id>
+            </constituent-cpd-id>
+          </virtual-link-connectivity>
+          <virtual-link-connectivity>
+            <virtual-link-profile-id>management</virtual-link-profile-id>
+            <constituent-cpd-id>
+              <constituent-base-element-id>CSR1kv-bronze</constituent-base-element-id>
+              <constituent-cpd-id>mgmt</constituent-cpd-id>
+            </constituent-cpd-id>
+          </virtual-link-connectivity>
+          <topology-point xmlns="http://cisco.com/ns/nso/cfp/cisco-etsi-nfvo">
+            <x>-300</x>
+            <y>0</y>
+          </topology-point>
         </vnf-profile>
         <vnf-profile>
           <id>ASA-bronze</id>
-          <vnfd>Cisco-ASA</vnfd>
-          <flavor>bronze</flavor>
+          <vnfd-id>Cisco-ASA</vnfd-id>
+          <flavour-id>bronze</flavour-id>
           <instantiation-level>small</instantiation-level>
           <min-number-of-instances>1</min-number-of-instances>
           <max-number-of-instances>1</max-number-of-instances>
           <virtual-link-connectivity>
-            <virtual-link-profile>inside-net</virtual-link-profile>
-            <cp>inside</cp>
+            <virtual-link-profile-id>router-to-fw</virtual-link-profile-id>
+            <constituent-cpd-id>
+              <constituent-base-element-id>ASA-bronze</constituent-base-element-id>
+              <constituent-cpd-id>inside</constituent-cpd-id>
+            </constituent-cpd-id>
           </virtual-link-connectivity>
-          <sapd-connectivity>
-            <sapd>mgmt</sapd>
-            <cp>mgmt</cp>
-          </sapd-connectivity>
-          <sapd-connectivity>
-            <sapd>a</sapd>
-            <cp>outside</cp>
-          </sapd-connectivity>
+          <virtual-link-connectivity>
+            <virtual-link-profile-id>outside</virtual-link-profile-id>
+            <constituent-cpd-id>
+              <constituent-base-element-id>ASA-bronze</constituent-base-element-id>
+              <constituent-cpd-id>outside</constituent-cpd-id>
+            </constituent-cpd-id>
+          </virtual-link-connectivity>
+          <virtual-link-connectivity>
+            <virtual-link-profile-id>management</virtual-link-profile-id>
+            <constituent-cpd-id>
+              <constituent-base-element-id>ASA-bronze</constituent-base-element-id>
+              <constituent-cpd-id>mgmt</constituent-cpd-id>
+            </constituent-cpd-id>
+          </virtual-link-connectivity>
+          <topology-point xmlns="http://cisco.com/ns/nso/cfp/cisco-etsi-nfvo">
+            <x>300</x>
+            <y>0</y>
+          </topology-point>
         </vnf-profile>
-        <instantiation-level>
-          <id>small</id>
-          <description>Small instance</description>
-          <vnf-to-level-mapping>
-            <vnf-profile>ASA-bronze</vnf-profile>
-            <number-of-instances>1</number-of-instances>
-          </vnf-to-level-mapping>
-          <vnf-to-level-mapping>
-            <vnf-profile>CSR1kv-bronze</vnf-profile>
-            <number-of-instances>1</number-of-instances>
-          </vnf-to-level-mapping>
-        </instantiation-level>
         <virtual-link-profile>
-          <virtual-link-descriptor>inside-net</virtual-link-descriptor>
-          <flavor>small</flavor>
+          <id>inside</id>
+          <virtual-link-desc-id>p_net</virtual-link-desc-id>
+          <flavour-id>small</flavour-id>
+          <max-bitrate-requirements>
+            <root>1000</root>
+          </max-bitrate-requirements>
+          <min-bitrate-requirements>
+            <root>500</root>
+          </min-bitrate-requirements>
+          <topology-point xmlns="http://cisco.com/ns/nso/cfp/cisco-etsi-nfvo">
+            <x>-600</x>
+            <y>0</y>
+          </topology-point>
+        </virtual-link-profile>
+        <virtual-link-profile>
+          <id>outside</id>
+          <virtual-link-desc-id>ce_net</virtual-link-desc-id>
+          <flavour-id>small</flavour-id>
+          <max-bitrate-requirements>
+            <root>1000</root>
+          </max-bitrate-requirements>
+          <min-bitrate-requirements>
+            <root>500</root>
+          </min-bitrate-requirements>
+          <topology-point xmlns="http://cisco.com/ns/nso/cfp/cisco-etsi-nfvo">
+            <x>600</x>
+            <y>0</y>
+          </topology-point>
+        </virtual-link-profile>
+        <virtual-link-profile>
+          <id>router-to-fw</id>
+          <virtual-link-desc-id>router-to-fw</virtual-link-desc-id>
+          <flavour-id>small</flavour-id>
           <min-bitrate-requirements>
             <root>1</root>
           </min-bitrate-requirements>
           <max-bitrate-requirements>
             <root>1000</root>
           </max-bitrate-requirements>
+          <topology-point xmlns="http://cisco.com/ns/nso/cfp/cisco-etsi-nfvo">
+            <x>0</x>
+            <y>0</y>
+          </topology-point>
         </virtual-link-profile>
-      </deployment-flavor>
-      <virtual-link-descriptor>
-        <id>inside-net</id>
-        <version>1.0</version>
-        <deployment-flavor>
+        <virtual-link-profile>
+          <id>management</id>
+          <virtual-link-desc-id>net_osmgmt</virtual-link-desc-id>
+          <flavour-id>small</flavour-id>
+          <max-bitrate-requirements>
+            <root>1000</root>
+          </max-bitrate-requirements>
+          <min-bitrate-requirements>
+            <root>500</root>
+          </min-bitrate-requirements>
+          <topology-point xmlns="http://cisco.com/ns/nso/cfp/cisco-etsi-nfvo">
+            <x>0</x>
+            <y>-200</y>
+          </topology-point>
+        </virtual-link-profile>
+        <ns-instantiation-level>
           <id>small</id>
-          <qos>
-            <latency>10</latency>
-            <packet-delay-variation>5</packet-delay-variation>
-          </qos>
-        </deployment-flavor>
-        <connectivity-type>
-          <layer-protocol>IPv4</layer-protocol>
-        </connectivity-type>
-      </virtual-link-descriptor>
-    </nsd>
-    <nsd>
-      <id>vPE-advanced-assurance</id>
-      <vnfd>
-        <vnfd>Cisco-ASA</vnfd>
-      </vnfd>
-      <vnfd>
-        <vnfd>Cisco-CSR1kv</vnfd>
-      </vnfd>
-      <vnfd>
-        <vnfd>Netrounds-VTA</vnfd>
-      </vnfd>
-      <deployment-flavor>
+          <description>Small instance</description>
+          <vnf-to-level-mapping>
+            <vnf-profile-id>ASA-bronze</vnf-profile-id>
+            <number-of-instances>1</number-of-instances>
+          </vnf-to-level-mapping>
+          <vnf-to-level-mapping>
+            <vnf-profile-id>CSR1kv-bronze</vnf-profile-id>
+            <number-of-instances>1</number-of-instances>
+          </vnf-to-level-mapping>
+          <virtual-link-to-level-mapping>
+            <virtual-link-profile-id>router-to-fw</virtual-link-profile-id>
+            <root>1</root>
+          </virtual-link-to-level-mapping>
+        </ns-instantiation-level>
+      </df>
+      <df>
         <id>advanced-assurance</id>
         <vnf-profile>
           <id>ASA-bronze</id>
-          <vnfd>Cisco-ASA</vnfd>
-          <flavor>bronze</flavor>
+          <vnfd-id>Cisco-ASA</vnfd-id>
+          <flavour-id>bronze</flavour-id>
           <instantiation-level>small</instantiation-level>
           <min-number-of-instances>1</min-number-of-instances>
           <max-number-of-instances>1</max-number-of-instances>
           <virtual-link-connectivity>
-            <virtual-link-profile>inside-net</virtual-link-profile>
-            <cp>inside</cp>
+            <virtual-link-profile-id>router-to-fw</virtual-link-profile-id>
+            <constituent-cpd-id>
+              <constituent-base-element-id>ASA-bronze</constituent-base-element-id>
+              <constituent-cpd-id>inside</constituent-cpd-id>
+            </constituent-cpd-id>
           </virtual-link-connectivity>
-          <sapd-connectivity>
-            <sapd>mgmt</sapd>
-            <cp>mgmt</cp>
-          </sapd-connectivity>
-          <sapd-connectivity>
-            <sapd>a</sapd>
-            <cp>outside</cp>
-          </sapd-connectivity>
+          <virtual-link-connectivity>
+            <virtual-link-profile-id>outside</virtual-link-profile-id>
+            <constituent-cpd-id>
+              <constituent-base-element-id>ASA-bronze</constituent-base-element-id>
+              <constituent-cpd-id>outside</constituent-cpd-id>
+            </constituent-cpd-id>
+          </virtual-link-connectivity>
+          <virtual-link-connectivity>
+            <virtual-link-profile-id>management</virtual-link-profile-id>
+            <constituent-cpd-id>
+              <constituent-base-element-id>ASA-bronze</constituent-base-element-id>
+              <constituent-cpd-id>mgmt</constituent-cpd-id>
+            </constituent-cpd-id>
+          </virtual-link-connectivity>
+          <topology-point xmlns="http://cisco.com/ns/nso/cfp/cisco-etsi-nfvo">
+            <x>300</x>
+            <y>0</y>
+          </topology-point>
         </vnf-profile>
         <vnf-profile>
           <id>CSR1kv-bronze</id>
-          <vnfd>Cisco-CSR1kv</vnfd>
-          <flavor>bronze</flavor>
+          <vnfd-id>Cisco-CSR1kv</vnfd-id>
+          <flavour-id>bronze</flavour-id>
           <instantiation-level>small</instantiation-level>
           <min-number-of-instances>1</min-number-of-instances>
           <max-number-of-instances>1</max-number-of-instances>
           <virtual-link-connectivity>
-            <virtual-link-profile>inside-net</virtual-link-profile>
-            <cp>left</cp>
+            <virtual-link-profile-id>inside</virtual-link-profile-id>
+            <constituent-cpd-id>
+              <constituent-base-element-id>CSR1kv-bronze</constituent-base-element-id>
+              <constituent-cpd-id>left</constituent-cpd-id>
+            </constituent-cpd-id>
           </virtual-link-connectivity>
-          <sapd-connectivity>
-            <sapd>mgmt</sapd>
-            <cp>mgmt</cp>
-          </sapd-connectivity>
-          <sapd-connectivity>
-            <sapd>z</sapd>
-            <cp>right</cp>
-          </sapd-connectivity>
+          <virtual-link-connectivity>
+            <virtual-link-profile-id>router-to-fw</virtual-link-profile-id>
+            <constituent-cpd-id>
+              <constituent-base-element-id>CSR1kv-bronze</constituent-base-element-id>
+              <constituent-cpd-id>right</constituent-cpd-id>
+            </constituent-cpd-id>
+          </virtual-link-connectivity>
+          <virtual-link-connectivity>
+            <virtual-link-profile-id>management</virtual-link-profile-id>
+            <constituent-cpd-id>
+              <constituent-base-element-id>CSR1kv-bronze</constituent-base-element-id>
+              <constituent-cpd-id>mgmt</constituent-cpd-id>
+            </constituent-cpd-id>
+          </virtual-link-connectivity>
+          <topology-point xmlns="http://cisco.com/ns/nso/cfp/cisco-etsi-nfvo">
+            <x>-300</x>
+            <y>0</y>
+          </topology-point>
         </vnf-profile>
         <vnf-profile>
           <id>VTA-bronze</id>
-          <vnfd>Netrounds-VTA</vnfd>
-          <flavor>bronze</flavor>
+          <vnfd-id>Netrounds-VTA</vnfd-id>
+          <flavour-id>bronze</flavour-id>
           <instantiation-level>small</instantiation-level>
           <min-number-of-instances>1</min-number-of-instances>
           <max-number-of-instances>1</max-number-of-instances>
-          <sapd-connectivity>
-            <sapd>mgmt</sapd>
-            <cp>mgmt</cp>
-          </sapd-connectivity>
-          <sapd-connectivity>
-            <sapd>a</sapd>
-            <cp>test</cp>
-          </sapd-connectivity>
+          <virtual-link-connectivity>
+            <virtual-link-profile-id>inside</virtual-link-profile-id>
+            <constituent-cpd-id>
+              <constituent-base-element-id>VTA-bronze</constituent-base-element-id>
+              <constituent-cpd-id>test</constituent-cpd-id>
+            </constituent-cpd-id>
+          </virtual-link-connectivity>
+          <virtual-link-connectivity>
+            <virtual-link-profile-id>management</virtual-link-profile-id>
+            <constituent-cpd-id>
+              <constituent-base-element-id>VTA-bronze</constituent-base-element-id>
+              <constituent-cpd-id>mgmt</constituent-cpd-id>
+            </constituent-cpd-id>
+          </virtual-link-connectivity>
+          <topology-point xmlns="http://cisco.com/ns/nso/cfp/cisco-etsi-nfvo">
+            <x>-600</x>
+            <y>-200</y>
+          </topology-point>
         </vnf-profile>
         <vnf-profile>
           <id>VTA-bronze-right</id>
-          <vnfd>Netrounds-VTA</vnfd>
-          <flavor>bronze</flavor>
+          <vnfd-id>Netrounds-VTA</vnfd-id>
+          <flavour-id>bronze</flavour-id>
           <instantiation-level>small</instantiation-level>
           <min-number-of-instances>1</min-number-of-instances>
           <max-number-of-instances>1</max-number-of-instances>
-          <sapd-connectivity>
-            <sapd>mgmt</sapd>
-            <cp>mgmt</cp>
-          </sapd-connectivity>
-          <sapd-connectivity>
-            <sapd>z</sapd>
-            <cp>test</cp>
-          </sapd-connectivity>
+          <virtual-link-connectivity>
+            <virtual-link-profile-id>outside</virtual-link-profile-id>
+            <constituent-cpd-id>
+              <constituent-base-element-id>VTA-bronze-right</constituent-base-element-id>
+              <constituent-cpd-id>test</constituent-cpd-id>
+            </constituent-cpd-id>
+          </virtual-link-connectivity>
+          <virtual-link-connectivity>
+            <virtual-link-profile-id>management</virtual-link-profile-id>
+            <constituent-cpd-id>
+              <constituent-base-element-id>VTA-bronze-right</constituent-base-element-id>
+              <constituent-cpd-id>mgmt</constituent-cpd-id>
+            </constituent-cpd-id>
+          </virtual-link-connectivity>
+          <topology-point xmlns="http://cisco.com/ns/nso/cfp/cisco-etsi-nfvo">
+            <x>600</x>
+            <y>-200</y>
+          </topology-point>
         </vnf-profile>
-        <instantiation-level>
-          <id>small</id>
-          <description>Small instance</description>
-          <vnf-to-level-mapping>
-            <vnf-profile>ASA-bronze</vnf-profile>
-            <number-of-instances>1</number-of-instances>
-          </vnf-to-level-mapping>
-          <vnf-to-level-mapping>
-            <vnf-profile>CSR1kv-bronze</vnf-profile>
-            <number-of-instances>1</number-of-instances>
-          </vnf-to-level-mapping>
-          <vnf-to-level-mapping>
-            <vnf-profile>VTA-bronze</vnf-profile>
-            <number-of-instances>1</number-of-instances>
-          </vnf-to-level-mapping>
-          <vnf-to-level-mapping>
-            <vnf-profile>VTA-bronze-right</vnf-profile>
-            <number-of-instances>1</number-of-instances>
-          </vnf-to-level-mapping>
-          <vl-to-level-mapping>
-            <virtual-link-profile>inside-net</virtual-link-profile>
-            <root>1</root>
-          </vl-to-level-mapping>
-        </instantiation-level>
         <virtual-link-profile>
-          <virtual-link-descriptor>inside-net</virtual-link-descriptor>
-          <flavor>standard</flavor>
+          <id>inside</id>
+          <virtual-link-desc-id>p_net</virtual-link-desc-id>
+          <flavour-id>small</flavour-id>
+          <max-bitrate-requirements>
+            <root>1000</root>
+          </max-bitrate-requirements>
+          <min-bitrate-requirements>
+            <root>500</root>
+          </min-bitrate-requirements>
+          <topology-point xmlns="http://cisco.com/ns/nso/cfp/cisco-etsi-nfvo">
+            <x>-600</x>
+            <y>0</y>
+          </topology-point>
+        </virtual-link-profile>
+        <virtual-link-profile>
+          <id>outside</id>
+          <virtual-link-desc-id>ce_net</virtual-link-desc-id>
+          <flavour-id>small</flavour-id>
+          <max-bitrate-requirements>
+            <root>1000</root>
+          </max-bitrate-requirements>
+          <min-bitrate-requirements>
+            <root>500</root>
+          </min-bitrate-requirements>
+          <topology-point xmlns="http://cisco.com/ns/nso/cfp/cisco-etsi-nfvo">
+            <x>600</x>
+            <y>0</y>
+          </topology-point>
+        </virtual-link-profile>
+        <virtual-link-profile>
+          <id>router-to-fw</id>
+          <virtual-link-desc-id>router-to-fw</virtual-link-desc-id>
+          <flavour-id>small</flavour-id>
           <min-bitrate-requirements>
             <root>1</root>
           </min-bitrate-requirements>
           <max-bitrate-requirements>
             <root>1000</root>
           </max-bitrate-requirements>
+          <topology-point xmlns="http://cisco.com/ns/nso/cfp/cisco-etsi-nfvo">
+            <x>0</x>
+            <y>0</y>
+          </topology-point>
         </virtual-link-profile>
-      </deployment-flavor>
-      <service-access-point-descriptor>
-        <id>a</id>
-      </service-access-point-descriptor>
-      <service-access-point-descriptor>
-        <id>mgmt</id>
-      </service-access-point-descriptor>
-      <service-access-point-descriptor>
-        <id>z</id>
-      </service-access-point-descriptor>
-      <virtual-link-descriptor>
-        <id>inside-net</id>
-        <version>1.0</version>
-        <deployment-flavor>
-          <id>standard</id>
-          <qos>
-            <latency>10</latency>
-            <packet-delay-variation>5</packet-delay-variation>
-          </qos>
-        </deployment-flavor>
-        <connectivity-type>
-          <layer-protocol>IPv4</layer-protocol>
-        </connectivity-type>
-      </virtual-link-descriptor>
+        <virtual-link-profile>
+          <id>management</id>
+          <virtual-link-desc-id>net_osmgmt</virtual-link-desc-id>
+          <flavour-id>small</flavour-id>
+          <max-bitrate-requirements>
+            <root>1000</root>
+          </max-bitrate-requirements>
+          <min-bitrate-requirements>
+            <root>500</root>
+          </min-bitrate-requirements>
+          <topology-point xmlns="http://cisco.com/ns/nso/cfp/cisco-etsi-nfvo">
+            <x>0</x>
+            <y>-200</y>
+          </topology-point>
+        </virtual-link-profile>
+        <ns-instantiation-level>
+          <id>small</id>
+          <description>Small instance</description>
+          <vnf-to-level-mapping>
+            <vnf-profile-id>ASA-bronze</vnf-profile-id>
+            <number-of-instances>1</number-of-instances>
+          </vnf-to-level-mapping>
+          <vnf-to-level-mapping>
+            <vnf-profile-id>CSR1kv-bronze</vnf-profile-id>
+            <number-of-instances>1</number-of-instances>
+          </vnf-to-level-mapping>
+          <vnf-to-level-mapping>
+            <vnf-profile-id>VTA-bronze</vnf-profile-id>
+            <number-of-instances>1</number-of-instances>
+          </vnf-to-level-mapping>
+          <vnf-to-level-mapping>
+            <vnf-profile-id>VTA-bronze-right</vnf-profile-id>
+            <number-of-instances>1</number-of-instances>
+          </vnf-to-level-mapping>
+          <virtual-link-to-level-mapping>
+            <virtual-link-profile-id>router-to-fw</virtual-link-profile-id>
+            <root>1</root>
+          </virtual-link-to-level-mapping>
+        </ns-instantiation-level>
+      </df>
     </nsd>
     <nsd>
       <id>hosted-corporate-service</id>
-      <vnfd>
-        <vnfd>Cisco-ASA</vnfd>
-      </vnfd>
-      <vnfd>
-        <vnfd>Cisco-CSR1kv</vnfd>
-      </vnfd>
-      <vnfd>
-        <vnfd>Linux-Pen</vnfd>
-      </vnfd>
-      <vnfd>
-        <vnfd>Linux-Apache</vnfd>
-      </vnfd>
-      <deployment-flavor>
+      <vnfd-id>Cisco-ASA</vnfd-id>
+      <vnfd-id>Cisco-CSR1kv</vnfd-id>
+      <vnfd-id>Linux-Pen</vnfd-id>
+      <vnfd-id>Linux-Apache</vnfd-id>
+      <sapd>
+        <id>dci-1</id>
+        <virtual-link-desc>dci1_net</virtual-link-desc>
+        <topology-point xmlns="http://cisco.com/ns/nso/cfp/cisco-etsi-nfvo">
+          <x>300</x>
+          <y>400</y>
+        </topology-point>
+      </sapd>
+      <sapd>
+        <id>dci-2</id>
+        <virtual-link-desc>dci2_net</virtual-link-desc>
+        <topology-point xmlns="http://cisco.com/ns/nso/cfp/cisco-etsi-nfvo">
+          <x>900</x>
+          <y>400</y>
+        </topology-point>
+      </sapd>
+      <sapd>
+        <id>mgmt</id>
+        <virtual-link-desc>net_osmgmt</virtual-link-desc>
+        <topology-point xmlns="http://cisco.com/ns/nso/cfp/cisco-etsi-nfvo">
+          <x>0</x>
+          <y>-400</y>
+        </topology-point>
+      </sapd>
+      <virtual-link-desc>
+        <id>fw-to-lb</id>
+        <df>
+          <id>standard</id>
+          <qos>
+            <latency>10</latency>
+            <packet-delay-variation>5</packet-delay-variation>
+          </qos>
+        </df>
+        <connectivity-type>
+          <layer-protocol>ipv4</layer-protocol>
+        </connectivity-type>
+      </virtual-link-desc>
+      <virtual-link-desc>
+        <id>lb-to-www</id>
+        <df>
+          <id>standard</id>
+          <qos>
+            <latency>10</latency>
+            <packet-delay-variation>5</packet-delay-variation>
+          </qos>
+        </df>
+        <connectivity-type>
+          <layer-protocol>ipv4</layer-protocol>
+        </connectivity-type>
+      </virtual-link-desc>
+      <virtual-link-desc>
+        <id>fw-to-router</id>
+        <df>
+          <id>standard</id>
+          <qos>
+            <latency>10</latency>
+            <packet-delay-variation>5</packet-delay-variation>
+          </qos>
+        </df>
+        <connectivity-type>
+          <layer-protocol>ipv4</layer-protocol>
+        </connectivity-type>
+      </virtual-link-desc>
+      <virtual-link-desc>
+        <id>dci1_net</id>
+        <connectivity-type>
+          <layer-protocol>ipv4</layer-protocol>
+        </connectivity-type>
+        <df>
+          <id>standard</id>
+          <qos>
+            <latency>10</latency>
+            <packet-delay-variation>5</packet-delay-variation>
+          </qos>
+        </df>
+      </virtual-link-desc>
+      <virtual-link-desc>
+        <id>dci2_net</id>
+        <connectivity-type>
+          <layer-protocol>ipv4</layer-protocol>
+        </connectivity-type>
+        <df>
+          <id>standard</id>
+          <qos>
+            <latency>10</latency>
+            <packet-delay-variation>5</packet-delay-variation>
+          </qos>
+        </df>
+      </virtual-link-desc>
+      <virtual-link-desc>
+        <id>net_osmgmt</id>
+        <df>
+          <id>standard</id>
+          <qos>
+            <latency>10</latency>
+            <packet-delay-variation>5</packet-delay-variation>
+          </qos>
+        </df>
+        <connectivity-type>
+          <layer-protocol>ipv4</layer-protocol>
+        </connectivity-type>
+      </virtual-link-desc>
+      <df>
         <id>standard</id>
         <vnf-profile>
           <id>ASA-silver</id>
-          <vnfd>Cisco-ASA</vnfd>
-          <flavor>silver</flavor>
+          <vnfd-id>Cisco-ASA</vnfd-id>
+          <flavour-id>silver</flavour-id>
           <instantiation-level>small</instantiation-level>
           <min-number-of-instances>1</min-number-of-instances>
           <max-number-of-instances>1</max-number-of-instances>
           <virtual-link-connectivity>
-            <virtual-link-profile>fw-to-router</virtual-link-profile>
-            <cp>outside</cp>
+            <virtual-link-profile-id>external</virtual-link-profile-id>
+            <constituent-cpd-id>
+              <constituent-base-element-id>ASA-silver</constituent-base-element-id>
+              <constituent-cpd-id>external</constituent-cpd-id>
+            </constituent-cpd-id>
           </virtual-link-connectivity>
           <virtual-link-connectivity>
-            <virtual-link-profile>fw-to-lb</virtual-link-profile>
-            <cp>inside</cp>
+            <virtual-link-profile-id>fw-to-router</virtual-link-profile-id>
+            <constituent-cpd-id>
+              <constituent-base-element-id>ASA-silver</constituent-base-element-id>
+              <constituent-cpd-id>outside</constituent-cpd-id>
+            </constituent-cpd-id>
           </virtual-link-connectivity>
-          <sapd-connectivity>
-            <sapd>mgmt</sapd>
-            <cp>mgmt</cp>
-          </sapd-connectivity>
-          <sapd-connectivity>
-            <sapd>dci-1</sapd>
-            <cp>external</cp>
-          </sapd-connectivity>
+          <virtual-link-connectivity>
+            <virtual-link-profile-id>fw-to-lb</virtual-link-profile-id>
+            <constituent-cpd-id>
+              <constituent-base-element-id>ASA-silver</constituent-base-element-id>
+              <constituent-cpd-id>inside</constituent-cpd-id>
+            </constituent-cpd-id>
+          </virtual-link-connectivity>
+          <virtual-link-connectivity>
+            <virtual-link-profile-id>management</virtual-link-profile-id>
+            <constituent-cpd-id>
+              <constituent-base-element-id>ASA-silver</constituent-base-element-id>
+              <constituent-cpd-id>mgmt</constituent-cpd-id>
+            </constituent-cpd-id>
+          </virtual-link-connectivity>
+          <topology-point xmlns="http://cisco.com/ns/nso/cfp/cisco-etsi-nfvo">
+            <x>300</x>
+            <y>0</y>
+          </topology-point>
         </vnf-profile>
         <vnf-profile>
           <id>CSR1kv-bronze</id>
-          <vnfd>Cisco-CSR1kv</vnfd>
-          <flavor>bronze</flavor>
+          <vnfd-id>Cisco-CSR1kv</vnfd-id>
+          <flavour-id>bronze</flavour-id>
           <instantiation-level>small</instantiation-level>
           <min-number-of-instances>1</min-number-of-instances>
           <max-number-of-instances>1</max-number-of-instances>
           <virtual-link-connectivity>
-            <virtual-link-profile>fw-to-router</virtual-link-profile>
-            <cp>left</cp>
+            <virtual-link-profile-id>outside</virtual-link-profile-id>
+            <constituent-cpd-id>
+              <constituent-base-element-id>CSR1kv-bronze</constituent-base-element-id>
+              <constituent-cpd-id>right</constituent-cpd-id>
+            </constituent-cpd-id>
           </virtual-link-connectivity>
-          <sapd-connectivity>
-            <sapd>mgmt</sapd>
-            <cp>mgmt</cp>
-          </sapd-connectivity>
-          <sapd-connectivity>
-            <sapd>dci-2</sapd>
-            <cp>right</cp>
-          </sapd-connectivity>
+          <virtual-link-connectivity>
+            <virtual-link-profile-id>fw-to-router</virtual-link-profile-id>
+            <constituent-cpd-id>
+              <constituent-base-element-id>CSR1kv-bronze</constituent-base-element-id>
+              <constituent-cpd-id>left</constituent-cpd-id>
+            </constituent-cpd-id>
+          </virtual-link-connectivity>
+          <virtual-link-connectivity>
+            <virtual-link-profile-id>management</virtual-link-profile-id>
+            <constituent-cpd-id>
+              <constituent-base-element-id>CSR1kv-bronze</constituent-base-element-id>
+              <constituent-cpd-id>mgmt</constituent-cpd-id>
+            </constituent-cpd-id>
+          </virtual-link-connectivity>
+          <topology-point xmlns="http://cisco.com/ns/nso/cfp/cisco-etsi-nfvo">
+            <x>900</x>
+            <y>0</y>
+          </topology-point>
         </vnf-profile>
         <vnf-profile>
           <id>Pen-bronze</id>
-          <vnfd>Linux-Pen</vnfd>
-          <flavor>bronze</flavor>
+          <vnfd-id>Linux-Pen</vnfd-id>
+          <flavour-id>bronze</flavour-id>
           <instantiation-level>small</instantiation-level>
           <min-number-of-instances>1</min-number-of-instances>
           <max-number-of-instances>1</max-number-of-instances>
-          <sapd-connectivity>
-            <sapd>mgmt</sapd>
-            <cp>mgmt</cp>
-          </sapd-connectivity>
           <virtual-link-connectivity>
-            <virtual-link-profile>fw-to-lb</virtual-link-profile>
-            <cp>outside</cp>
+            <virtual-link-profile-id>fw-to-lb</virtual-link-profile-id>
+            <constituent-cpd-id>
+              <constituent-base-element-id>Pen-bronze</constituent-base-element-id>
+              <constituent-cpd-id>outside</constituent-cpd-id>
+            </constituent-cpd-id>
           </virtual-link-connectivity>
           <virtual-link-connectivity>
-            <virtual-link-profile>lb-to-www</virtual-link-profile>
-            <cp>inside</cp>
+            <virtual-link-profile-id>lb-to-www</virtual-link-profile-id>
+            <constituent-cpd-id>
+              <constituent-base-element-id>Pen-bronze</constituent-base-element-id>
+              <constituent-cpd-id>inside</constituent-cpd-id>
+            </constituent-cpd-id>
           </virtual-link-connectivity>
+          <virtual-link-connectivity>
+            <virtual-link-profile-id>management</virtual-link-profile-id>
+            <constituent-cpd-id>
+              <constituent-base-element-id>Pen-bronze</constituent-base-element-id>
+              <constituent-cpd-id>mgmt</constituent-cpd-id>
+            </constituent-cpd-id>
+          </virtual-link-connectivity>
+          <topology-point xmlns="http://cisco.com/ns/nso/cfp/cisco-etsi-nfvo">
+            <x>-300</x>
+            <y>0</y>
+          </topology-point>
         </vnf-profile>
         <vnf-profile>
           <id>Apache-bronze</id>
-          <vnfd>Linux-Apache</vnfd>
-          <flavor>bronze</flavor>
+          <vnfd-id>Linux-Apache</vnfd-id>
+          <flavour-id>bronze</flavour-id>
           <instantiation-level>small</instantiation-level>
           <min-number-of-instances>1</min-number-of-instances>
           <max-number-of-instances>3</max-number-of-instances>
-          <sapd-connectivity>
-            <sapd>mgmt</sapd>
-            <cp>mgmt</cp>
-          </sapd-connectivity>
           <virtual-link-connectivity>
-            <virtual-link-profile>lb-to-www</virtual-link-profile>
-            <cp>inside</cp>
+            <virtual-link-profile-id>lb-to-www</virtual-link-profile-id>
+            <constituent-cpd-id>
+              <constituent-base-element-id>Apache-bronze</constituent-base-element-id>
+              <constituent-cpd-id>inside</constituent-cpd-id>
+            </constituent-cpd-id>
           </virtual-link-connectivity>
+          <virtual-link-connectivity>
+            <virtual-link-profile-id>management</virtual-link-profile-id>
+            <constituent-cpd-id>
+              <constituent-base-element-id>Apache-bronze</constituent-base-element-id>
+              <constituent-cpd-id>mgmt</constituent-cpd-id>
+            </constituent-cpd-id>
+          </virtual-link-connectivity>
+          <topology-point xmlns="http://cisco.com/ns/nso/cfp/cisco-etsi-nfvo">
+            <x>-900</x>
+            <y>0</y>
+          </topology-point>
         </vnf-profile>
-        <instantiation-level>
+        <virtual-link-profile>
+          <id>fw-to-lb</id>
+          <virtual-link-desc-id>fw-to-lb</virtual-link-desc-id>
+          <flavour-id>standard</flavour-id>
+          <min-bitrate-requirements>
+            <root>1</root>
+          </min-bitrate-requirements>
+          <max-bitrate-requirements>
+            <root>1000</root>
+          </max-bitrate-requirements>
+          <topology-point xmlns="http://cisco.com/ns/nso/cfp/cisco-etsi-nfvo">
+            <x>0</x>
+            <y>0</y>
+          </topology-point>
+        </virtual-link-profile>
+        <virtual-link-profile>
+          <id>lb-to-www</id>
+          <virtual-link-desc-id>lb-to-www</virtual-link-desc-id>
+          <flavour-id>standard</flavour-id>
+          <min-bitrate-requirements>
+            <root>1</root>
+          </min-bitrate-requirements>
+          <max-bitrate-requirements>
+            <root>1000</root>
+          </max-bitrate-requirements>
+          <topology-point xmlns="http://cisco.com/ns/nso/cfp/cisco-etsi-nfvo">
+            <x>-600</x>
+            <y>0</y>
+          </topology-point>
+        </virtual-link-profile>
+        <virtual-link-profile>
+          <id>fw-to-router</id>
+          <virtual-link-desc-id>fw-to-router</virtual-link-desc-id>
+          <flavour-id>standard</flavour-id>
+          <min-bitrate-requirements>
+            <root>1</root>
+          </min-bitrate-requirements>
+          <max-bitrate-requirements>
+            <root>1000</root>
+          </max-bitrate-requirements>
+          <topology-point xmlns="http://cisco.com/ns/nso/cfp/cisco-etsi-nfvo">
+            <x>600</x>
+            <y>0</y>
+          </topology-point>
+        </virtual-link-profile>
+        <virtual-link-profile>
+          <id>external</id>
+          <virtual-link-desc-id>dci1_net</virtual-link-desc-id>
+          <flavour-id>standard</flavour-id>
+          <min-bitrate-requirements>
+            <root>1</root>
+          </min-bitrate-requirements>
+          <max-bitrate-requirements>
+            <root>1000</root>
+          </max-bitrate-requirements>
+          <topology-point xmlns="http://cisco.com/ns/nso/cfp/cisco-etsi-nfvo">
+            <x>300</x>
+            <y>200</y>
+          </topology-point>
+        </virtual-link-profile>
+        <virtual-link-profile>
+          <id>outside</id>
+          <virtual-link-desc-id>dci2_net</virtual-link-desc-id>
+          <flavour-id>standard</flavour-id>
+          <min-bitrate-requirements>
+            <root>1</root>
+          </min-bitrate-requirements>
+          <max-bitrate-requirements>
+            <root>1000</root>
+          </max-bitrate-requirements>
+          <topology-point xmlns="http://cisco.com/ns/nso/cfp/cisco-etsi-nfvo">
+            <x>900</x>
+            <y>200</y>
+          </topology-point>
+        </virtual-link-profile>
+        <virtual-link-profile>
+          <id>management</id>
+          <virtual-link-desc-id>net_osmgmt</virtual-link-desc-id>
+          <flavour-id>standard</flavour-id>
+          <min-bitrate-requirements>
+            <root>1</root>
+          </min-bitrate-requirements>
+          <max-bitrate-requirements>
+            <root>1000</root>
+          </max-bitrate-requirements>
+          <topology-point xmlns="http://cisco.com/ns/nso/cfp/cisco-etsi-nfvo">
+            <x>0</x>
+            <y>-200</y>
+          </topology-point>
+        </virtual-link-profile>
+        <ns-instantiation-level>
           <id>small</id>
           <description>Small instance</description>
           <vnf-to-level-mapping>
-            <vnf-profile>ASA-silver</vnf-profile>
+            <vnf-profile-id>ASA-silver</vnf-profile-id>
             <number-of-instances>1</number-of-instances>
           </vnf-to-level-mapping>
           <vnf-to-level-mapping>
-            <vnf-profile>CSR1kv-bronze</vnf-profile>
+            <vnf-profile-id>CSR1kv-bronze</vnf-profile-id>
             <number-of-instances>1</number-of-instances>
           </vnf-to-level-mapping>
           <vnf-to-level-mapping>
-            <vnf-profile>Pen-bronze</vnf-profile>
+            <vnf-profile-id>Pen-bronze</vnf-profile-id>
             <number-of-instances>1</number-of-instances>
           </vnf-to-level-mapping>
           <vnf-to-level-mapping>
-            <vnf-profile>Apache-bronze</vnf-profile>
+            <vnf-profile-id>Apache-bronze</vnf-profile-id>
             <number-of-instances>1</number-of-instances>
           </vnf-to-level-mapping>
-          <vl-to-level-mapping>
-            <virtual-link-profile>fw-to-lb</virtual-link-profile>
+          <virtual-link-to-level-mapping>
+            <virtual-link-profile-id>fw-to-lb</virtual-link-profile-id>
             <root>1</root>
-          </vl-to-level-mapping>
-          <vl-to-level-mapping>
-            <virtual-link-profile>lb-to-www</virtual-link-profile>
+          </virtual-link-to-level-mapping>
+          <virtual-link-to-level-mapping>
+            <virtual-link-profile-id>lb-to-www</virtual-link-profile-id>
             <root>1</root>
-          </vl-to-level-mapping>
-          <vl-to-level-mapping>
-            <virtual-link-profile>fw-to-router</virtual-link-profile>
+          </virtual-link-to-level-mapping>
+          <virtual-link-to-level-mapping>
+            <virtual-link-profile-id>fw-to-router</virtual-link-profile-id>
             <root>1</root>
-          </vl-to-level-mapping>
-        </instantiation-level>
-        <virtual-link-profile>
-          <virtual-link-descriptor>fw-to-lb</virtual-link-descriptor>
-          <flavor>standard</flavor>
-          <min-bitrate-requirements>
-            <root>1</root>
-          </min-bitrate-requirements>
-          <max-bitrate-requirements>
-            <root>1000</root>
-          </max-bitrate-requirements>
-        </virtual-link-profile>
-        <virtual-link-profile>
-          <virtual-link-descriptor>lb-to-www</virtual-link-descriptor>
-          <flavor>standard</flavor>
-          <min-bitrate-requirements>
-            <root>1</root>
-          </min-bitrate-requirements>
-          <max-bitrate-requirements>
-            <root>1000</root>
-          </max-bitrate-requirements>
-        </virtual-link-profile>
-        <virtual-link-profile>
-          <virtual-link-descriptor>fw-to-router</virtual-link-descriptor>
-          <flavor>standard</flavor>
-          <min-bitrate-requirements>
-            <root>1</root>
-          </min-bitrate-requirements>
-          <max-bitrate-requirements>
-            <root>1000</root>
-          </max-bitrate-requirements>
-        </virtual-link-profile>
-      </deployment-flavor>
-      <service-access-point-descriptor>
-        <id>dci-1</id>
-      </service-access-point-descriptor>
-      <service-access-point-descriptor>
-        <id>mgmt</id>
-      </service-access-point-descriptor>
-      <service-access-point-descriptor>
-        <id>dci-2</id>
-      </service-access-point-descriptor>
-      <virtual-link-descriptor>
-        <id>fw-to-lb</id>
-        <version>1.0</version>
-        <deployment-flavor>
-          <id>standard</id>
-          <qos>
-            <latency>10</latency>
-            <packet-delay-variation>5</packet-delay-variation>
-          </qos>
-        </deployment-flavor>
-        <connectivity-type>
-          <layer-protocol>IPv4</layer-protocol>
-        </connectivity-type>
-      </virtual-link-descriptor>
-      <virtual-link-descriptor>
-        <id>lb-to-www</id>
-        <version>1.0</version>
-        <deployment-flavor>
-          <id>standard</id>
-          <qos>
-            <latency>10</latency>
-            <packet-delay-variation>5</packet-delay-variation>
-          </qos>
-        </deployment-flavor>
-        <connectivity-type>
-          <layer-protocol>IPv4</layer-protocol>
-        </connectivity-type>
-      </virtual-link-descriptor>
-      <virtual-link-descriptor>
-        <id>fw-to-router</id>
-        <version>1.0</version>
-        <deployment-flavor>
-          <id>standard</id>
-          <qos>
-            <latency>10</latency>
-            <packet-delay-variation>5</packet-delay-variation>
-          </qos>
-        </deployment-flavor>
-        <connectivity-type>
-          <layer-protocol>IPv4</layer-protocol>
-        </connectivity-type>
-      </virtual-link-descriptor>
+          </virtual-link-to-level-mapping>
+        </ns-instantiation-level>
+      </df>
     </nsd>
-  </nfvo>
+  </nfv>
 </config>

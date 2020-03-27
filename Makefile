@@ -15,8 +15,17 @@ NETWORK = \
 
 DEMO_DIR = $(shell basename $(CURDIR))
 
-EXTERNAL_DEPS = resource-manager esc tailf-etsi-rel2-nfvo cisco-asa
+EXTERNAL_DEPS = resource-manager esc openstack-cos-gen-4.2 \
+	              etsi-sol003-gen-1.13 cisco-etsi-nfvo cisco-asa
 DEP_CLEANUP_DIRS = doc doc-internal examples initial_data test
+
+CONTENT_SECURITY_POLICY = default-src 'self' 'unsafe-inline'; \
+	                        block-all-mixed-content; \
+	                        base-uri 'self'; frame-ancestors 'none'; \
+	                        img-src 'self' data:;
+
+NX = NX=$$(printf '\nx'); NL=$${NX%x}
+NL = $${NL}
 
 all-real-esc: remove-esc-netsim all
 	cp initial-data/real-esc.xml ncs-cdb
@@ -28,7 +37,7 @@ remove-esc-netsim:
 	echo $(NETWORK)
 .PHONY: real-esc
 
-all: setup.mk packages netsim ncs-cdb
+all: setup.mk packages netsim ncs-cdb add-content-security-policy
 .PHONY: all
 
 setup.mk:
@@ -86,11 +95,13 @@ netsim:
 	cp initial-data/netsim/ios.xml netsim/sw/sw4/cdb
 	cp initial-data/netsim/f10.xml netsim/sw/sw5/cdb
 
+
 ncs-cdb:
 	ncs-setup --no-netsim --dest .
 	cp initial-data/authgroups.xml ncs-cdb
 	cp initial-data/data-centre-topology.xml ncs-cdb
 	cp initial-data/device-groups.xml ncs-cdb
+	cp initial-data/esc-ned-template.xml ncs-cdb
 	cp initial-data/esc-scaling-template.xml ncs-cdb
 	cp initial-data/icon-positions.xml ncs-cdb
 	cp initial-data/nsd-catalogue.xml ncs-cdb
@@ -102,10 +113,22 @@ ncs-cdb:
 	cp initial-data/webui-applications.xml ncs-cdb
 	ncs-netsim ncs-xml-init > ncs-cdb/netsim-devices-init.xml
 
+add-content-security-policy:
+	if [ -z $(ncs_conf_tool -r ncs-config webui content-security-policy < ncs.conf) ]; \
+	then $(NX); \
+	  sed "s/^.*<\/webui>/\\$(NL)    <content-security-policy><\/content-security-policy>\\$(NL)&/" \
+	      ncs.conf > ncs.conf.tmp; \
+	else \
+	  cp ncs.conf ncs.conf.tmp; \
+	fi
+	sed "s/\(<content-security-policy>\).*\(<\/content-security-policy>\)/\1\$(CONTENT_SECURITY_POLICY)\2/" \
+	    ncs.conf.tmp > ncs.conf
+	rm ncs.conf.tmp
+
 clean:
 	$(MAKE) -C packages clean
 	rm -f README.ncs README.netsim ncs.conf
-	rm -rf netsim running.DB logs state ncs-cdb *.trace
+	rm -rf netsim running.DB logs state ncs-cdb *.trace *.log
 	rm -rf bin
 	rm -f init
 .PHONY: clean
@@ -115,11 +138,10 @@ deep-clean: clean
 .PHONY: clean-deep
 
 init:
-	FILE=logs/ncs-python-vm-tailf-etsi-rel2-nfvo.log; \
+	FILE=logs/ncs-python-vm-tme-demo.log; \
 	while [ ! -f $$FILE ]; do sleep 5; done; \
 	while ! grep -qs RUNNING $$FILE; do sleep 5; done
-	ncs_load -u admin -l -C initial-data/platform-infos.xml > $@
-	ncs_load -u admin -m -l initial-data/nfvo-init.xml >> $@
+	ncs_load -u admin -l -m -O initial-data/platform-infos.xml > $@
 	ncs_cli -u admin <<< 'request devices device * ssh fetch-host-keys' >> $@
 	ncs_cli -u admin <<< 'request devices sync-from' >> $@
 	ncs_load -u admin -m -l initial-data/default-ns-connections.xml >> $@
@@ -162,8 +184,13 @@ dist: stop deep-clean
 		--exclude='.git' \
 		--exclude='*.swp' \
 		--exclude='.DS_Store' \
+		--exclude='doc' \
 		--exclude='lux_logs' \
+		--exclude='node' \
 		--exclude='node_modules' \
+		--exclude='node_releases' \
+		--exclude='cisco-asa\/test' \
+		--exclude='cisco-etsi-nfvo\/test' \
 		--exclude='$(DEMO_DIR)\/ncs-cdb\/*' \
 		--exclude='$(DEMO_DIR)\/state\/*' \
 		--exclude='$(DEMO_DIR)\/logs\/*' \

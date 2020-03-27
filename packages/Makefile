@@ -1,7 +1,8 @@
 # The order of packages is significant as there are dependencies between
 # the packages. Typically generated namespaces are used by other packages.
 PACKAGES = tme-demo-ui tme-demo
-PACKAGE_DEPENDENCIES = resource-manager esc tailf-etsi-rel2-nfvo cisco-asa \
+PACKAGE_DEPENDENCIES = resource-manager esc openstack-cos-gen-4.2 \
+	                     etsi-sol003-gen-1.13 cisco-etsi-nfvo cisco-asa \
 	                     l3vpn datacenter
 NED_STORE=$(NCS_DIR)/packages/neds
 
@@ -10,6 +11,7 @@ all: cisco-ios cisco-iosxr juniper-junos alu-sr cisco-nx dell-ftos \
 	for i in $(PACKAGE_DEPENDENCIES) $(PACKAGES); do \
 	    $(MAKE) -C $${i}/src all || exit 1; \
 	done
+	rm -f $(NED_STORE)/cisco-nx-cli-3.0/src/ncsc-out/modules/yang/tailf-ned-cisco-nx-router.yang
 .PHONY: all
 
 cisco-ios:

@@ -6,8 +6,8 @@ import { subscriptionRequest, subscriptionSuccess, subscriptionEvent,
          SUBSCRIPTION_FAILURE } from './comet';
 
 export const VNF_VM_STATUS_UPDATED = 'vnf-vm-status-updated';
-export const VNF_VM_DEVICE_UPDATED = 'vnf-vm-device-updated';
-export const VNF_VM_DELETED = 'vnf-vm-deleted';
+export const VNF_VM_DEVICE_CREATED = 'vnf-vm-device-created';
+export const VNF_VM_DEVICE_DELETED = 'vnf-vm-device-deleted';
 export const VNF_SCALE_EVENT = 'vnf-scale-event';
 export const VNF_ADDED = 'vnf-added';
 export const VNF_DELETED = 'vnf-deleted';
@@ -23,16 +23,16 @@ export const FETCH_ONE_VNF_FAILURE = 'fetch-one-vnf-failure';
 
 // === Action Creators ========================================================
 
-export const vnfVmStatusUpdated = (name, vmId, status) => ({
-  type: VNF_VM_STATUS_UPDATED, name, vmId, status
+export const vnfVmStatusUpdated = (vmId, status) => ({
+  type: VNF_VM_STATUS_UPDATED, vmId, status
 });
 
-export const vnfVmDeviceUpdated = (name, vmId, device) => ({
-  type: VNF_VM_DEVICE_UPDATED, name, vmId, device
+export const vnfVmDeviceCreated = (vnf, name, vmId) => ({
+  type: VNF_VM_DEVICE_CREATED, vnf, name, vmId
 });
 
-export const vnfVmDeleted = (name, vmId) => ({
-  type: VNF_VM_DELETED, name, vmId
+export const vnfVmDeviceDeleted = (vnf, name) => ({
+  type: VNF_VM_DEVICE_DELETED, vnf, name
 });
 
 export const vnfScaleEvent = (name, vmsScaling) => ({
@@ -53,31 +53,48 @@ export const nsDeleted = name => ({
 // Need to use a custom thunks here (rather than the generic jsonRpcMiddleware)
 // to process the VNF data.
 
-const getSapds = async (nsd, flavour, vnfInfo) => {
-  const sapds = await JsonRpc.getListKeys({
-    path: `/nfvo-rel2:nfvo/nsd{'${nsd}'}` +
-          `/deployment-flavor{'${flavour}'}` +
-          `/vnf-profile{'${vnfInfo}'}/sapd-connectivity`
+const extractState = state => state.substr(state.indexOf(':') + 1);
+
+const getNsdSapds = async (nsd) => {
+  const sapds = await JsonRpc.query({
+    path       : `/nfv:nfv/nsd{'${nsd}'}/sapd`,
+    selection  : [ 'id', 'virtual-link-desc' ]
   });
-  const res = sapds.keys.map(([sapd]) => sapd);
+  const res = sapds.results.reduce(
+    (accumulator, [sapd, vld]) => {
+      accumulator[sapd] = vld;
+      return accumulator;
+    }, {});
   return res;
+};
+
+const getNsdVirtualLinkProfiles = async (nsd, flavour) => {
+  const virtualLinks = await JsonRpc.query({
+    path      : `/nfv:nfv/nsd{'${nsd}'}/df{'${flavour}'}` +
+                `/virtual-link-profile`,
+    selection : [ 'id', 'virtual-link-desc-id' ]
+  });
+  return virtualLinks.results.reduce(
+    (accumulator, [virtualLink, vld]) => {
+      accumulator[virtualLink] = vld;
+      return accumulator;
+    }, {});
 };
 
 const getVirtualLinks = async (nsd, flavour, vnfInfo) => {
   const virtualLinks = await JsonRpc.getListKeys({
-    path: `/nfvo-rel2:nfvo/nsd{'${nsd}'}` +
-          `/deployment-flavor{'${flavour}'}` +
+    path: `/nfv:nfv/nsd{'${nsd}'}/df{'${flavour}'}` +
           `/vnf-profile{'${vnfInfo}'}/virtual-link-connectivity`
   });
   const res = virtualLinks.keys.map(([virtualLink]) => virtualLink);
   return res;
 };
 
-const getVmsScaling = async (tenant, depName, esc, vnfInfo, vdu) => {
+const getVmsScaling = async (deploymentId, vmGroupName) => {
   let vmsScaling = 0;
-  const path =  `/nfvo-rel2:nfvo/vnf-info/nfvo-rel2-esc:esc` +
-                `/vnf-deployment-result{'${tenant}' '${depName}' '${esc}'}` +
-                `/vdu{'${vnfInfo}' '${vdu}'}/vms-scaling`;
+  const path =  `/nfv:nfv/cisco-nfvo:internal` +
+                `/netconf-deployment-result{'${deploymentId}'}` +
+                `/vm-group{'${vmGroupName}'}/tme-demo:vms-scaling`;
 
   if (await JsonRpc.exists(path)) {
     vmsScaling = await JsonRpc.getValue(path);
@@ -86,18 +103,38 @@ const getVmsScaling = async (tenant, depName, esc, vnfInfo, vdu) => {
   return vmsScaling;
 };
 
-const getVmDevices = async (tenant, depName, esc, vnfInfo, vdu) => {
+const getVmDevices = async (deploymentId, vmGroupName) => {
   const vmDevices = await JsonRpc.query({
-    xpath_expr : `/nfvo-rel2:nfvo/vnf-info/nfvo-rel2-esc:esc` +
-                 `/vnf-deployment-result[tenant='${tenant}']` +
-                 `[deployment-name='${depName}'][esc='${esc}']` +
-                 `/vdu[vnf-info='${vnfInfo}'][vdu='${vdu}']/vm-device`,
-    selection  : [ 'vmid', 'device-name', 'local-name(status/*)' ]
+    xpath_expr : `/nfv:nfv/cisco-nfvo:internal` +
+                 `/netconf-deployment-result[id='${deploymentId}']` +
+                 `/vm-group[name='${vmGroupName}']/vm-device`,
+    selection  : [ 'name', 'device-name' ]
   });
 
-  return vmDevices.results.reduce((acc, [ vmId, device, status ]) => {
-    acc[vmId] = { device, status: status || 'init' };
-    return acc;
+  const vmDeviceStates = await Promise.all(vmDevices.results.map(
+    async ([ vmId, device ]) => {
+      const vmDevicePlan = await JsonRpc.query({
+        xpath_expr : `/nfv:nfv/cisco-nfvo:internal` +
+                     `/netconf-deployment-plan[id='${deploymentId}']` +
+                     `/plan/component[` +
+                        `type='cisco-nfvo-nano-services:vm-device' or ` +
+                        `type='cisco-nfvo-nano-services:unmanaged-vm-device']` +
+                     `[name='${vmId}']/state`,
+        selection  : [ 'name', 'status' ]
+      });
+
+      return vmDevicePlan.results.reduce((accumulator, [ state, status ]) => {
+        if (status == 'reached') {
+          accumulator = extractState(state);
+        }
+        return accumulator;
+      }, 'init');
+    }
+  ));
+
+  return vmDevices.results.reduce((accumulator, [ vmId, device ], index) => {
+    accumulator[device] = { vmId, status: vmDeviceStates[index] };
+    return accumulator;
   }, {});
 };
 
@@ -106,43 +143,56 @@ const getIconType = name => {
   return key ? ICON_NAME_TO_TYPE[key] : GENERIC;
 };
 
-const getVnfVduName = (nsInfo, vnfInfo, vdu) => {
-  return `${nsInfo}-${vnfInfo}-${vdu}`;
-};
-
 const getVnfVdu =
-  async (nsInfo, vnfInfo, vdu, nsd, flavour, tenant, depName, esc) => ({
-    name: getVnfVduName(nsInfo, vnfInfo, vdu),
-    nsInfo, vnfInfo, vdu,
-    type: getIconType(vnfInfo),
-    sapds: await getSapds(nsd, flavour, vnfInfo),
-    virtualLinks: await getVirtualLinks(nsd, flavour, vnfInfo),
-    vmsScaling: await getVmsScaling(tenant, depName, esc, vnfInfo, vdu),
-    vmDevices: await getVmDevices(tenant, depName, esc, vnfInfo, vdu)
-});
+  async (nsInfo, tenant, nsd, flavour, vnfInfo, vnfm, vdu) => {
+    const deploymentId = `${vnfm}-ns-info-${nsInfo}`;
+    const vmGroupName = `${vnfInfo}-${vdu}`;
+    const nsdSapds = await getNsdSapds(nsd);
+    const nsdVirtualLinkProfiles = await getNsdVirtualLinkProfiles(nsd, flavour);
+    const virtualLinks = await getVirtualLinks(nsd, flavour, vnfInfo);
+
+    const sapds = Object.keys(nsdSapds).reduce((accumulator, sapdKey) => {
+      const vlp = Object.keys(nsdVirtualLinkProfiles).find(vlpKey =>
+        nsdSapds[sapdKey] == nsdVirtualLinkProfiles[vlpKey]
+      );
+      if (virtualLinks.includes(vlp)) {
+        accumulator.push(sapdKey);
+        virtualLinks.splice(virtualLinks.indexOf(vlp), 1);
+      }
+      return accumulator;
+    }, []);
+
+    return {
+      name: `${deploymentId}-${vmGroupName}`,
+      deploymentId, nsInfo, vnfInfo, vdu, sapds, virtualLinks,
+      type: getIconType(vnfInfo),
+      vmsScaling: await getVmsScaling(deploymentId, vmGroupName),
+      vmDevices: await getVmDevices(deploymentId, vmGroupName)
+    };
+};
 
 export const fetchVnfs = () => async dispatch => {
   dispatch({ type: FETCH_VNFS_REQUEST });
 
   try {
     const nsInfos = await JsonRpc.query({
-      context_node : '/nfvo/ns-info/esc',
+      context_node : '/nfv:nfv',
       xpath_expr   : 'ns-info',
-      selection    : ['id', 'tenant', 'deployment-name', 'esc', 'nsd', 'flavor']
+      selection    : ['name', 'tenant', 'nsd', 'flavour']
     });
 
     const vnfsByNs = await Promise.all(
       nsInfos.results.map(async nsInfoResult => {
-        const [ nsInfo, tenant, depName, esc, nsd, flavour ] = nsInfoResult;
+        const [ nsInfo, tenant, nsd, flavour ] = nsInfoResult;
         const vdus = await JsonRpc.query({
-          context_node : `/nfvo-rel2:nfvo/vnf-info/nfvo-rel2-esc:esc` +
-                         `/vnf-deployment{'${tenant}' '${depName}' '${esc}'}`,
+          context_node : `/nfv:nfv/ns-info{'${nsInfo}'}`,
           xpath_expr   : `vnf-info/vdu`,
-          selection    : ['../name', 'id']
+          selection    : ['../vnf-profile', '../vnfm', 'id']
         });
 
-        return await Promise.all(vdus.results.map(async ([ vnfInfo, vdu ]) =>
-          getVnfVdu(nsInfo, vnfInfo, vdu, nsd, flavour, tenant, depName, esc)
+        return await Promise.all(vdus.results.map(
+          async ([ vnfInfo, vnfm, vdu ]) =>
+            getVnfVdu(nsInfo, tenant, nsd, flavour, vnfInfo, vnfm, vdu)
         ));
     }));
 
@@ -164,21 +214,29 @@ export const fetchVnfs = () => async dispatch => {
 };
 
 export const fetchOneVnf =
-  (tenant, depName, esc, nsInfo, vnfInfo, vdu ) => async dispatch => {
+  (nsInfo, vnfInfo, vdu ) => async dispatch => {
 
-  dispatch({ type: FETCH_ONE_VNF_REQUEST,
-             tenant, depName, esc, nsInfo, vnfInfo, vdu });
+  const nsInfoPath = `/nfv:nfv/cisco-nfvo:ns-info{'${nsInfo}'}`;
+
+  dispatch({ type: FETCH_ONE_VNF_REQUEST, nsInfo, vnfInfo, vdu });
   try {
     const nsInfoResult = await JsonRpc.getValues({
-      path:  `/nfvo-rel2:nfvo/ns-info/nfvo-rel2-esc:esc/ns-info{'${nsInfo}'}`,
-      leafs: ['nsd', 'flavor']
+      path:  nsInfoPath,
+      leafs: ['tenant', 'nsd', 'flavour']
     });
 
-    const nsd = nsInfoResult.values[0].value;
-    const flavour = nsInfoResult.values[1].value;
+    const vnfInfoResult = await JsonRpc.getValues({
+      path:  `${nsInfoPath}/vnf-info{${vnfInfo}}`,
+      leafs: ['vnfm']
+    });
+
+    const tenant = nsInfoResult.values[0].value;
+    const nsd = nsInfoResult.values[1].value;
+    const flavour = nsInfoResult.values[2].value;
+    const vnfm = vnfInfoResult.values[0].value;
 
     const vnf =
-      await getVnfVdu(nsInfo, vnfInfo, vdu, nsd, flavour, tenant, depName, esc);
+      await getVnfVdu(nsInfo, tenant, nsd, flavour, vnfInfo, vnfm, vdu);
 
     dispatch({
       type: VNF_ADDED,
@@ -208,28 +266,25 @@ const reExec = (regex, string) => {
 
 const key = '("[^}"]+"|[^} ]+)';
 
-const vnfDeploymentPath = '/nfvo-rel2:nfvo/vnf-info/nfvo-rel2-esc:esc/vnf-deployment';
-const vnfDeploymentResultPath = '/nfvo-rel2:nfvo/vnf-info/nfvo-rel2-esc:esc/vnf-deployment-result';
-const vduPath = `${vnfDeploymentResultPath}{${key} ${key} ${key}}/vdu{${key} ${key}}`;
-const vmDevicePath = `${vduPath}/vm-device{${key} ${key}}`;
+const nsInfoPath = `/nfv:nfv/cisco-nfvo:ns-info{${key}}`;
+const vnfVduPath = `${nsInfoPath}/vnf-info{${key}}/vdu{${key}}`;
+const nsInfoRegex = new RegExp(`${nsInfoPath}?$`);
+const vnfVduRegex = new RegExp(`${vnfVduPath}?$`);
 
-const vnfInfoRegex = new RegExp(`${vnfDeploymentPath}{${key} ${key} ${key}}(?:/vnf-info{${key}}/vdu{${key}})?$`);
+const deploymentResultPath = `/nfv:nfv/cisco-nfvo:internal/netconf-deployment-result{${key}}`;
+const vmGroupPath = `${deploymentResultPath}/vm-group{${key}}`;
+const vmDevicePath = `${vmGroupPath}/vm-device{${key}}`;
 const vmDeviceRegex = new RegExp(`${vmDevicePath}$`);
-const vmDeviceStatusRegex = new RegExp(`${vmDevicePath}/status/${key}$`);
-const vmDeviceNameRegex = new RegExp(`${vmDevicePath}/device-name$`);
-const vmsScalingRegex = new RegExp(`${vduPath}/l3vpn:vms-scaling/${key}$`);
+const vmDeviceNameRegex = new RegExp(`${vmDevicePath}/name$`);
+const vmsScalingRegex = new RegExp(`${vmGroupPath}/tme-demo:vms-scaling$`);
 
+const deploymentPlanPath = `/nfv:nfv/cisco-nfvo:internal/netconf-deployment-plan{${key}}/plan`;
+const vmDevicePlanPath = `${deploymentPlanPath}/component{cisco-nfvo-nano-services:(unmanaged-)?vm-device ${key}}`;
+const vmDeviceStatusRegex = new RegExp(`${vmDevicePlanPath}/state{${key}}/status$`);
 
-const parseMatch = match => {
-  const [ all, tenant, depName, esc, vnfInfo, vdu ] = match;
-  const nsInfo = `${tenant}-${depName}`;
-  const vnfVduName = getVnfVduName(nsInfo, vnfInfo, vdu);
-
-  return { nsInfo, vnfVduName, tenant, depName, esc, vnfInfo, vdu };
-};
 
 export const subscribeVnfs = () => dispatch => {
-  let path = vnfDeploymentPath;
+  let path = '/nfv:nfv/cisco-nfvo:ns-info';
   let cdbOper = false;
   let skipLocal = false;
 
@@ -241,70 +296,101 @@ export const subscribeVnfs = () => dispatch => {
       callback : evt => {
         evt.changes.forEach(change => {
           const { keypath, op } = change;
-          const match = reExec(vnfInfoRegex, keypath);
 
+          let match = reExec(vnfVduRegex, keypath);
           if (match) {
             dispatch(subscriptionEvent(keypath, op));
-            const { tenant, depName, esc, vnfInfo, vdu,
-                    nsInfo, vnfVduName } = parseMatch(match);
+            const [ all, nsInfo, vnfInfo, vdu ] = match;
 
-            if (match && op === 'created' && vdu) {
-              dispatch(fetchOneVnf(tenant, depName, esc, nsInfo, vnfInfo, vdu));
-            } else if (match && op === 'deleted' && vdu) {
-              dispatch(vnfDeleted(vnfVduName));
+            if (match && op === 'created') {
+              dispatch(fetchOneVnf(nsInfo, vnfInfo, vdu));
             } else if (match && op === 'deleted') {
-              dispatch(nsDeleted(nsInfo));
+              dispatch(vnfDeleted(vnfInfo));
             }
+          }
+
+          match = reExec(nsInfoRegex, keypath);
+          if (match && op === 'deleted') {
+            dispatch(subscriptionEvent(keypath, op));
+            const [ all, nsInfo ] = match;
+            dispatch(nsDeleted(nsInfo));
           }
         });
       }
     });
     dispatch(subscriptionSuccess(path, cdbOper, skipLocal));
 
-    path = vnfDeploymentResultPath;
+    path = '/nfv:nfv/cisco-nfvo:internal/netconf-deployment-plan/plan/component/state/status';
     cdbOper = true;
-    skipLocal = true;
 
-    dispatch(subscriptionRequest(path, cdbOper, skipLocal));
+    dispatch(subscriptionRequest(path, cdbOper));
 
     Comet.subscribe({
-      path, cdbOper, skipLocal,
+      path, cdbOper,
       callback : evt => {
         evt.changes.forEach(change => {
           const { keypath, op, value } = change;
 
-          let match = reExec(vmDeviceStatusRegex, keypath);
-          if (match && op !== 'deleted') {
+          const match = reExec(vmDeviceStatusRegex, keypath);
+          if (match && op !== 'deleted' && value == 'reached') {
             dispatch(subscriptionEvent(keypath, op));
-            const { vnfVduName } = parseMatch(match);
-            const vmId = match[7];
-            const status = match[8];
-            dispatch(vnfVmStatusUpdated(vnfVduName, vmId, status));
+            const [ all, deploymentId, managed, vmId, status ] = match;
+            dispatch(vnfVmStatusUpdated(vmId, extractState(status)));
+          }
+        });
+      }
+    });
+    dispatch(subscriptionSuccess(path, cdbOper));
+
+    path = '/nfv:nfv/cisco-nfvo:internal/netconf-deployment-result/vm-group/vm-device';
+    cdbOper = true;
+
+    dispatch(subscriptionRequest(path, cdbOper));
+
+    Comet.subscribe({
+      path, cdbOper,
+      callback : evt => {
+        evt.changes.forEach(change => {
+          const { keypath, op, value } = change;
+
+          let match = reExec(vmDeviceRegex, keypath);
+          if (match && op == 'deleted') {
+            dispatch(subscriptionEvent(keypath, op));
+            const [ all, deploymentId, vmGroupName, deviceName ] = match;
+            const vnfName = `${deploymentId}-${vmGroupName}`;
+            dispatch(vnfVmDeviceDeleted(vnfName, deviceName));
           }
 
           match = reExec(vmDeviceNameRegex, keypath);
           if (match && op !== 'deleted') {
             dispatch(subscriptionEvent(keypath, op));
-            const { vnfVduName } = parseMatch(match);
-            const vmId = match[7];
-            const device = value;
-            dispatch(vnfVmDeviceUpdated(vnfVduName, vmId, device));
+            const [ all, deploymentId, vmGroupName, deviceName ] = match;
+            const vnfName = `${deploymentId}-${vmGroupName}`;
+            dispatch(vnfVmDeviceCreated(vnfName, deviceName, value));
           }
+        });
+      }
+    });
+    dispatch(subscriptionSuccess(path, cdbOper));
 
-          match = reExec(vmDeviceRegex, keypath);
-          if (match && op === 'deleted') {
-            dispatch(subscriptionEvent(keypath, op));
-            const { vnfVduName } = parseMatch(match);
-            const vmId = match[7];
-            dispatch(vnfVmDeleted(vnfVduName, vmId));
-          }
+    path = '/nfv:nfv/cisco-nfvo:internal/netconf-deployment-result/vm-group/vms-scaling';
+    cdbOper = true;
 
-          match = reExec(vmsScalingRegex, keypath);
+    dispatch(subscriptionRequest(path, cdbOper));
+
+    Comet.subscribe({
+      path, cdbOper,
+      callback : evt => {
+        evt.changes.forEach(change => {
+          const { keypath, op, value } = change;
+
+          const match = reExec(vmsScalingRegex, keypath);
           if (match) {
             dispatch(subscriptionEvent(keypath, op));
-            const { vnfVduName } = parseMatch(match);
+            const [ all, deploymentId, vmGroupName ] = match;
+            const vnfName = `${deploymentId}-${vmGroupName}`;
             const vmsScaling = value;
-            dispatch(vnfScaleEvent(vnfVduName, vmsScaling));
+            dispatch(vnfScaleEvent(vnfName, vmsScaling));
           }
         });
       }

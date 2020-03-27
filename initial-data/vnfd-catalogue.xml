@@ -1,462 +1,589 @@
 <?xml version="1.0"?>
 <config xmlns="http://tail-f.com/ns/config/1.0">
-  <nfvo xmlns="http://tail-f.com/pkg/tailf-etsi-rel2-nfvo">
+  <nfv xmlns="urn:etsi:nfv:yang:etsi-nfv-descriptors">
     <vnfd>
       <id>Cisco-ASA</id>
       <product-name>Virtual ASA</product-name>
       <provider>Cisco</provider>
       <version>9.4.3</version>
+      <software-version>9.4.3</software-version>
       <product-info-description>Virtual security appliance</product-info-description>
+      <vnfm-info>netconf</vnfm-info>
       <vdu>
         <id>fw-3cp</id>
-        <internal-connection-point-descriptor>
+        <name>Firewall 3 Connection Points</name>
+        <int-cpd>
           <id>inside</id>
-          <layer-protocol>IPv4</layer-protocol>
-          <external-connection-point-descriptor>inside</external-connection-point-descriptor>
-          <interface-id xmlns="http://tail-f.com/pkg/tailf-etsi-rel2-nfvo-esc">1</interface-id>
-        </internal-connection-point-descriptor>
-        <internal-connection-point-descriptor>
-          <id>mgmt</id>
-          <layer-protocol>IPv4</layer-protocol>
-          <external-connection-point-descriptor>mgmt</external-connection-point-descriptor>
-          <interface-id xmlns="http://tail-f.com/pkg/tailf-etsi-rel2-nfvo-esc">0</interface-id>
-        </internal-connection-point-descriptor>
-        <internal-connection-point-descriptor>
+          <int-virtual-link-desc>inside</int-virtual-link-desc>
+          <layer-protocol>ipv4</layer-protocol>
+          <interface-id xmlns="http://cisco.com/ns/nso/cfp/cisco-etsi-nfvo">1</interface-id>
+        </int-cpd>
+        <int-cpd>
           <id>outside</id>
-          <layer-protocol>IPv4</layer-protocol>
-          <external-connection-point-descriptor>outside</external-connection-point-descriptor>
-          <interface-id xmlns="http://tail-f.com/pkg/tailf-etsi-rel2-nfvo-esc">2</interface-id>
-        </internal-connection-point-descriptor>
-        <virtual-compute-descriptor>vcd</virtual-compute-descriptor>
-        <virtual-storage-descriptor>root</virtual-storage-descriptor>
-        <software-image-descriptor>
-          <container-format>bare</container-format>
-          <disk-format>qcow2</disk-format>
-          <image>http://10.147.46.245/nfvo-modelling/asav943.qcow2</image>
-        </software-image-descriptor>
-        <device-type xmlns="http://tail-f.com/pkg/tailf-etsi-rel2-nfvo-esc">
+          <int-virtual-link-desc>outside</int-virtual-link-desc>
+          <layer-protocol>ipv4</layer-protocol>
+          <interface-id xmlns="http://cisco.com/ns/nso/cfp/cisco-etsi-nfvo">2</interface-id>
+        </int-cpd>
+        <int-cpd>
+          <id>mgmt</id>
+          <int-virtual-link-desc>management</int-virtual-link-desc>
+          <layer-protocol>ipv4</layer-protocol>
+          <interface-id xmlns="http://cisco.com/ns/nso/cfp/cisco-etsi-nfvo">0</interface-id>
+          <management xmlns="http://cisco.com/ns/nso/cfp/cisco-etsi-nfvo"/>
+        </int-cpd>
+        <virtual-compute-desc>vcd</virtual-compute-desc>
+        <virtual-storage-desc>root</virtual-storage-desc>
+        <sw-image-desc>fw</sw-image-desc>
+        <device-type xmlns="http://cisco.com/ns/nso/cfp/cisco-etsi-nfvo">
           <cli>
-            <ned-id>cisco-asa-cli-6.5</ned-id>
+            <ned-id>cisco-asa-cli-6.8</ned-id>
           </cli>
         </device-type>
       </vdu>
       <vdu>
         <id>fw-4cp</id>
-        <internal-connection-point-descriptor>
+        <name>Firewall 4 Connection Points</name>
+        <int-cpd>
           <id>inside</id>
-          <layer-protocol>IPv4</layer-protocol>
-          <external-connection-point-descriptor>inside</external-connection-point-descriptor>
-          <interface-id xmlns="http://tail-f.com/pkg/tailf-etsi-rel2-nfvo-esc">1</interface-id>
-        </internal-connection-point-descriptor>
-        <internal-connection-point-descriptor>
-          <id>mgmt</id>
-          <layer-protocol>IPv4</layer-protocol>
-          <external-connection-point-descriptor>mgmt</external-connection-point-descriptor>
-          <interface-id xmlns="http://tail-f.com/pkg/tailf-etsi-rel2-nfvo-esc">0</interface-id>
-        </internal-connection-point-descriptor>
-        <internal-connection-point-descriptor>
+          <int-virtual-link-desc>inside</int-virtual-link-desc>
+          <layer-protocol>ipv4</layer-protocol>
+          <interface-id xmlns="http://cisco.com/ns/nso/cfp/cisco-etsi-nfvo">1</interface-id>
+        </int-cpd>
+        <int-cpd>
           <id>outside</id>
-          <layer-protocol>IPv4</layer-protocol>
-          <external-connection-point-descriptor>outside</external-connection-point-descriptor>
-          <interface-id xmlns="http://tail-f.com/pkg/tailf-etsi-rel2-nfvo-esc">2</interface-id>
-        </internal-connection-point-descriptor>
-        <internal-connection-point-descriptor>
+          <int-virtual-link-desc>outside</int-virtual-link-desc>
+          <layer-protocol>ipv4</layer-protocol>
+          <interface-id xmlns="http://cisco.com/ns/nso/cfp/cisco-etsi-nfvo">2</interface-id>
+        </int-cpd>
+        <int-cpd>
           <id>external</id>
-          <layer-protocol>IPv4</layer-protocol>
-          <external-connection-point-descriptor>external</external-connection-point-descriptor>
-          <interface-id xmlns="http://tail-f.com/pkg/tailf-etsi-rel2-nfvo-esc">3</interface-id>
-        </internal-connection-point-descriptor>
-        <virtual-compute-descriptor>vcd</virtual-compute-descriptor>
-        <virtual-storage-descriptor>root</virtual-storage-descriptor>
-        <software-image-descriptor>
-          <container-format>bare</container-format>
-          <disk-format>qcow2</disk-format>
-          <image>http://10.147.46.245/nfvo-modelling/asav943.qcow2</image>
-        </software-image-descriptor>
-        <device-type xmlns="http://tail-f.com/pkg/tailf-etsi-rel2-nfvo-esc">
+          <int-virtual-link-desc>external</int-virtual-link-desc>
+          <layer-protocol>ipv4</layer-protocol>
+          <interface-id xmlns="http://cisco.com/ns/nso/cfp/cisco-etsi-nfvo">3</interface-id>
+        </int-cpd>
+        <int-cpd>
+          <id>mgmt</id>
+          <int-virtual-link-desc>management</int-virtual-link-desc>
+          <layer-protocol>ipv4</layer-protocol>
+          <interface-id xmlns="http://cisco.com/ns/nso/cfp/cisco-etsi-nfvo">0</interface-id>
+          <management xmlns="http://cisco.com/ns/nso/cfp/cisco-etsi-nfvo"/>
+        </int-cpd>
+        <virtual-compute-desc>vcd</virtual-compute-desc>
+        <virtual-storage-desc>root</virtual-storage-desc>
+        <sw-image-desc>fw</sw-image-desc>
+        <device-type xmlns="http://cisco.com/ns/nso/cfp/cisco-etsi-nfvo">
           <cli>
-            <ned-id>cisco-asa-cli-6.5</ned-id>
+            <ned-id>cisco-asa-cli-6.8</ned-id>
           </cli>
         </device-type>
       </vdu>
-      <virtual-compute-descriptor>
+      <virtual-compute-desc>
         <id>vcd</id>
         <virtual-memory>
-          <virtual-memory-size>4.0</virtual-memory-size>
+          <size>4.0</size>
         </virtual-memory>
         <virtual-cpu>
-          <number-of-virtual-cpus>2</number-of-virtual-cpus>
+          <num-virtual-cpu>2</num-virtual-cpu>
         </virtual-cpu>
-      </virtual-compute-descriptor>
-      <virtual-storage-descriptor>
+      </virtual-compute-desc>
+      <virtual-storage-desc>
         <id>root</id>
-        <type-of-storage>root</type-of-storage>
+        <type-of-storage>root-storage</type-of-storage>
         <size-of-storage>10</size-of-storage>
-      </virtual-storage-descriptor>
-      <external-connection-point-descriptor>
+      </virtual-storage-desc>
+      <sw-image-desc>
+        <id>fw</id>
+        <name>Cisco ASAv Firewall</name>
+        <size>2</size>
+        <min-disk>2</min-disk>
+        <version>9.4.3</version>
+        <checksum>
+          <algorithm>sha-256</algorithm>
+          <hash>123321</hash>
+        </checksum>
+        <container-format>bare</container-format>
+        <disk-format>qcow2</disk-format>
+        <image>http://10.147.46.245/nfvo-modelling/asav943.qcow2</image>
+      </sw-image-desc>
+      <int-virtual-link-desc>
         <id>inside</id>
-        <layer-protocol>IPv4</layer-protocol>
-      </external-connection-point-descriptor>
-      <external-connection-point-descriptor>
-        <id>mgmt</id>
-        <layer-protocol>IPv4</layer-protocol>
-        <management xmlns="http://tail-f.com/pkg/tailf-etsi-rel2-nfvo-esc"/>
-      </external-connection-point-descriptor>
-      <external-connection-point-descriptor>
+        <connectivity-type>
+          <layer-protocol>ipv4</layer-protocol>
+        </connectivity-type>
+      </int-virtual-link-desc>
+      <int-virtual-link-desc>
         <id>outside</id>
-        <layer-protocol>IPv4</layer-protocol>
-      </external-connection-point-descriptor>
-      <external-connection-point-descriptor>
+        <connectivity-type>
+          <layer-protocol>ipv4</layer-protocol>
+        </connectivity-type>
+      </int-virtual-link-desc>
+      <int-virtual-link-desc>
         <id>external</id>
-        <layer-protocol>IPv4</layer-protocol>
-      </external-connection-point-descriptor>
-      <deployment-flavor>
+        <connectivity-type>
+          <layer-protocol>ipv4</layer-protocol>
+        </connectivity-type>
+      </int-virtual-link-desc>
+      <int-virtual-link-desc>
+        <id>management</id>
+        <connectivity-type>
+          <layer-protocol>ipv4</layer-protocol>
+        </connectivity-type>
+      </int-virtual-link-desc>
+      <ext-cpd>
+        <id>inside</id>
+        <int-virtual-link-desc>inside</int-virtual-link-desc>
+        <layer-protocol>ipv4</layer-protocol>
+      </ext-cpd>
+      <ext-cpd>
+        <id>outside</id>
+        <int-virtual-link-desc>outside</int-virtual-link-desc>
+        <layer-protocol>ipv4</layer-protocol>
+      </ext-cpd>
+      <ext-cpd>
+        <id>external</id>
+        <int-virtual-link-desc>external</int-virtual-link-desc>
+        <layer-protocol>ipv4</layer-protocol>
+      </ext-cpd>
+      <ext-cpd>
+        <id>mgmt</id>
+        <int-virtual-link-desc>management</int-virtual-link-desc>
+        <layer-protocol>ipv4</layer-protocol>
+      </ext-cpd>
+      <df>
         <id>bronze</id>
         <vdu-profile>
-          <vdu>fw-3cp</vdu>
+          <id>fw-3cp</id>
           <min-number-of-instances>1</min-number-of-instances>
           <max-number-of-instances>1</max-number-of-instances>
         </vdu-profile>
         <instantiation-level>
           <id>small</id>
           <vdu-level>
-            <vdu>fw-3cp</vdu>
+            <vdu-id>fw-3cp</vdu-id>
             <number-of-instances>1</number-of-instances>
           </vdu-level>
         </instantiation-level>
-      </deployment-flavor>
-      <deployment-flavor>
+      </df>
+      <df>
         <id>silver</id>
         <vdu-profile>
-          <vdu>fw-4cp</vdu>
+          <id>fw-4cp</id>
           <min-number-of-instances>1</min-number-of-instances>
           <max-number-of-instances>1</max-number-of-instances>
         </vdu-profile>
         <instantiation-level>
           <id>small</id>
           <vdu-level>
-            <vdu>fw-4cp</vdu>
+            <vdu-id>fw-4cp</vdu-id>
             <number-of-instances>1</number-of-instances>
           </vdu-level>
         </instantiation-level>
-      </deployment-flavor>
+      </df>
     </vnfd>
     <vnfd>
       <id>Cisco-CSR1kv</id>
       <product-name>CSR 1000v</product-name>
       <provider>Cisco</provider>
-      <version>1.0</version>
+      <version>9.3.14</version>
+      <software-version>9.3.14</software-version>
       <product-info-description>Cloud router</product-info-description>
+      <vnfm-info>netconf</vnfm-info>
       <vdu>
         <id>router</id>
-        <internal-connection-point-descriptor>
+        <name>Router</name>
+        <int-cpd>
           <id>left</id>
-          <layer-protocol>IPv4</layer-protocol>
-          <external-connection-point-descriptor>left</external-connection-point-descriptor>
-          <interface-id xmlns="http://tail-f.com/pkg/tailf-etsi-rel2-nfvo-esc">1</interface-id>
-        </internal-connection-point-descriptor>
-        <internal-connection-point-descriptor>
+          <layer-protocol>ipv4</layer-protocol>
+          <interface-id xmlns="http://cisco.com/ns/nso/cfp/cisco-etsi-nfvo">1</interface-id>
+        </int-cpd>
+        <int-cpd>
           <id>mgmt</id>
-          <layer-protocol>IPv4</layer-protocol>
-          <external-connection-point-descriptor>mgmt</external-connection-point-descriptor>
-          <interface-id xmlns="http://tail-f.com/pkg/tailf-etsi-rel2-nfvo-esc">0</interface-id>
-        </internal-connection-point-descriptor>
-        <internal-connection-point-descriptor>
+          <layer-protocol>ipv4</layer-protocol>
+          <interface-id xmlns="http://cisco.com/ns/nso/cfp/cisco-etsi-nfvo">0</interface-id>
+          <management xmlns="http://cisco.com/ns/nso/cfp/cisco-etsi-nfvo"/>
+        </int-cpd>
+        <int-cpd>
           <id>right</id>
-          <layer-protocol>IPv4</layer-protocol>
-          <external-connection-point-descriptor>right</external-connection-point-descriptor>
-          <interface-id xmlns="http://tail-f.com/pkg/tailf-etsi-rel2-nfvo-esc">2</interface-id>
-        </internal-connection-point-descriptor>
-        <virtual-compute-descriptor>vcd</virtual-compute-descriptor>
-        <virtual-storage-descriptor>root</virtual-storage-descriptor>
-        <software-image-descriptor>
-          <container-format>bare</container-format>
-          <disk-format>qcow2</disk-format>
-          <image>http://10.147.46.245/nso-demo/csr1000v-universalk9.03.14.01.S.155-1.S1-std.qcow2</image>
-          <additional-setting xmlns="http://tail-f.com/pkg/tailf-etsi-rel2-nfvo-esc">
-            <id>disk_bus</id>
-            <value>virtio</value>
-          </additional-setting>
-          <additional-setting xmlns="http://tail-f.com/pkg/tailf-etsi-rel2-nfvo-esc">
-            <id>e1000_net</id>
-            <value>false</value>
-          </additional-setting>
-          <additional-setting xmlns="http://tail-f.com/pkg/tailf-etsi-rel2-nfvo-esc">
-            <id>serial_console</id>
-            <value>true</value>
-          </additional-setting>
-          <additional-setting xmlns="http://tail-f.com/pkg/tailf-etsi-rel2-nfvo-esc">
-            <id>virtio_net</id>
-            <value>false</value>
-          </additional-setting>
-        </software-image-descriptor>
-        <device-type xmlns="http://tail-f.com/pkg/tailf-etsi-rel2-nfvo-esc">
+          <layer-protocol>ipv4</layer-protocol>
+          <interface-id xmlns="http://cisco.com/ns/nso/cfp/cisco-etsi-nfvo">2</interface-id>
+        </int-cpd>
+        <virtual-compute-desc>vcd</virtual-compute-desc>
+        <virtual-storage-desc>root</virtual-storage-desc>
+        <sw-image-desc>router</sw-image-desc>
+        <device-type xmlns="http://cisco.com/ns/nso/cfp/cisco-etsi-nfvo">
           <cli>
             <ned-id>cisco-ios-cli-3.8</ned-id>
           </cli>
         </device-type>
-        <day0 xmlns="http://tail-f.com/pkg/tailf-etsi-rel2-nfvo-esc">
-          <destination>iosxe_config.txt</destination>
-          <mandatory/>
-        </day0>
       </vdu>
-      <virtual-compute-descriptor>
+      <virtual-compute-desc>
         <id>vcd</id>
         <virtual-memory>
-          <virtual-memory-size>3.0</virtual-memory-size>
+          <size>3.0</size>
         </virtual-memory>
         <virtual-cpu>
-          <number-of-virtual-cpus>1</number-of-virtual-cpus>
+          <num-virtual-cpu>1</num-virtual-cpu>
         </virtual-cpu>
-      </virtual-compute-descriptor>
-      <virtual-storage-descriptor>
+      </virtual-compute-desc>
+      <virtual-storage-desc>
         <id>root</id>
-        <type-of-storage>root</type-of-storage>
+        <type-of-storage>root-storage</type-of-storage>
         <size-of-storage>8</size-of-storage>
-      </virtual-storage-descriptor>
-      <external-connection-point-descriptor>
+      </virtual-storage-desc>
+      <sw-image-desc>
+        <id>router</id>
+        <name>Cisco CSR1000v Router</name>
+        <size>2</size>
+        <min-disk>2</min-disk>
+        <version>9.3.14</version>
+        <checksum>
+          <algorithm>sha-256</algorithm>
+          <hash>123321</hash>
+        </checksum>
+        <container-format>bare</container-format>
+        <disk-format>qcow2</disk-format>
+        <image>http://10.147.46.245/nso-demo/csr1000v-universalk9.03.14.01.S.155-1.S1-std.qcow2</image>
+        <additional-setting xmlns="http://cisco.com/ns/nso/cfp/cisco-etsi-nfvo">
+          <id>disk_bus</id>
+          <value>virtio</value>
+        </additional-setting>
+        <additional-setting xmlns="http://cisco.com/ns/nso/cfp/cisco-etsi-nfvo">
+          <id>e1000_net</id>
+          <value>false</value>
+        </additional-setting>
+        <additional-setting xmlns="http://cisco.com/ns/nso/cfp/cisco-etsi-nfvo">
+          <id>serial_console</id>
+          <value>true</value>
+        </additional-setting>
+        <additional-setting xmlns="http://cisco.com/ns/nso/cfp/cisco-etsi-nfvo">
+          <id>virtio_net</id>
+          <value>false</value>
+        </additional-setting>
+      </sw-image-desc>
+      <ext-cpd>
         <id>left</id>
-        <layer-protocol>IPv4</layer-protocol>
-      </external-connection-point-descriptor>
-      <external-connection-point-descriptor>
+        <int-cpd>
+          <vdu-id>router</vdu-id>
+          <cpd>left</cpd>
+        </int-cpd>
+        <layer-protocol>ipv4</layer-protocol>
+      </ext-cpd>
+      <ext-cpd>
         <id>mgmt</id>
-        <layer-protocol>IPv4</layer-protocol>
-        <management xmlns="http://tail-f.com/pkg/tailf-etsi-rel2-nfvo-esc"/>
-      </external-connection-point-descriptor>
-      <external-connection-point-descriptor>
+        <int-cpd>
+          <vdu-id>router</vdu-id>
+          <cpd>mgmt</cpd>
+        </int-cpd>
+        <layer-protocol>ipv4</layer-protocol>
+      </ext-cpd>
+      <ext-cpd>
         <id>right</id>
-        <layer-protocol>IPv4</layer-protocol>
-      </external-connection-point-descriptor>
-      <deployment-flavor>
+        <int-cpd>
+          <vdu-id>router</vdu-id>
+          <cpd>right</cpd>
+        </int-cpd>
+        <layer-protocol>ipv4</layer-protocol>
+      </ext-cpd>
+      <df>
         <id>bronze</id>
         <vdu-profile>
-          <vdu>router</vdu>
+          <id>router</id>
           <min-number-of-instances>1</min-number-of-instances>
           <max-number-of-instances>1</max-number-of-instances>
         </vdu-profile>
         <instantiation-level>
           <id>small</id>
           <vdu-level>
-            <vdu>router</vdu>
+            <vdu-id>router</vdu-id>
             <number-of-instances>1</number-of-instances>
           </vdu-level>
         </instantiation-level>
         <default-instantiation-level>small</default-instantiation-level>
-      </deployment-flavor>
+      </df>
+      <artifact xmlns="http://cisco.com/ns/nso/cfp/cisco-etsi-nfvo">
+        <id>day0</id>
+        <destination-name>iosxe_config.txt</destination-name>
+        <url>a/b/c</url>
+        <checksum>
+          <algorithm>nfv:sha-256</algorithm>
+          <hash>3af30fce37a4c5c831e095745744d6d2</hash>
+        </checksum>
+        <mandatory/>
+      </artifact>
     </vnfd>
     <vnfd>
       <id>Netrounds-VTA</id>
       <product-name>Netrounds Test Agent</product-name>
       <provider>Netrounds</provider>
       <version>1.0.0</version>
+      <software-version>1.0.0</software-version>
       <product-info-description>Netrounds Test Agent</product-info-description>
+      <vnfm-info>netconf</vnfm-info>
       <vdu>
         <id>ta</id>
-        <internal-connection-point-descriptor>
+        <name>ta</name>
+        <int-cpd>
           <id>mgmt</id>
-          <layer-protocol>IPv4</layer-protocol>
-          <external-connection-point-descriptor>mgmt</external-connection-point-descriptor>
-          <interface-id xmlns="http://tail-f.com/pkg/tailf-etsi-rel2-nfvo-esc">0</interface-id>
-        </internal-connection-point-descriptor>
-        <internal-connection-point-descriptor>
+          <layer-protocol>ipv4</layer-protocol>
+          <interface-id xmlns="http://cisco.com/ns/nso/cfp/cisco-etsi-nfvo">0</interface-id>
+          <management xmlns="http://cisco.com/ns/nso/cfp/cisco-etsi-nfvo"/>
+        </int-cpd>
+        <int-cpd>
           <id>test</id>
-          <layer-protocol>IPv4</layer-protocol>
-          <external-connection-point-descriptor>test</external-connection-point-descriptor>
-          <interface-id xmlns="http://tail-f.com/pkg/tailf-etsi-rel2-nfvo-esc">1</interface-id>
-        </internal-connection-point-descriptor>
-        <virtual-compute-descriptor>vcd</virtual-compute-descriptor>
-        <virtual-storage-descriptor>root</virtual-storage-descriptor>
-        <software-image-descriptor>
-          <container-format>bare</container-format>
-          <disk-format>raw</disk-format>
-          <image>https://s3-eu-west-1.amazonaws.com/netroundsdownload-dev/2.18.0.1/genalyzer-gcloud-i386-161121-1509.raw</image>
-        </software-image-descriptor>
+          <layer-protocol>ipv4</layer-protocol>
+          <interface-id xmlns="http://cisco.com/ns/nso/cfp/cisco-etsi-nfvo">1</interface-id>
+        </int-cpd>
+        <virtual-compute-desc>vcd</virtual-compute-desc>
+        <virtual-storage-desc>root</virtual-storage-desc>
+        <sw-image-desc>ta</sw-image-desc>
       </vdu>
-      <virtual-compute-descriptor>
+      <virtual-compute-desc>
         <id>vcd</id>
         <virtual-memory>
-          <virtual-memory-size>0.5</virtual-memory-size>
+          <size>0.5</size>
         </virtual-memory>
         <virtual-cpu>
-          <number-of-virtual-cpus>1</number-of-virtual-cpus>
+          <num-virtual-cpu>1</num-virtual-cpu>
         </virtual-cpu>
-      </virtual-compute-descriptor>
-      <virtual-storage-descriptor>
+      </virtual-compute-desc>
+      <virtual-storage-desc>
         <id>root</id>
-        <type-of-storage>root</type-of-storage>
+        <type-of-storage>root-storage</type-of-storage>
         <size-of-storage>1</size-of-storage>
-      </virtual-storage-descriptor>
-      <external-connection-point-descriptor>
+      </virtual-storage-desc>
+      <sw-image-desc>
+        <id>ta</id>
+        <name>Virtual Test Agent</name>
+        <size>2</size>
+        <min-disk>2</min-disk>
+        <version>1</version>
+        <checksum>
+          <algorithm>sha-256</algorithm>
+          <hash>123321</hash>
+        </checksum>
+        <container-format>bare</container-format>
+        <disk-format>raw</disk-format>
+        <image>https://s3-eu-west-1.amazonaws.com/netroundsdownload-dev/2.18.0.1/genalyzer-gcloud-i386-161121-1509.raw</image>
+      </sw-image-desc>
+      <ext-cpd>
         <id>mgmt</id>
-        <layer-protocol>IPv4</layer-protocol>
-        <management xmlns="http://tail-f.com/pkg/tailf-etsi-rel2-nfvo-esc"/>
-      </external-connection-point-descriptor>
-      <external-connection-point-descriptor>
+        <int-cpd>
+          <vdu-id>ta</vdu-id>
+          <cpd>mgmt</cpd>
+        </int-cpd>
+        <layer-protocol>ipv4</layer-protocol>
+      </ext-cpd>
+      <ext-cpd>
         <id>test</id>
-        <layer-protocol>IPv4</layer-protocol>
-      </external-connection-point-descriptor>
-      <deployment-flavor>
+        <int-cpd>
+          <vdu-id>ta</vdu-id>
+          <cpd>test</cpd>
+        </int-cpd>
+        <layer-protocol>ipv4</layer-protocol>
+      </ext-cpd>
+      <df>
         <id>bronze</id>
         <vdu-profile>
-          <vdu>ta</vdu>
+          <id>ta</id>
           <min-number-of-instances>1</min-number-of-instances>
           <max-number-of-instances>1</max-number-of-instances>
         </vdu-profile>
         <instantiation-level>
           <id>small</id>
           <vdu-level>
-            <vdu>ta</vdu>
+            <vdu-id>ta</vdu-id>
             <number-of-instances>1</number-of-instances>
           </vdu-level>
         </instantiation-level>
         <default-instantiation-level>small</default-instantiation-level>
-      </deployment-flavor>
+      </df>
     </vnfd>
     <vnfd>
       <id>Linux-Pen</id>
       <product-name>Load Balancer</product-name>
       <provider>Linux</provider>
       <version>1.0.0</version>
+      <software-version>1.0.0</software-version>
       <product-info-description>Linux Pen Load Balancer</product-info-description>
+      <vnfm-info>netconf</vnfm-info>
       <vdu>
         <id>lb</id>
-        <internal-connection-point-descriptor>
-          <id>mgmt</id>
-          <layer-protocol>IPv4</layer-protocol>
-          <external-connection-point-descriptor>mgmt</external-connection-point-descriptor>
-          <interface-id xmlns="http://tail-f.com/pkg/tailf-etsi-rel2-nfvo-esc">0</interface-id>
-        </internal-connection-point-descriptor>
-        <internal-connection-point-descriptor>
+        <name>lb</name>
+        <int-cpd>
           <id>inside</id>
-          <layer-protocol>IPv4</layer-protocol>
-          <external-connection-point-descriptor>inside</external-connection-point-descriptor>
-          <interface-id xmlns="http://tail-f.com/pkg/tailf-etsi-rel2-nfvo-esc">1</interface-id>
-        </internal-connection-point-descriptor>
-        <internal-connection-point-descriptor>
+          <layer-protocol>ipv4</layer-protocol>
+          <interface-id xmlns="http://cisco.com/ns/nso/cfp/cisco-etsi-nfvo">1</interface-id>
+        </int-cpd>
+        <int-cpd>
           <id>outside</id>
-          <layer-protocol>IPv4</layer-protocol>
-          <external-connection-point-descriptor>outside</external-connection-point-descriptor>
-          <interface-id xmlns="http://tail-f.com/pkg/tailf-etsi-rel2-nfvo-esc">2</interface-id>
-        </internal-connection-point-descriptor>
-        <virtual-compute-descriptor>vcd</virtual-compute-descriptor>
-        <virtual-storage-descriptor>root</virtual-storage-descriptor>
-        <software-image-descriptor>
-          <container-format>bare</container-format>
-          <disk-format>qcow2</disk-format>
-          <image>http://10.51.14.24/nso-demo/loadbalancer1.qcow2</image>
-        </software-image-descriptor>
+          <layer-protocol>ipv4</layer-protocol>
+          <interface-id xmlns="http://cisco.com/ns/nso/cfp/cisco-etsi-nfvo">2</interface-id>
+        </int-cpd>
+        <int-cpd>
+          <id>mgmt</id>
+          <layer-protocol>ipv4</layer-protocol>
+          <interface-id xmlns="http://cisco.com/ns/nso/cfp/cisco-etsi-nfvo">0</interface-id>
+          <management xmlns="http://cisco.com/ns/nso/cfp/cisco-etsi-nfvo"/>
+        </int-cpd>
+        <virtual-compute-desc>vcd</virtual-compute-desc>
+        <virtual-storage-desc>root</virtual-storage-desc>
+        <sw-image-desc>lb</sw-image-desc>
       </vdu>
-      <virtual-compute-descriptor>
+      <virtual-compute-desc>
         <id>vcd</id>
         <virtual-memory>
-          <virtual-memory-size>4</virtual-memory-size>
+          <size>4</size>
         </virtual-memory>
         <virtual-cpu>
-          <number-of-virtual-cpus>2</number-of-virtual-cpus>
+          <num-virtual-cpu>2</num-virtual-cpu>
         </virtual-cpu>
-      </virtual-compute-descriptor>
-      <virtual-storage-descriptor>
+      </virtual-compute-desc>
+      <virtual-storage-desc>
         <id>root</id>
-        <type-of-storage>root</type-of-storage>
+        <type-of-storage>root-storage</type-of-storage>
         <size-of-storage>40</size-of-storage>
-      </virtual-storage-descriptor>
-      <external-connection-point-descriptor>
-        <id>mgmt</id>
-        <layer-protocol>IPv4</layer-protocol>
-        <management xmlns="http://tail-f.com/pkg/tailf-etsi-rel2-nfvo-esc"/>
-      </external-connection-point-descriptor>
-      <external-connection-point-descriptor>
+      </virtual-storage-desc>
+      <sw-image-desc>
+        <id>lb</id>
+        <name>Pen</name>
+        <size>2</size>
+        <min-disk>2</min-disk>
+        <version>1</version>
+        <checksum>
+          <algorithm>sha-256</algorithm>
+          <hash>123321</hash>
+        </checksum>
+        <container-format>bare</container-format>
+        <disk-format>qcow2</disk-format>
+        <image>http://10.51.14.24/nso-demo/loadbalancer1.qcow2</image>
+      </sw-image-desc>
+      <ext-cpd>
         <id>inside</id>
-        <layer-protocol>IPv4</layer-protocol>
-      </external-connection-point-descriptor>
-      <external-connection-point-descriptor>
+        <int-cpd>
+          <vdu-id>lb</vdu-id>
+          <cpd>inside</cpd>
+        </int-cpd>
+        <layer-protocol>ipv4</layer-protocol>
+      </ext-cpd>
+      <ext-cpd>
         <id>outside</id>
-        <layer-protocol>IPv4</layer-protocol>
-      </external-connection-point-descriptor>
-      <deployment-flavor>
+        <int-cpd>
+          <vdu-id>lb</vdu-id>
+          <cpd>outside</cpd>
+        </int-cpd>
+        <layer-protocol>ipv4</layer-protocol>
+      </ext-cpd>
+      <ext-cpd>
+        <id>mgmt</id>
+        <int-cpd>
+          <vdu-id>lb</vdu-id>
+          <cpd>mgmt</cpd>
+        </int-cpd>
+        <layer-protocol>ipv4</layer-protocol>
+      </ext-cpd>
+      <df>
         <id>bronze</id>
         <vdu-profile>
-          <vdu>lb</vdu>
+          <id>lb</id>
           <min-number-of-instances>1</min-number-of-instances>
           <max-number-of-instances>1</max-number-of-instances>
         </vdu-profile>
         <instantiation-level>
           <id>small</id>
           <vdu-level>
-            <vdu>lb</vdu>
+            <vdu-id>lb</vdu-id>
             <number-of-instances>1</number-of-instances>
           </vdu-level>
         </instantiation-level>
         <default-instantiation-level>small</default-instantiation-level>
-      </deployment-flavor>
+      </df>
     </vnfd>
     <vnfd>
       <id>Linux-Apache</id>
       <product-name>Web server</product-name>
       <provider>Linux</provider>
       <version>1.0.0</version>
+      <software-version>1.0.0</software-version>
       <product-info-description>Linux Apache Web Server</product-info-description>
+      <vnfm-info>netconf</vnfm-info>
       <vdu>
         <id>www</id>
-        <internal-connection-point-descriptor>
+        <name>www</name>
+        <int-cpd>
           <id>mgmt</id>
-          <layer-protocol>IPv4</layer-protocol>
-          <external-connection-point-descriptor>mgmt</external-connection-point-descriptor>
-          <interface-id xmlns="http://tail-f.com/pkg/tailf-etsi-rel2-nfvo-esc">0</interface-id>
-        </internal-connection-point-descriptor>
-        <internal-connection-point-descriptor>
+          <layer-protocol>ipv4</layer-protocol>
+          <interface-id xmlns="http://cisco.com/ns/nso/cfp/cisco-etsi-nfvo">0</interface-id>
+          <management xmlns="http://cisco.com/ns/nso/cfp/cisco-etsi-nfvo"/>
+        </int-cpd>
+        <int-cpd>
           <id>inside</id>
-          <layer-protocol>IPv4</layer-protocol>
-          <external-connection-point-descriptor>inside</external-connection-point-descriptor>
-          <interface-id xmlns="http://tail-f.com/pkg/tailf-etsi-rel2-nfvo-esc">1</interface-id>
-        </internal-connection-point-descriptor>
-        <virtual-compute-descriptor>vcd</virtual-compute-descriptor>
-        <virtual-storage-descriptor>root</virtual-storage-descriptor>
-        <software-image-descriptor>
-          <container-format>bare</container-format>
-          <disk-format>qcow2</disk-format>
-          <image>http://10.51.14.24/nso-demo/webserver2.qcow2</image>
-        </software-image-descriptor>
+          <layer-protocol>ipv4</layer-protocol>
+          <interface-id xmlns="http://cisco.com/ns/nso/cfp/cisco-etsi-nfvo">1</interface-id>
+        </int-cpd>
+        <virtual-compute-desc>vcd</virtual-compute-desc>
+        <virtual-storage-desc>root</virtual-storage-desc>
+        <sw-image-desc>www</sw-image-desc>
       </vdu>
-      <virtual-compute-descriptor>
+      <virtual-compute-desc>
         <id>vcd</id>
         <virtual-memory>
-          <virtual-memory-size>4</virtual-memory-size>
+          <size>4</size>
         </virtual-memory>
         <virtual-cpu>
-          <number-of-virtual-cpus>2</number-of-virtual-cpus>
+          <num-virtual-cpu>2</num-virtual-cpu>
         </virtual-cpu>
-      </virtual-compute-descriptor>
-      <virtual-storage-descriptor>
+      </virtual-compute-desc>
+      <virtual-storage-desc>
         <id>root</id>
-        <type-of-storage>root</type-of-storage>
+        <type-of-storage>root-storage</type-of-storage>
         <size-of-storage>40</size-of-storage>
-      </virtual-storage-descriptor>
-      <external-connection-point-descriptor>
-        <id>mgmt</id>
-        <layer-protocol>IPv4</layer-protocol>
-        <management xmlns="http://tail-f.com/pkg/tailf-etsi-rel2-nfvo-esc"/>
-      </external-connection-point-descriptor>
-      <external-connection-point-descriptor>
+      </virtual-storage-desc>
+      <sw-image-desc>
+        <id>www</id>
+        <name>Apache</name>
+        <size>2</size>
+        <min-disk>2</min-disk>
+        <version>1</version>
+        <checksum>
+          <algorithm>sha-256</algorithm>
+          <hash>123321</hash>
+        </checksum>
+        <container-format>bare</container-format>
+        <disk-format>qcow2</disk-format>
+        <image>http://10.51.14.24/nso-demo/webserver2.qcow2</image>
+      </sw-image-desc>
+      <ext-cpd>
         <id>inside</id>
-        <layer-protocol>IPv4</layer-protocol>
-      </external-connection-point-descriptor>
-      <deployment-flavor>
+        <int-cpd>
+          <vdu-id>www</vdu-id>
+          <cpd>inside</cpd>
+        </int-cpd>
+        <layer-protocol>ipv4</layer-protocol>
+      </ext-cpd>
+      <ext-cpd>
+        <id>mgmt</id>
+        <int-cpd>
+          <vdu-id>www</vdu-id>
+          <cpd>mgmt</cpd>
+        </int-cpd>
+        <layer-protocol>ipv4</layer-protocol>
+      </ext-cpd>
+      <df>
         <id>bronze</id>
         <vdu-profile>
-          <vdu>www</vdu>
+          <id>www</id>
           <min-number-of-instances>1</min-number-of-instances>
           <max-number-of-instances>3</max-number-of-instances>
         </vdu-profile>
         <instantiation-level>
           <id>small</id>
           <vdu-level>
-            <vdu>www</vdu>
+            <vdu-id>www</vdu-id>
             <number-of-instances>1</number-of-instances>
           </vdu-level>
         </instantiation-level>
         <default-instantiation-level>small</default-instantiation-level>
-      </deployment-flavor>
+      </df>
     </vnfd>
-  </nfvo>
+  </nfv>
 </config>

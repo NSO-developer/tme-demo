@@ -126,16 +126,16 @@ class JsonRpc {
   }
 
   async write() {
-    const db = 'running';
-    const mode = 'private';
-
     if (this.thWrite) { return this.thWrite; }
 
     if (this.pendingThWrite) {
       await this.pendingThWrite;
     } else {
       this.pendingThWrite = await this.request('new_trans', {
-        db: db, conf_mode: mode, mode: 'read_write'
+        db: 'running',
+        conf_mode: 'private',
+        mode: 'read_write',
+        tag: 'webui-one'
       });
     }
 

@@ -12,4 +12,10 @@
       <python-class-name>tme_demo.main.Main</python-class-name>
     </application>
   </component>
+  <component>
+    <name>NFVO ESC Notification Handler</name>
+    <application>
+      <python-class-name>nfvo.netconf_notif.Main</python-class-name>
+    </application>
+  </component>
 </ncs-package>

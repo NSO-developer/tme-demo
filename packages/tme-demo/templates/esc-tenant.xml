@@ -7,6 +7,9 @@
           <tenants>
             <tenant>
               <name>{../../name}</name>
+              <description>Tenant for NFV demo</description>
+              <managed_resource>true</managed_resource>
+              <vim_mapping>true</vim_mapping>
             </tenant>
           </tenants>
         </esc_datamodel>

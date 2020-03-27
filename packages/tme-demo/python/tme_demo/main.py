@@ -8,7 +8,7 @@ from ncs.application import PlanComponent
 from ncs.dp import Action
 import _ncs
 from _ncs import maapi
-from tme_demo.nfvo_helper import NfvoHelper, get_ns_info_id
+from tme_demo.nfvo_helper import NfvoHelper, get_ns_info_name
 
 
 # ------------------------
@@ -27,9 +27,10 @@ class ServiceCallbacks(Service):
         self_plan.append_state('ncs:ready')
         self_plan.set_reached('ncs:init')
 
-        ns_ready_count = sum(1 for ns in service.nfvo.network_service
-                             if self.configure_network_service(tctx, root,
-                                                               service, ns))
+        ns_ready_count = sum(
+            1 for network_service in service.nfvo.network_service
+            if self.configure_network_service(tctx, root, service,
+                                              network_service))
 
         if service.l3vpn.exists():
             self.log.info('Configuring L3VPN')
@@ -62,8 +63,8 @@ class ServiceCallbacks(Service):
         self.log.info('Service premod(service=', kp, ')')
         # Create tenant if required
         for tenant in root.tme_demo.tenant:
-            for ns in tenant.nfvo.network_service:
-                template = ncs.template.Template(ns)
+            for network_service in tenant.nfvo.network_service:
+                template = ncs.template.Template(network_service)
                 template.apply('esc-tenant')
 
     @Service.post_modification
@@ -84,8 +85,8 @@ class ServiceCallbacks(Service):
                 found = False
                 for tenant in root.tme_demo.tenant:
                     for network_service in tenant.nfvo.network_service:
-                        if icon.ns_info == get_ns_info_id(tenant.name,
-                                                          network_service.name):
+                        if icon.ns_info == get_ns_info_name(
+                                tenant.name, network_service.name):
                             found = True
 
                 if not found:
@@ -96,8 +97,9 @@ class ServiceCallbacks(Service):
         self.log.info('Configuring NFVO: %s' % network_service.name)
 
         nfvo_helper = NfvoHelper(self.log, tctx, root, service, network_service)
-        topology_conn_count = sum(1 for cp in nfvo_helper.cp_list if
-                                  cp.topology_connection.device is not None)
+        topology_conn_count = sum(
+            1 for connection in nfvo_helper.topology_connections
+            if connection.device is not None)
 
         ns_plan = PlanComponent(service, network_service.name,
                                 'tme-demo:network-service')

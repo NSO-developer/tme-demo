@@ -47,7 +47,7 @@
   display: flex;
   flex-flow: column nowrap;
   height: 100vh;
-  background-image: url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAC0AAAAZCAMAAACSL1cTAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAAAZQTFRFrrO3qa6ykvHongAAAGRJREFUeNq0k0kOADAIAvH/n+61bhhM2yNMiHWBXQ/FMwcYx+0VHW1eSc4idIKTtKYLOIrov1So4NFBBo8OOoZob2CCndUOme/aD3poiXd2PRH7rc1S3BNtBxfXAFaHepdHgAEAgn0Db883QsYAAAAASUVORK5CYII=");
+  background-image: url("pattern1.png");
 }
 
 .nso-body {

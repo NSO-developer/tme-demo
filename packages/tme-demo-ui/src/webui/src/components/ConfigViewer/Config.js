@@ -131,13 +131,14 @@ class Config extends PureComponent {
 
     const backpointerRegex = this.getBackpointerRegex();
     const refcountRegex = this.getRefcountRegex();
+    const indentRegex = /^<span class="hljs[^"]*">/;
 
     const iter = highlightedConfig.split('\n')[Symbol.iterator]();
     let { value, done } = iter.next();
     let result = [];
 
     const processBlock = highlight => {
-      const blockIndent = value.search(/\S/);
+      const blockIndent = value.replace(indentRegex, '').search(/\S/);
       let indent = blockIndent + 1;
       let backpointer = undefined;
 
@@ -148,7 +149,7 @@ class Config extends PureComponent {
       ({ value, done } = iter.next());
 
       while (indent > blockIndent && !done) {
-        indent = value.search(/\S/);
+        indent = value.replace(indentRegex, '').search(/\S/);
         const backpointerMatch = value.match(backpointerRegex);
         const refcountMatch = value.search(refcountRegex) != -1;
         const isOnlyMeta = ['cli', 'curly-braces'].includes(format) &&

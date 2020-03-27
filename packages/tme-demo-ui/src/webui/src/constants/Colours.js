@@ -33,12 +33,17 @@ export const GENERIC = BLUE;
 
 //State colour map
 export const STATE_COLOURS = {
-  'unreachable' : DISABLED,
-  'reachable'   : undefined,
-  'not-ready'   : 'DarkKhaki',
-  'init'        : DISABLED,
-  'deployed'    : 'DarkKhaki',
-  'recovering'  : 'DarkKhaki',
-  'ready'       : undefined,
-  'error'       : 'IndianRed'
+  'unreachable'             : DISABLED,
+  'reachable'               : undefined,
+  'not-ready'               : 'DarkKhaki',
+  'init'                    : DISABLED,
+  'deployed'                : 'DarkKhaki',
+  'device-created'          : 'DarkKhaki',
+  'alive'                   : 'Khaki',
+  'fetch-host-keys'         : 'Khaki',
+  'sync'                    : 'LightGreen',
+  'apply-device-templates'  : 'LightGreen',
+  'recovering'              : 'DarkKhaki',
+  'ready'                   : undefined,
+  'error'                   : 'IndianRed'
 };

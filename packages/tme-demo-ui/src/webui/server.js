@@ -118,6 +118,7 @@ app.all('/webui-one', proxy2nso);
 app.all('/webui-one/*', proxy2nso);
 app.all('/dist/*', proxy2nso);
 app.all('/login/*', proxy2nso);
+app.all('/custom/*', proxy2nso);
 
 app.listen(3000, function(err) {
   if (err) {

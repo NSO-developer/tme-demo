@@ -1,40 +1,47 @@
 <?xml version="1.0"?>
 <config xmlns="http://tail-f.com/ns/config/1.0">
-  <nfvo xmlns="http://tail-f.com/pkg/tailf-etsi-rel2-nfvo">
-    <ns-info>
-      <esc xmlns="http://tail-f.com/pkg/tailf-etsi-rel2-nfvo-esc">
-        <ns-info>
-          <id>{$NS_INFO_ID}</id>
-          <tenant>{../../name}</tenant>
-          <deployment-name>{name}</deployment-name>
-          <esc>{vnfm}</esc>
-          <username>admin</username>
-          <nsd>{nsd}</nsd>
-          <flavor>{flavour}</flavor>
-          <instantiation-level>small</instantiation-level>
-          <vnf-info tags="replace" when="{deref(flavour)/../vnf-profile[id='ASA-bronze']}">
-            <vnf-profile>ASA-bronze</vnf-profile>
-            <vnfd>Cisco-ASA</vnfd>
-            <vdu>
-              <id>fw-3cp</id>
-              <authgroup>asa</authgroup>
-              <image-name>Cisco-ASA</image-name>
-              <flavor-name>ASA-bronze</flavor-name>
-              <bootup-time>300</bootup-time>
-              <recovery-wait-time>60</recovery-wait-time>
-              <day0>
-                <destination>day0-config</destination>
-                <data>ASA Version 9.4(1)202
+  <nfv xmlns="urn:etsi:nfv:yang:etsi-nfv-descriptors">
+    <ns-info xmlns="http://cisco.com/ns/nso/cfp/cisco-etsi-nfvo">
+      <name>{$NS_INFO_NAME}</name>
+      <tenant>{../../name}</tenant>
+      <username>admin</username>
+      <nsd>{nsd}</nsd>
+      <flavour>{flavour}</flavour>
+      <instantiation-level>small</instantiation-level>
+      <vnf-info tags="replace" when="{deref(flavour)/../vnf-profile[id='ASA-bronze']}">
+        <vnf-profile>ASA-bronze</vnf-profile>
+        <vnfd>Cisco-ASA</vnfd>
+        <vnfm>{vnfm}</vnfm>
+        <vnfm-type>netconf</vnfm-type>
+        <vim-type>openstack</vim-type>
+        <vdu>
+          <id>fw-3cp</id>
+          <image-name>Cisco-ASA</image-name>
+          <flavour-name>ASA-bronze</flavour-name>
+          <bootup-time>300</bootup-time>
+          <recovery-wait-time>60</recovery-wait-time>
+          <authgroup>asa</authgroup>
+          <esc-device-template>
+            <name>ned</name>
+            <template-id>ned-template</template-id>
+            <variable>
+              <name>NEDID</name>
+              <value>asa-id:cisco-asa</value>
+            </variable>
+          </esc-device-template>
+          <artifact>
+            <id>day0-config</id>
+            <data>ASA Version 9.4(1)202
 !
 hostname $HOSTNAME
-interface management0/0
-nameif management
-security-level 100
-ip address $NICID_0_IP_ADDRESS $NICID_0_NETMASK
-no shutdown
-interface gigabitethernet0/0
-nameif inside
-security-level 100
+interface Management0/0
+ nameif management
+ security-level 100
+ ip address $NICID_0_IP_ADDRESS $NICID_0_NETMASK
+ no shutdown
+interface GigabitEthernet0/0
+ nameif inside
+ security-level 100
 http server enable
 http $NICID_0_CIDR_ADDRESS $NICID_0_NETMASK management
 crypto key generate rsa modulus 1024
@@ -56,41 +63,52 @@ ssh 0.0.0.0 0.0.0.0 management
 !
 route management 0.0.0.0 0.0.0.0 $NICID_0_GATEWAY
 </data>
-                <variable>
-                  <name>ADMIN_PWD</name>
-                  <value>admin</value>
-                </variable>
-                <variable>
-                  <name>HOSTNAME</name>
-                  <value>the-fw</value>
-                </variable>
-              </day0>
-              <managed/>
-            </vdu>
-          </vnf-info>
-          <vnf-info tags="replace" when="{deref(flavour)/../vnf-profile[id='ASA-silver']}">
-            <vnf-profile>ASA-silver</vnf-profile>
-            <vnfd>Cisco-ASA</vnfd>
-            <vdu>
-              <id>fw-4cp</id>
-              <authgroup>asa</authgroup>
-              <image-name>Cisco-ASA</image-name>
-              <flavor-name>ASA-bronze</flavor-name>
-              <bootup-time>300</bootup-time>
-              <recovery-wait-time>60</recovery-wait-time>
-              <day0>
-                <destination>day0-config</destination>
-                <data>ASA Version 9.4(1)202
+            <variable>
+              <name>ADMIN_PWD</name>
+              <value>admin</value>
+            </variable>
+            <variable>
+              <name>HOSTNAME</name>
+              <value>the-fw</value>
+            </variable>
+          </artifact>
+          <managed/>
+        </vdu>
+      </vnf-info>
+      <vnf-info tags="replace" when="{deref(flavour)/../vnf-profile[id='ASA-silver']}">
+        <vnf-profile>ASA-silver</vnf-profile>
+        <vnfd>Cisco-ASA</vnfd>
+        <vnfm>{vnfm}</vnfm>
+        <vnfm-type>netconf</vnfm-type>
+        <vim-type>openstack</vim-type>
+        <vdu>
+          <id>fw-4cp</id>
+          <image-name>Cisco-ASA</image-name>
+          <flavour-name>ASA-bronze</flavour-name>
+          <bootup-time>300</bootup-time>
+          <recovery-wait-time>60</recovery-wait-time>
+          <authgroup>asa</authgroup>
+          <esc-device-template>
+            <name>ned</name>
+            <template-id>ned-template</template-id>
+            <variable>
+              <name>NEDID</name>
+              <value>asa-id:cisco-asa</value>
+            </variable>
+          </esc-device-template>
+          <artifact>
+            <id>day0-config</id>
+            <data>ASA Version 9.4(1)202
 !
 hostname $HOSTNAME
-interface management0/0
-nameif management
-security-level 100
-ip address $NICID_0_IP_ADDRESS $NICID_0_NETMASK
-no shutdown
-interface gigabitethernet0/0
-nameif inside
-security-level 100
+ interface Management0/0
+ nameif management
+ security-level 100
+ ip address $NICID_0_IP_ADDRESS $NICID_0_NETMASK
+ no shutdown
+interface GigabitEthernet0/0
+ nameif inside
+ security-level 100
 http server enable
 http $NICID_0_CIDR_ADDRESS $NICID_0_NETMASK management
 crypto key generate rsa modulus 1024
@@ -112,31 +130,42 @@ ssh 0.0.0.0 0.0.0.0 management
 !
 route management 0.0.0.0 0.0.0.0 $NICID_0_GATEWAY
 </data>
-                <variable>
-                  <name>ADMIN_PWD</name>
-                  <value>admin</value>
-                </variable>
-                <variable>
-                  <name>HOSTNAME</name>
-                  <value>the-fw</value>
-                </variable>
-              </day0>
-              <managed/>
-            </vdu>
-          </vnf-info>
-          <vnf-info tags="replace" when="{deref(flavour)/../vnf-profile[id='CSR1kv-bronze']}">
-            <vnf-profile>CSR1kv-bronze</vnf-profile>
-            <vnfd>Cisco-CSR1kv</vnfd>
-            <vdu>
-              <id>router</id>
-              <authgroup>csr</authgroup>
-              <image-name>Cisco-CSR1kv</image-name>
-              <flavor-name>CSR1kv-bronze</flavor-name>
-              <bootup-time>300</bootup-time>
-              <recovery-wait-time>120</recovery-wait-time>
-              <day0>
-                <destination>iosxe_config.txt</destination>
-                <data>!####_DAY0_TIMESTAMPS
+            <variable>
+              <name>ADMIN_PWD</name>
+              <value>admin</value>
+            </variable>
+            <variable>
+              <name>HOSTNAME</name>
+              <value>the-fw</value>
+            </variable>
+          </artifact>
+          <managed/>
+        </vdu>
+      </vnf-info>
+      <vnf-info tags="replace" when="{deref(flavour)/../vnf-profile[id='CSR1kv-bronze']}">
+        <vnf-profile>CSR1kv-bronze</vnf-profile>
+        <vnfd>Cisco-CSR1kv</vnfd>
+        <vnfm>{vnfm}</vnfm>
+        <vnfm-type>netconf</vnfm-type>
+        <vim-type>openstack</vim-type>
+        <vdu>
+          <id>router</id>
+          <image-name>Cisco-CSR1kv</image-name>
+          <flavour-name>CSR1kv-bronze</flavour-name>
+          <bootup-time>300</bootup-time>
+          <recovery-wait-time>120</recovery-wait-time>
+          <authgroup>csr</authgroup>
+          <esc-device-template>
+            <name>ned</name>
+            <template-id>ned-template</template-id>
+            <variable>
+              <name>NEDID</name>
+              <value>ios-id:cisco-ios</value>
+            </variable>
+          </esc-device-template>
+          <artifact>
+            <id>iosxe_config.txt</id>
+            <data>!####_DAY0_TIMESTAMPS
 !
 service timestamps debug datetime msec localtime show-timezone
 service timestamps log datetime msec localtime show-timezone
@@ -205,30 +234,33 @@ license boot level ax
 !
 do write memory
 </data>
-                <variable>
-                  <name>ADMIN_PWD</name>
-                  <value>admin</value>
-                </variable>
-                <variable>
-                  <name>HOSTNAME</name>
-                  <value>router</value>
-                </variable>
-              </day0>
-              <managed/>
-            </vdu>
-          </vnf-info>
-          <vnf-info tags="replace" when="{deref(flavour)/../vnf-profile[id='VTA-bronze']}">
-            <vnf-profile>VTA-bronze</vnf-profile>
-            <vnfd>Netrounds-VTA</vnfd>
-            <vdu>
-              <id>ta</id>
-              <image-name>Netrounds-VTA</image-name>
-              <flavor-name>VTA-bronze</flavor-name>
-              <bootup-time>60</bootup-time>
-              <recovery-wait-time>120</recovery-wait-time>
-              <day0>
-                <destination>--user-data</destination>
-                <data>
+            <variable>
+              <name>ADMIN_PWD</name>
+              <value>admin</value>
+            </variable>
+            <variable>
+              <name>HOSTNAME</name>
+              <value>router</value>
+            </variable>
+          </artifact>
+          <managed/>
+        </vdu>
+      </vnf-info>
+      <vnf-info tags="replace" when="{deref(flavour)/../vnf-profile[id='VTA-bronze']}">
+        <vnf-profile>VTA-bronze</vnf-profile>
+        <vnfd>Netrounds-VTA</vnfd>
+        <vnfm>{vnfm}</vnfm>
+        <vnfm-type>netconf</vnfm-type>
+        <vim-type>openstack</vim-type>
+        <vdu>
+          <id>ta</id>
+          <image-name>Netrounds-VTA</image-name>
+          <flavour-name>VTA-bronze</flavour-name>
+          <bootup-time>60</bootup-time>
+          <recovery-wait-time>120</recovery-wait-time>
+          <artifact>
+            <id>--user-data</id>
+            <data>
 #netrounds-config
 name: $NAME
 email: $USER
@@ -238,44 +270,47 @@ server: $NCC_SERVER
 management_interface: eth0
 management_address_type: dhcp
 </data>
-                <variable>
-                  <name>ACCOUNT</name>
-                  <value>cisco</value>
-                  <!-- TODO: hardcoded for demo -->
-                </variable>
-                <variable>
-                  <name>NAME</name>
-                  <value>{../../name}-{name}-ta</value>
-                </variable>
-                <variable>
-                  <name>USER</name>
-                  <value>demo@cisco.com</value>
-                  <!-- TODO: hardcoded for demo -->
-                </variable>
-                <variable>
-                  <name>PWD</name>
-                  <value>demo</value>
-                  <!-- TODO: hardocoded for demo -->
-                </variable>
-                <variable>
-                  <name>NCC_SERVER</name>
-                  <value>ncc0</value>
-                </variable>
-              </day0>
-            </vdu>
-          </vnf-info>
-          <vnf-info tags="replace" when="{deref(flavour)/../vnf-profile[id='VTA-bronze-right']}">
-            <vnf-profile>VTA-bronze-right</vnf-profile>
-            <vnfd>Netrounds-VTA</vnfd>
-            <vdu>
-              <id>ta</id>
-              <image-name>Netrounds-VTA</image-name>
-              <flavor-name>VTA-bronze</flavor-name>
-              <bootup-time>60</bootup-time>
-              <recovery-wait-time>120</recovery-wait-time>
-              <day0>
-                <destination>--user-data</destination>
-                <data>
+            <variable>
+              <name>ACCOUNT</name>
+              <value>cisco</value>
+              <!-- TODO: hardcoded for demo -->
+            </variable>
+            <variable>
+              <name>NAME</name>
+              <value>{../../name}-{name}-ta</value>
+            </variable>
+            <variable>
+              <name>USER</name>
+              <value>demo@cisco.com</value>
+              <!-- TODO: hardcoded for demo -->
+            </variable>
+            <variable>
+              <name>PWD</name>
+              <value>demo</value>
+              <!-- TODO: hardocoded for demo -->
+            </variable>
+            <variable>
+              <name>NCC_SERVER</name>
+              <value>ncc0</value>
+            </variable>
+          </artifact>
+        </vdu>
+      </vnf-info>
+      <vnf-info tags="replace" when="{deref(flavour)/../vnf-profile[id='VTA-bronze-right']}">
+        <vnf-profile>VTA-bronze-right</vnf-profile>
+        <vnfd>Netrounds-VTA</vnfd>
+        <vnfm>{vnfm}</vnfm>
+        <vnfm-type>netconf</vnfm-type>
+        <vim-type>openstack</vim-type>
+        <vdu>
+          <id>ta</id>
+          <image-name>Netrounds-VTA</image-name>
+          <flavour-name>VTA-bronze</flavour-name>
+          <bootup-time>60</bootup-time>
+          <recovery-wait-time>120</recovery-wait-time>
+          <artifact>
+            <id>--user-data</id>
+            <data>
 #netrounds-config
 name: $NAME
 email: $USER
@@ -285,44 +320,47 @@ server: $NCC_SERVER
 management_interface: eth0
 management_address_type: dhcp
 </data>
-                <variable>
-                  <name>ACCOUNT</name>
-                  <value>cisco</value>
-                  <!-- TODO: hardcoded for demo -->
-                </variable>
-                <variable>
-                  <name>NAME</name>
-                  <value>{../../name}-{name}-ta</value>
-                </variable>
-                <variable>
-                  <name>USER</name>
-                  <value>demo@cisco.com</value>
-                  <!-- TODO: hardcoded for demo -->
-                </variable>
-                <variable>
-                  <name>PWD</name>
-                  <value>demo</value>
-                  <!-- TODO: hardocoded for demo -->
-                </variable>
-                <variable>
-                  <name>NCC_SERVER</name>
-                  <value>ncc0</value>
-                </variable>
-              </day0>
-            </vdu>
-          </vnf-info>
-          <vnf-info tags="replace" when="{deref(flavour)/../vnf-profile[id='Pen-bronze']}">
-            <vnf-profile>Pen-bronze</vnf-profile>
-            <vnfd>Linux-Pen</vnfd>
-            <vdu>
-              <id>lb</id>
-              <image-name>Linux-Pen</image-name>
-              <flavor-name>Pen-bronze</flavor-name>
-              <bootup-time>60</bootup-time>
-              <recovery-wait-time>120</recovery-wait-time>
-              <day0>
-                <destination>--user-data</destination>
-                <data>#!/bin/sh
+            <variable>
+              <name>ACCOUNT</name>
+              <value>cisco</value>
+              <!-- TODO: hardcoded for demo -->
+            </variable>
+            <variable>
+              <name>NAME</name>
+              <value>{../../name}-{name}-ta</value>
+            </variable>
+            <variable>
+              <name>USER</name>
+              <value>demo@cisco.com</value>
+              <!-- TODO: hardcoded for demo -->
+            </variable>
+            <variable>
+              <name>PWD</name>
+              <value>demo</value>
+              <!-- TODO: hardocoded for demo -->
+            </variable>
+            <variable>
+              <name>NCC_SERVER</name>
+              <value>ncc0</value>
+            </variable>
+          </artifact>
+        </vdu>
+      </vnf-info>
+      <vnf-info tags="replace" when="{deref(flavour)/../vnf-profile[id='Pen-bronze']}">
+        <vnf-profile>Pen-bronze</vnf-profile>
+        <vnfd>Linux-Pen</vnfd>
+        <vnfm>{vnfm}</vnfm>
+        <vnfm-type>netconf</vnfm-type>
+        <vim-type>openstack</vim-type>
+        <vdu>
+          <id>lb</id>
+          <image-name>Linux-Pen</image-name>
+          <flavour-name>Pen-bronze</flavour-name>
+          <bootup-time>60</bootup-time>
+          <recovery-wait-time>120</recovery-wait-time>
+          <artifact>
+            <id>--user-data</id>
+            <data>#!/bin/sh
 
 cat &gt; /etc/pen.conf &lt;&lt;EOF
 LOGFILE=/var/log/pen.log
@@ -336,38 +374,27 @@ SERVER2={WWW_IP_ADDRESS_2}:80
 SERVER3={WWW_IP_ADDRESS_3}:80
 EOF
 </data>
-              </day0>
-            </vdu>
-          </vnf-info>
-          <vnf-info tags="replace" when="{deref(flavour)/../vnf-profile[id='Apache-bronze']}">
-            <vnf-profile>Apache-bronze</vnf-profile>
-            <vnfd>Linux-Apache</vnfd>
-            <vdu>
-              <id>www</id>
-              <image-name>Linux-Apache</image-name>
-              <flavor-name>Apache-bronze</flavor-name>
-              <bootup-time>60</bootup-time>
-              <recovery-wait-time>120</recovery-wait-time>
-              <esc-device-template>
-                <name>esc-scaling</name>
-                <variable>
-                  <name>TENANT</name>
-                  <value>{../../name}</value>
-                </variable>
-                <variable>
-                  <name>DEPLOYMENT_NAME</name>
-                  <value>{name}</value>
-                </variable>
-                <variable>
-                  <name>VM_GROUP_NAME</name>
-                  <value>Apache-bronze-www</value>
-                </variable>
-              </esc-device-template>
-            </vdu>
-          </vnf-info>
-          <state>instantiated</state>
-        </ns-info>
-      </esc>
+          </artifact>
+        </vdu>
+      </vnf-info>
+      <vnf-info tags="replace" when="{deref(flavour)/../vnf-profile[id='Apache-bronze']}">
+        <vnf-profile>Apache-bronze</vnf-profile>
+        <vnfd>Linux-Apache</vnfd>
+        <vnfm>{vnfm}</vnfm>
+        <vnfm-type>netconf</vnfm-type>
+        <vim-type>openstack</vim-type>
+        <vdu>
+          <id>www</id>
+          <image-name>Linux-Apache</image-name>
+          <flavour-name>Apache-bronze</flavour-name>
+          <bootup-time>60</bootup-time>
+          <recovery-wait-time>120</recovery-wait-time>
+          <esc-device-template>
+            <name>esc-scaling</name>
+          </esc-device-template>
+        </vdu>
+      </vnf-info>
+      <state>instantiate</state>
     </ns-info>
-  </nfvo>
+  </nfv>
 </config>

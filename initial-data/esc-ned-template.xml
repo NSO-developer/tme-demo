@@ -1,0 +1,38 @@
+<config xmlns="http://tail-f.com/ns/config/1.0">
+  <devices xmlns="http://tail-f.com/ns/ncs">
+    <template>
+      <name>ned-template</name>
+      <ned-id>
+        <id xmlns:esc-id="http://tail-f.com/ned/esc-id">esc-id:esc</id>
+        <config>
+          <esc_datamodel xmlns="http://www.cisco.com/esc/esc">
+            <tenants>
+              <tenant>
+                <name>{$TENANT}</name>
+                <deployments>
+                  <deployment>
+                    <name>{$DEPLOYMENT_NAME}</name>
+                    <vm_group>
+                      <name>{$VM_GROUP_NAME}</name>
+                      <extensions>
+                        <extension>
+                          <name>NSO</name>
+                          <properties>
+                            <property>
+                              <name>NEDID</name>
+                              <value>{$NEDID}</value>
+                            </property>
+                          </properties>
+                        </extension>
+                      </extensions>
+                    </vm_group>
+                  </deployment>
+                </deployments>
+              </tenant>
+            </tenants>
+          </esc_datamodel>
+        </config>
+      </ned-id>
+    </template>
+  </devices>
+</config>

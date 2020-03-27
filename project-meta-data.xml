@@ -6,7 +6,21 @@
     <name>cisco-asa</name>
     <git>
       <repo>ssh://git@stash.tail-f.com/ned/cisco-asa.git</repo>
-      <tag>6.5.5</tag>
+      <tag>6.8</tag>
+    </git>
+  </package>
+  <package>
+    <name>etsi-sol003-gen-1.13</name>
+    <git>
+      <repo>ssh://git@stash.tail-f.com/ned/etsi-sol003.git</repo>
+      <tag>1.13.8</tag>
+    </git>
+  </package>
+  <package>
+    <name>openstack-cos-gen-4.2</name>
+    <git>
+      <repo>ssh://git@stash.tail-f.com/ned/openstack-cos.git</repo>
+      <tag>4.2.13</tag>
     </git>
   </package>
   <package>
@@ -20,14 +34,14 @@
     <name>esc</name>
     <git>
       <repo>ssh://git@stash.tail-f.com/pkg/esc.git</repo>
-      <tag>4.3.0.2</tag>
+      <tag>5.1.0.0</tag>
     </git>
   </package>
   <package>
-    <name>tailf-etsi-rel2-nfvo</name>
+    <name>cisco-etsi-nfvo</name>
     <git>
-      <repo>ssh://git@stash.tail-f.com/pkg/tailf-etsi-rel2-nfvo.git</repo>
-      <tag>3.6.0</tag>
+      <repo>ssh://git@stash.tail-f.com/pkg/tailf-etsi-rel3-nfvo.git</repo>
+      <tag>4.2.0</tag>
     </git>
   </package>
 </project-meta-data>

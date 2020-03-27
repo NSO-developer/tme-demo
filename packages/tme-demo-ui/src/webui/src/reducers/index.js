@@ -265,7 +265,7 @@ const calculateLayout = (
 
     const pc = zoomedContainerName ? {
       left: containerZoomed ? iconWidthPc / 2 : afterZoomed ? 100 : 0,
-      right: containerZoomed ? 100 - iconWidthPc / 2: afterZoomed ? 100 : 0,
+      right: containerZoomed ? 100 - iconWidthPc / 2 : afterZoomed ? 100 : 0,
       top: iconHeightPc / 2,
       bottom: 100 - iconHeightPc,
       width: containerZoomed ? 100 - iconWidthPc : 0,
@@ -338,7 +338,8 @@ const calculateIconPosition = (name, icon, zoomedIcon, vnfs, dimensions,
 
   const { connectionColour } = layout[container];
   const hidden = zoomedContainer && container !== zoomedContainer ||
-                 icon.underlay && !visibleUnderlays.includes(icon.container);
+                 icon.underlay == 'true' &&
+                 !visibleUnderlays.includes(icon.container);
 
   const position = (pcX, pcY) => ({
     pcX, pcY,

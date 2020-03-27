@@ -1,11 +1,11 @@
 # -*- mode: python; python-indent: 4 -*-
+import ncs
 from resource_manager import ipaddress_allocator
 
 def get_ip_address(addr):
     """Return the Ip part of a 'Ip/Net' string."""
     parts = addr.split('/')
     return parts[0]
-
 
 def get_ip_prefix(addr):
     """Return the Net part of a 'Ip/Net' string."""
@@ -15,78 +15,87 @@ def get_ip_prefix(addr):
 def safe_key(key):
     return key.replace(' ', '-')
 
-class IpAddressHelper(object):
-    def __init__(self, log, username, root, tenant, ns_info_id):
-        self.stitching_ready = True,
+
+class IpAddressHelper():
+    def __init__(self, log, username, root, tenant, ns_info_name):
+        self.stitching_ready = True
         self.ready = True
 
         self.allocation_results = {
             'virtual-links': [],
             'vnf-cps': [],
-            'topology-cps': {}
+            'topology-connections': {}
         }
 
         self.log = log
         self.username = username
-        self.ns_info_id = ns_info_id
+        self.ns_info_name = ns_info_name
 
         self.root = root
         self.tenant = tenant
 
-    def allocate_all(self, flavour, cp_list):
+    def allocate_all(self, flavour, topology_connections):
         self.create_stitch_resource_pools(flavour)
         self.stitching_ready = self.ready
 
-        self.allocate_topology_cps(cp_list)
-        self.allocate_sapds(flavour, cp_list)
-
         if self.stitching_ready:
+            self.allocate_sap_topology_connections(flavour, topology_connections)
             self.allocate_virtual_links(flavour)
 
         return self.ready
 
+    def get_vld_pool_name(self, vld_id):
+        return '%s-%s' % (self.ns_info_name, vld_id)
+
     def create_stitch_resource_pools(self, flavour):
         for vlp in flavour.virtual_link_profile:
-            vld = vlp.virtual_link_descriptor
-            ip_network = self.allocate_ip_network('stitch', vld, 28)
+            vld_id = vlp.virtual_link_desc_id
+            pool_name = self.get_vld_pool_name(vld_id)
+
+            if vld_id in self.root.ralloc__resource_pools.\
+                         ipalloc__ip_address_pool:
+                ip_network = self.allocate_ip_network(vld_id, pool_name, 28)
+            else:
+                ip_network = self.allocate_ip_network('stitch', pool_name, 28)
+                if ip_network:
+                    self.allocation_results['virtual-links'].append({
+                        'vld': vld_id,
+                        'ip-network': ip_network
+                    })
 
             if ip_network:
-                self.allocation_results['virtual-links'].append({
-                    'vld': vld,
-                    'ip-network': ip_network
-                })
-
-                allocation_name = '%s-%s' % (self.ns_info_id, vld)
                 resource_pool = self.root.ralloc__resource_pools.\
-                    ipalloc__ip_address_pool.create(safe_key(allocation_name))
+                                ipalloc__ip_address_pool.create(
+                                    safe_key(pool_name))
                 resource_pool.subnet.create(get_ip_address(ip_network),
                                             get_ip_prefix(ip_network))
 
-    def allocate_topology_cps(self, cp_list):
-        for cp in cp_list:
-            pool_name = cp.network
-            request_name = 'topology-cp-%s' % (cp.sapd)
-            ip_address = self.allocate_ip_network(pool_name, request_name, 30)
+    def allocate_sap_topology_connections(self, flavour, connections):
+        sapds = ncs.maagic.cd(flavour, '../sapd')
 
-            if ip_address:
-                self.allocation_results['topology-cps'][cp.sapd] = ip_address
+        for sapd in sapds:
+            if sapd.id in connections and connections[sapd.id].device:
 
-    def allocate_sapds(self, flavour, cp_list):
-        for vnf_profile in flavour.vnf_profile:
-            max_vms = vnf_profile.max_number_of_instances
-            for sapd_conn in vnf_profile.sapd_connectivity:
-                self.allocate_vnf_cp(vnf_profile.id, sapd_conn.cp,
-                                     cp_list[sapd_conn.sapd].network,
-                                     max_vms)
+                ip_address = self.allocate_ip_network(
+                    self.get_vld_pool_name(sapd.virtual_link_desc),
+                    'topology-connection-%s' % sapd.id, 32)
+
+                if ip_address:
+                    self.allocation_results['topology-connections'][
+                        sapd.id] = get_ip_address(ip_address)
 
     def allocate_virtual_links(self, flavour):
         for vnf_profile in flavour.vnf_profile:
             max_vms = vnf_profile.max_number_of_instances
             for vl_connectivity in vnf_profile.virtual_link_connectivity:
-                vld_id = vl_connectivity.virtual_link_profile
-                self.allocate_vnf_cp(vnf_profile.id, vl_connectivity.cp,
-                                     '%s-%s' % (self.ns_info_id, vld_id),
-                                     max_vms)
+                vld_id = flavour.virtual_link_profile[vl_connectivity.\
+                    virtual_link_profile_id].virtual_link_desc_id
+
+                for cpd in vl_connectivity.constituent_cpd_id:
+                    self.allocate_vnf_cp(cpd.constituent_base_element_id,
+                                         cpd.constituent_cpd_id,
+                                         self.get_vld_pool_name(vld_id),
+                                         max_vms)
 
     def allocate_vnf_cp(self, vnf_profile_id, external_cpd_id, pool_name,
                         number_of_addresses):
@@ -105,7 +114,7 @@ class IpAddressHelper(object):
             })
 
     def allocate_ip_network(self, pool_name, request_name, subnet):
-        allocation_name = safe_key('%s-%s' % (self.ns_info_id, request_name))
+        allocation_name = safe_key('%s-%s' % (self.ns_info_name, request_name))
         service_xpath = ("/tme-demo:tme-demo/tenant[name='%s']" %
                          self.tenant.name)
 

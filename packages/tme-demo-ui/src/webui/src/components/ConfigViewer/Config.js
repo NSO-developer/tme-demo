@@ -12,9 +12,10 @@ import LoadingOverlay from '../common/LoadingOverlay';
 import JsonRpc from '../../utils/JsonRpc';
 import { safeKey } from '../../utils/UiUtils';
 import { handleError } from '../../actions/uiState';
+import { simpleSubscribe, unsubscribe } from '../../actions/comet';
 
 
-const mapDispatchToProps = { handleError };
+const mapDispatchToProps = { handleError, simpleSubscribe, unsubscribe };
 
 const trim = (configLines) => {
   const indent = configLines.length > 0 ? configLines[0].search(/\S/) : 0;
@@ -50,11 +51,14 @@ const pretty = (configLines, format) => {
 
 const slice = (configLines, format) => {
   if (format == 'cli') {
+    while (configLines[0].trim().startsWith('!')) {
+      configLines.shift();
+    }
     return configLines.slice(1, -2);
   } else if (format == 'curly-braces') {
     return configLines.slice(2, -3);
   } else if (format == 'json') {
-    return configLines.splice(0, 1).concat(configLines.slice(5, -5));
+    return configLines.splice(4, 1).concat(configLines.slice(5, -5));
   } else if (format == 'yaml') {
     return configLines.slice(3, -2);
   } else if (format == 'xml') {
@@ -73,6 +77,8 @@ class Config extends PureComponent {
   constructor(props) {
     super(props);
     this.state = {
+      devicePath: `/ncs:devices/device{${safeKey(props.device)}}/config`,
+      subscriptionHandle: undefined,
       config: undefined,
       format: undefined,
       serviceMetaData: false
@@ -80,7 +86,19 @@ class Config extends PureComponent {
   }
 
   async componentDidMount() {
-    this.getConfig(undefined, false);
+    const { device, simpleSubscribe } = this.props;
+    const { devicePath } = this.state;
+    this.getConfig(undefined);
+    const result = await simpleSubscribe(
+      devicePath, () => { this.getConfig(this.state.format); }
+    );
+    this.setState({subscriptionHandle: result.handle});
+  }
+
+  async componentWillUnmount() {
+    const { unsubscribe } = this.props;
+    const { devicePath, subscriptionHandle } = this.state;
+    await unsubscribe(devicePath, subscriptionHandle);
   }
 
   async getConfig(format) {
@@ -243,13 +261,14 @@ class Config extends PureComponent {
             </Tippy>
           </div>
           <pre className="config-viewer__pre">
-            <code className="config-viewer__code">{config && format ?
-              this.highlightService(hljs.highlight(format, config).value).map(
-                ([ configLine, highlight ], index) => <div key={index}
-                  className={classNames(
-                    'config-viewer__line', {
-                    'config-viewer__line--highlight': highlight
-                  })}
+            <code className="config-viewer__code">{
+              config !== undefined && format ?
+                this.highlightService(hljs.highlight(format, config).value).map(
+                  ([ configLine, highlight ], index) => <div key={index}
+                    className={classNames(
+                      'config-viewer__line', {
+                      'config-viewer__line--highlight': highlight
+                    })}
                   dangerouslySetInnerHTML={{ __html: configLine }}
                 />)
               : <div>Fetching config...</div>

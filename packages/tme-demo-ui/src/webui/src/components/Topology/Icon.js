@@ -56,7 +56,7 @@ const getIconHighlightedDevicesFactory = device => createSelector(
   [getIconVnfs, getHighlightedDevices], (vnfs, deviceList) => {
     console.debug('Re-select highlighted devices');
     const devices = deviceList ? vnfs.flatMap(
-        ({ vmDevices }) => vmDevices.map(({ device }) => device)
+        ({ vmDevices }) => vmDevices.map(({ name }) => name)
       ).concat([ device ])
         .filter(device => deviceList.includes(device)) : [];
     return devices.length == 0 ? undefined : devices;
@@ -382,7 +382,7 @@ class Icon extends PureComponent {
                     'icon__container--expanded': expanded,
                     'icon__container--hidden': !expanded || hidden ||
                       editMode || !highlightedDevices ||
-                      !highlightedDevices.includes(vm.device)
+                      !highlightedDevices.includes(vm.name)
                   })}
                   style={positionStyle(positions[vnfVmName], size*2)}
                 >

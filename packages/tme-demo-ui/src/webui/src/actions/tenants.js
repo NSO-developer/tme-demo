@@ -99,7 +99,8 @@ export const subscribeTenants = () => ({
   subscribe: {
     path: TENANT_PATH,
     cdbOper: false,
-    hideChanges: true
+    skipLocal: true,
+    skipPlanOnlyChanges: true
   },
   actions: [ fetchSidebarData ]
 });

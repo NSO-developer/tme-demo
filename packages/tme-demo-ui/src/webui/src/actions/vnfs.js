@@ -2,8 +2,8 @@ import { ICON_NAME_TO_TYPE, GENERIC } from '../constants/Icons';
 import JsonRpc from '../utils/JsonRpc';
 import Comet from '../utils/Comet';
 import { handleError } from './uiState';
-import { subscriptionRequest, subscriptionSuccess, subscriptionEvent,
-         SUBSCRIPTION_FAILURE } from './comet';
+import { startSubscriptionRequest, startSubscriptionSuccess, subscriptionEvent,
+         START_SUBSCRIPTION_FAILURE } from './comet';
 
 export const VNF_VM_STATUS_UPDATED = 'vnf-vm-status-updated';
 export const VNF_VM_DEVICE_CREATED = 'vnf-vm-device-created';
@@ -288,7 +288,7 @@ export const subscribeVnfs = () => dispatch => {
   let cdbOper = false;
   let skipLocal = false;
 
-  dispatch(subscriptionRequest(path, cdbOper, skipLocal));
+  dispatch(startSubscriptionRequest(path, cdbOper, skipLocal));
 
   try {
     Comet.subscribe({
@@ -318,12 +318,12 @@ export const subscribeVnfs = () => dispatch => {
         });
       }
     });
-    dispatch(subscriptionSuccess(path, cdbOper, skipLocal));
+    dispatch(startSubscriptionSuccess(path, cdbOper, skipLocal));
 
     path = '/nfv:nfv/cisco-nfvo:internal/netconf-deployment-plan/plan/component/state/status';
     cdbOper = true;
 
-    dispatch(subscriptionRequest(path, cdbOper));
+    dispatch(startSubscriptionRequest(path, cdbOper));
 
     Comet.subscribe({
       path, cdbOper,
@@ -340,12 +340,12 @@ export const subscribeVnfs = () => dispatch => {
         });
       }
     });
-    dispatch(subscriptionSuccess(path, cdbOper));
+    dispatch(startSubscriptionSuccess(path, cdbOper));
 
     path = '/nfv:nfv/cisco-nfvo:internal/netconf-deployment-result/vm-group/vm-device';
     cdbOper = true;
 
-    dispatch(subscriptionRequest(path, cdbOper));
+    dispatch(startSubscriptionRequest(path, cdbOper));
 
     Comet.subscribe({
       path, cdbOper,
@@ -371,12 +371,12 @@ export const subscribeVnfs = () => dispatch => {
         });
       }
     });
-    dispatch(subscriptionSuccess(path, cdbOper));
+    dispatch(startSubscriptionSuccess(path, cdbOper));
 
     path = '/nfv:nfv/cisco-nfvo:internal/netconf-deployment-result/vm-group/vms-scaling';
     cdbOper = true;
 
-    dispatch(subscriptionRequest(path, cdbOper));
+    dispatch(startSubscriptionRequest(path, cdbOper));
 
     Comet.subscribe({
       path, cdbOper,
@@ -395,10 +395,10 @@ export const subscribeVnfs = () => dispatch => {
         });
       }
     });
-    dispatch(subscriptionSuccess(path, cdbOper, skipLocal));
+    dispatch(startSubscriptionSuccess(path, cdbOper, skipLocal));
 
   } catch(exception) {
     dispatch(handleError(`Failed to subscribe to ${path}`,
-      exception, SUBSCRIPTION_FAILURE));
+      exception, START_SUBSCRIPTION_FAILURE));
   }
 };

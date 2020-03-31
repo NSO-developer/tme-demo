@@ -18,7 +18,7 @@ import { fetchIcons, subscribeIcons } from './icons';
 import { fetchZoomedIcons } from './zoomedIcons';
 import { fetchConnections, subscribeConnections } from './connections';
 import { fetchVnfs, subscribeVnfs } from './vnfs';
-import { fetchDevices } from './devices';
+import { fetchDevices, subscribeDevices } from './devices';
 
 import { fetchTenants, subscribeTenants } from './tenants';
 import { fetchVpnEndpoints } from './vpnEndpoints';
@@ -56,8 +56,14 @@ export const subscribeTopologyData = () => dispatch => {
   dispatch(subscribeIcons());
   dispatch(subscribeConnections());
   dispatch(subscribeVnfs());
+  dispatch(subscribeDevices());
 };
 
 export const subscribeSidebarData = () => dispatch => {
   dispatch(subscribeTenants());
+};
+
+export const fetchDeviceList = () => async dispatch => {
+  await dispatch(fetchDevices());
+  dispatch(fetchTenants());
 };

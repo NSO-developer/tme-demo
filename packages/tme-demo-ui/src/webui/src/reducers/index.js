@@ -50,6 +50,7 @@ export default combineReducers({
 const iconPositionSelectors = [];
 const iconVnfsSelectors = [];
 
+const empty = [];
 
 // === Layout selectors =======================================================
 
@@ -216,10 +217,14 @@ const getIconVnfsFactory = () =>
     fromVnfs.getNsInfoVnfs);
 
 export const getIconVnfs = (state, name) => {
-  if (!iconVnfsSelectors[name]) {
-    iconVnfsSelectors[name] = getIconVnfsFactory();
+  if (getIcon(state, name).nsInfo) {
+    if (!iconVnfsSelectors[name]) {
+      iconVnfsSelectors[name] = getIconVnfsFactory();
+    }
+    return iconVnfsSelectors[name](state, name);
+  } else {
+    return empty;
   }
-  return iconVnfsSelectors[name](state, name);
 };
 
 export const getVnfsByDevice = state =>
@@ -239,6 +244,9 @@ export const getConnection = (state, name) =>
 
 
 // === Devices selectors ======================================================
+
+export const getDevices = state =>
+  fromDevices.getItems(state.devices);
 
 export const getDevice = (state, name) =>
   fromDevices.getDevice(state.devices, name);

@@ -5,12 +5,14 @@ import { connect } from 'react-redux';
 
 import Sidebar from '../Sidebar';
 import Config from './Config';
-import { getExpandedIcons, getIcons, getConfigViewerVisible,
-         getOpenTenant } from '../../reducers';
+import { getExpandedIcons, getIcons, getVnfs, getDevices,
+         getConfigViewerVisible, getOpenTenant } from '../../reducers';
 
 const mapStateToProps = state => ({
   expandedIcons: getExpandedIcons(state),
   icons: getIcons(state),
+  vnfs: getVnfs(state),
+  devices: getDevices(state),
   configViewerVisible: getConfigViewerVisible(state),
   openTenant: getOpenTenant(state)
 });
@@ -20,9 +22,20 @@ class ConfigViewer extends PureComponent {
     super(props);
   }
 
+  getVmDevices = nsInfo => {
+    const { vnfs, devices } = this.props;
+    return Object.keys(vnfs).filter(
+      vnfKey => vnfs[vnfKey].nsInfo == nsInfo
+    ).flatMap(
+      vnfKey => Object.keys(vnfs[vnfKey].vmDevices).filter(
+        vmDevice => vmDevice in devices
+      )
+    );
+  };
+
   render() {
     console.debug('Config Viewer Render');
-    const { expandedIcons, icons, configViewerVisible,
+    const { expandedIcons, icons, vnfs, configViewerVisible,
             openTenant } = this.props;
     return (
       <Sidebar right={true} hidden={!configViewerVisible}>
@@ -30,11 +43,21 @@ class ConfigViewer extends PureComponent {
           <div className="sidebar__title-text">Config Viewer</div>
         </div>
         <div className="sidebar__body">
-          {expandedIcons && expandedIcons.filter(
-            key => key in icons && icons[key].device).map(
-              key => <Config
-                key={key} device={icons[key].device} openTenant={openTenant}/>
-          )}
+          {expandedIcons && expandedIcons.flatMap(
+            iconKey => {
+              if (iconKey in icons) {
+                const icon = icons[iconKey];
+                return (icon.nsInfo
+                  ? this.getVmDevices(icon.nsInfo)
+                  : [ icon.device ]
+                );
+              }
+              return [];
+            }
+          ).map(device =>
+            <Config key={device} device={device} openTenant={openTenant}/>
+          )
+        }
         </div>
       </Sidebar>
     );

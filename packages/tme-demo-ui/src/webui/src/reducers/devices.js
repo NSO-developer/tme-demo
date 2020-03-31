@@ -4,6 +4,7 @@ import jsonRpcWrapper, { getItems } from './jsonRpcWrapper';
 
 // === Selectors ==============================================================
 
+export { getItems } from './jsonRpcWrapper';
 export const getDevice = (state, name) => getItems(state)[name];
 
 

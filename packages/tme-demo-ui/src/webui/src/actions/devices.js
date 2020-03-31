@@ -1,3 +1,5 @@
+import { fetchDeviceList } from './index';
+
 export const FETCH_DEVICES_REQUEST = 'fetch-devices-request';
 export const FETCH_DEVICES_SUCCESS = 'fetch-devices-success';
 export const FETCH_DEVICES_FAILURE = 'fetch-devices-failure';
@@ -22,4 +24,15 @@ export const fetchDevices = () => ({
     FETCH_DEVICES_FAILURE
   ],
   errorMessage: 'Failed to fetch devices'
+});
+
+// === Comet Middleware =======================================================
+
+export const subscribeDevices = () => ({
+  subscribe: {
+    path: '/ncs:devices/device',
+    cdbOper: false,
+    hideChanges: true
+  },
+  actions: [ fetchDeviceList ]
 });

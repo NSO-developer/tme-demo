@@ -60,9 +60,9 @@ class NetconfNotifSub(ncs.cdb.OperSubscriber):
         return ncs.ITER_CONTINUE
 
     def post_iterate(self, state):
-        context = "system"
+        context = 'system'
 
-        with maapi.single_read_trans("", context) as ro_th:
+        with maapi.single_read_trans('', context) as ro_th:
             ro_root = maagic.get_root(ro_th)
             for kp in state:
                 notif = maagic.get_node(ro_th, kp)
@@ -70,9 +70,9 @@ class NetconfNotifSub(ncs.cdb.OperSubscriber):
                     continue
                 event = notif.data.escEvent
                 username = _get_username(ro_root, event)
-                vnfm_name = ncs.maagic.cd(notif, "../../../ncs:name")
+                vnfm_name = ncs.maagic.cd(notif, '../../../ncs:name')
                 if (username and
-                        notif.subscription == "cisco-etsi-nfvo-%s" % vnfm_name):
+                        notif.subscription == f'cisco-etsi-nfvo-{vnfm_name}'):
                     # Switch user context
                     with maapi.single_write_trans(username, context) as th:
                         self._handle_notif(notif, th)
@@ -82,13 +82,13 @@ class NetconfNotifSub(ncs.cdb.OperSubscriber):
     def _handle_notif(self, notif, th):
         event = notif.data.escEvent
         event_type = event.event.type
-        self.log.debug("Received event type {}".format(event_type))
+        self.log.debug('Received event type ', event_type)
 
-        if event_type == "VM_SCALE_OUT_INIT":
-            self.log.info("Scale out init")
+        if event_type == 'VM_SCALE_OUT_INIT':
+            self.log.info('Scale out init')
             _scale_out_init(event, th)
-        elif event_type == "VM_SCALE_OUT_DEPLOYED":
-            self.log.info("Scale out VM deployed")
+        elif event_type == 'VM_SCALE_OUT_DEPLOYED':
+            self.log.info('Scale out VM deployed')
             _scale_out_deployed(event, th)
 
 

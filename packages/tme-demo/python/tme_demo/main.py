@@ -78,7 +78,7 @@ class ServiceCallbacks(Service):
         for icon in icon_list:
             if icon.item_type == 'device':
                 if icon.device not in root.devices.device:
-                    self.log.info('Deleting device icon %s' % icon.name)
+                    self.log.info('Deleting device icon ', icon.name)
                     del icon_list[icon.name]
 
             if icon.item_type == 'ns-info':
@@ -90,11 +90,11 @@ class ServiceCallbacks(Service):
                             found = True
 
                 if not found:
-                    self.log.info('Deleting ns-info icon %s' % icon.name)
+                    self.log.info('Deleting ns-info icon ', icon.name)
                     del icon_list[icon.name]
 
     def configure_network_service(self, tctx, root, service, network_service):
-        self.log.info('Configuring NFVO: %s' % network_service.name)
+        self.log.info('Configuring NFVO: ', network_service.name)
 
         nfvo_helper = NfvoHelper(self.log, tctx, root, service, network_service)
         topology_conn_count = sum(

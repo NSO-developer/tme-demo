@@ -45,7 +45,7 @@ class IpAddressHelper():
         return self.ready
 
     def get_vld_pool_name(self, vld_id):
-        return '%s-%s' % (self.ns_info_name, vld_id)
+        return f'{self.ns_info_name}-{vld_id}'
 
     def create_stitch_resource_pools(self, flavour):
         for vlp in flavour.virtual_link_profile:
@@ -78,7 +78,7 @@ class IpAddressHelper():
 
                 ip_address = self.allocate_ip_network(
                     self.get_vld_pool_name(sapd.virtual_link_desc),
-                    'topology-connection-%s' % sapd.id, 32)
+                    f'topology-connection-{sapd.id}', 32)
 
                 if ip_address:
                     self.allocation_results['topology-connections'][
@@ -101,7 +101,7 @@ class IpAddressHelper():
                         number_of_addresses):
         ip_addresses = []
         for i in range(number_of_addresses):
-            request_name = '%s-%s-%d' % (vnf_profile_id, external_cpd_id, i)
+            request_name = f'{vnf_profile_id}-{external_cpd_id}-{i}'
             ip_network = self.allocate_ip_network(pool_name, request_name, 32)
             if ip_network:
                 ip_addresses.append(get_ip_address(ip_network))
@@ -114,9 +114,8 @@ class IpAddressHelper():
             })
 
     def allocate_ip_network(self, pool_name, request_name, subnet):
-        allocation_name = safe_key('%s-%s' % (self.ns_info_name, request_name))
-        service_xpath = ("/tme-demo:tme-demo/tenant[name='%s']" %
-                         self.tenant.name)
+        allocation_name = safe_key(f'{self.ns_info_name}-{request_name}')
+        service_xpath = f"/tme-demo:tme-demo/tenant[name='{self.tenant.name}']"
 
         ipaddress_allocator.net_request(self.tenant, service_xpath,
                                         self.username, safe_key(pool_name),
@@ -126,8 +125,7 @@ class IpAddressHelper():
                                                   safe_key(pool_name),
                                                   allocation_name)
         if not ip_network:
-            self.log.info('%s ip network allocation not ready' %
-                          allocation_name)
+            self.log.info(allocation_name, ' ip network allocation not ready')
             self.ready = False
             return False
 

@@ -3,7 +3,7 @@ import ncs
 from tme_demo.ip_address_helper import IpAddressHelper
 
 def get_ns_info_name(tenant_name, network_service_name):
-    return '%s-%s' % (tenant_name, network_service_name)
+    return  f'{tenant_name}-{network_service_name}'
 
 class NfvoHelper():
     def __init__(self, log, tctx, root, tenant, network_service):
@@ -25,8 +25,8 @@ class NfvoHelper():
                     default_ns_topology_connections[network_service.nsd].\
                     sap_topology_connection
             else:
-                raise Exception('No default connections defined ' +
-                                'for NSD: %s' % network_service.nsd)
+                raise Exception('No default connections defined for NSD: ',
+                                network_service.nsd)
         else:
             self.topology_connections = network_service.sap_topology_connection
 
@@ -59,7 +59,7 @@ class NfvoHelper():
                 plan = ns_info_plans[self.ns_info_name].plan
 
                 if plan.failed:
-                    raise Exception('%s deployment failed' % self.ns_info_name)
+                    raise Exception(self.ns_info_name, ' deployment failed')
 
                 plan_states = plan.component['self', 'self'].state
                 ready_status = str(plan_states['ready'].status)
@@ -117,8 +117,8 @@ class NfvoHelper():
                                                     int_virtual_link_desc:
                     return int_cpd.id
         raise ReferenceError(
-            'No matching internal connection-point for ' +
-            'external connection-point %s in vnfd %s' % (cpd_id, vnfd_id))
+            f'No matching internal connection-point for '
+            f'external connection-point {cpd_id} in vnfd {vnfd_id}')
 
     def configure_topology_connections(self):
         ns_info = self.root.nfv__nfv.ns_info[self.ns_info_name]
@@ -169,17 +169,16 @@ class NfvoHelper():
             template_vars.add('PNF_IP_ADDRESS', pnf_ip_address)
             template_vars.add('VNF_IP_ADDRESS', vnf_ip_addresses[0])
             template_vars.add('DEVICE', device)
-            template_vars.add('INTERFACE', 'GigabitEthernet%d' % interface_id)
+            template_vars.add('INTERFACE', f'GigabitEthernet{interface_id}')
 
             template = ncs.template.Template(connection)
             template.apply('topology-connection', template_vars)
 
     def get_vm_device(self, vnf_profile_id, vdu_id):
         ndr_list = self.root.nfv__nfv.internal.netconf_deployment_result
-        ndr_key = '%s-ns-info-%s-%s' % (self.network_service.vnfm,
-                                        self.tenant.name,
-                                        self.network_service.name)
-        vm_group_key = '%s-%s' % (vnf_profile_id, vdu_id)
+        ndr_key = (f'{self.network_service.vnfm}-ns-info-'
+                   f'{self.tenant.name}-{self.network_service.name}')
+        vm_group_key = f'{vnf_profile_id}-{vdu_id}'
 
         if ndr_key in ndr_list and vm_group_key in ndr_list[ndr_key].vm_group:
             for vm_device in ndr_list[ndr_key].vm_group[vm_group_key].vm_device:

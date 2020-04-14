@@ -36,7 +36,7 @@
         <sw-image-desc>fw</sw-image-desc>
         <device-type xmlns="http://cisco.com/ns/nso/cfp/cisco-etsi-nfvo">
           <cli>
-            <ned-id>cisco-asa-cli-6.8</ned-id>
+            <ned-id>cisco-asa-cli-6.6</ned-id>
           </cli>
         </device-type>
       </vdu>
@@ -73,7 +73,7 @@
         <sw-image-desc>fw</sw-image-desc>
         <device-type xmlns="http://cisco.com/ns/nso/cfp/cisco-etsi-nfvo">
           <cli>
-            <ned-id>cisco-asa-cli-6.8</ned-id>
+            <ned-id>cisco-asa-cli-6.6</ned-id>
           </cli>
         </device-type>
       </vdu>

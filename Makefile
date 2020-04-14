@@ -16,7 +16,7 @@ NETWORK = \
 DEMO_DIR = $(shell basename $(CURDIR))
 
 EXTERNAL_DEPS = resource-manager esc openstack-cos-gen-4.2 \
-	              etsi-sol003-gen-1.13 cisco-etsi-nfvo cisco-asa
+	              etsi-sol003-gen-1.13 cisco-etsi-nfvo
 DEP_CLEANUP_DIRS = doc doc-internal examples initial_data test
 
 CONTENT_SECURITY_POLICY = default-src 'self' 'unsafe-inline'; \
@@ -24,21 +24,27 @@ CONTENT_SECURITY_POLICY = default-src 'self' 'unsafe-inline'; \
 	                        base-uri 'self'; frame-ancestors 'none'; \
 	                        img-src 'self' data:;
 
+PACKAGES = all
+
 NX = NX=$$(printf '\nx'); NL=$${NX%x}
 NL = $${NL}
 
-all-real-esc: remove-esc-netsim all
-	cp initial-data/real-esc.xml ncs-cdb
-.PHONY: all-real-esc
-
-remove-esc-netsim:
-	$(eval NETWORK = $(shell echo $(NETWORK) | sed -e \
-		's/create-network packages\/esc 1 esc//g'))
-	echo $(NETWORK)
-.PHONY: real-esc
-
 all: setup.mk packages netsim ncs-cdb add-content-security-policy
 .PHONY: all
+
+tme-demo: override PACKAGES = tme-demo
+tme-demo: all
+.PHONY: tme-demo
+
+real-esc-tme-demo: override PACKAGES = tme-demo
+real-esc-tme-demo: real-esc
+.PHONY: real-esc-tme-demo
+
+real-esc: override NETWORK := $(shell echo $(NETWORK) | sed -e \
+		's/create-network packages\/esc 1 esc//g')
+real-esc: all
+	cp initial-data/real-esc.xml ncs-cdb
+.PHONY: real-esc
 
 setup.mk:
 	for i in $(EXTERNAL_DEPS); do \
@@ -52,7 +58,7 @@ setup.mk:
 	done
 
 packages:
-	$(MAKE) -C packages
+	$(MAKE) -C packages $(PACKAGES)
 .PHONY: packages
 
 netsim:
@@ -127,7 +133,7 @@ add-content-security-policy:
 
 clean:
 	$(MAKE) -C packages clean
-	rm -f README.ncs README.netsim ncs.conf
+	rm -f README.ncs README.netsim ncs.conf storedstate
 	rm -rf netsim running.DB logs state ncs-cdb *.trace *.log
 	rm -rf bin
 	rm -f init
@@ -181,20 +187,29 @@ dist: stop deep-clean
 	$(MAKE) -C packages/tme-demo-ui/src/webui || exit 1;
 	cd .. ; \
 	tar -cf $(DEMO_DIR).tar \
-		--exclude='.git' \
-		--exclude='*.swp' \
-		--exclude='.DS_Store' \
-		--exclude='doc' \
-		--exclude='lux_logs' \
-		--exclude='node' \
-		--exclude='node_modules' \
-		--exclude='node_releases' \
-		--exclude='cisco-asa\/test' \
-		--exclude='cisco-etsi-nfvo\/test' \
-		--exclude='$(DEMO_DIR)\/ncs-cdb\/*' \
-		--exclude='$(DEMO_DIR)\/state\/*' \
-		--exclude='$(DEMO_DIR)\/logs\/*' \
-		--exclude='$(DEMO_DIR)\/netsim' \
-		--exclude='$(DEMO_DIR)\/doc' \
-		$(DEMO_DIR) && gzip -9 $(DEMO_DIR).tar
+	  --exclude='.git' \
+	  --exclude='*.swp' \
+	  --exclude='.*' \
+	  --exclude='doc' \
+	  --exclude='doc-internal' \
+	  --exclude='lux_logs' \
+	  --exclude='node' \
+	  --exclude='node_modules' \
+	  --exclude='node_releases' \
+	  --exclude='test' \
+	  --exclude='cisco-etsi-nfvo\/src\/webui\/*' \
+	  --exclude='cisco-etsi-nfvo\/src\/deps' \
+	  --exclude='__pycache__' \
+	  --exclude='ncs-cdb' \
+	  --exclude='logs' \
+	  --exclude='$(DEMO_DIR)\/netsim' \
+	  --exclude='$(DEMO_DIR)\/state' \
+	  --exclude='$(DEMO_DIR)\/target' \
+	  $(DEMO_DIR); \
+	echo all: > nfvoWebuiMakefile; \
+	tar -rf $(DEMO_DIR).tar -s \
+	  ,nfvoWebuiMakefile,tme-demo/packages/cisco-etsi-nfvo/src/webui/Makefile, \
+	  nfvoWebuiMakefile; \
+	rm nfvoWebuiMakefile; \
+	gzip -9 $(DEMO_DIR).tar
 .PHONY: dist

@@ -27,8 +27,10 @@ $(DIRS):
 
 clean:
 	rm -rf $(DIRS)
-	rm -rf ../webui
 .PHONY: clean
+
+clean-webui: clean
+	rm -rf ../webui
 
 ../webui:
 	$(MAKE) -C webui all || exit 1

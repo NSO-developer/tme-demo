@@ -118,10 +118,9 @@ module tme-demo {
   grouping interface-leafrefs-grouping {
     choice interface-type {
       leaf ios-GigabitEthernet{
-        when "derived-from(deref(../device)/../ncs:device-type" +
-             "/ncs:cli/ncs:ned-id, 'ios-ned-id:cisco-ios-cli')" {
-          tailf:dependency "../device";
-        }
+        when "derived-from(/ncs:devices/ncs:device" +
+             "[ncs:name=current()/../device]/ncs:device-type" +
+             "/ncs:cli/ncs:ned-id, 'ios-ned-id:cisco-ios-cli')";
         tailf:info "Cisco IOS Gigabit Ethernet interface";
         type leafref {
           path "deref(../device)/../ncs:config" +
@@ -129,11 +128,9 @@ module tme-demo {
         }
       }
       leaf ios-xr-GigabitEthernet {
-        when "derived-from(deref(../device)/../ncs:device-type" +
-             "/ncs:cli/ncs:ned-id," +
-             "'iosxr-ned-id:cisco-iosxr-cli')" {
-          tailf:dependency "../device";
-        }
+        when "derived-from(/ncs:devices/ncs:device" +
+             "[ncs:name=current()/../device]/ncs:device-type" +
+             "/ncs:cli/ncs:ned-id, 'iosxr-ned-id:cisco-iosxr-cli')";
         tailf:info "Cisco IOS-XR Gigabit Ethernet interface";
         type leafref {
           path "deref(../device)/../ncs:config" +
@@ -142,11 +139,9 @@ module tme-demo {
         }
       }
       leaf ios-xr-TenGigE {
-        when "derived-from(deref(../device)/../ncs:device-type" +
-             "/ncs:cli/ncs:ned-id," +
-             "'iosxr-ned-id:cisco-iosxr-cli')" {
-          tailf:dependency "../device";
-        }
+        when "derived-from(/ncs:devices/ncs:device" +
+             "[ncs:name=current()/../device]/ncs:device-type" +
+             "/ncs:cli/ncs:ned-id, 'iosxr-ned-id:cisco-iosxr-cli')";
         tailf:info "Cisco IOS-XR 10 Gigabit Ethernet interface";
         type leafref {
           path "deref(../device)/../ncs:config" +
@@ -155,11 +150,9 @@ module tme-demo {
         }
       }
       leaf junos-interface {
-        when "derived-from(deref(../device)/../ncs:device-type" +
-             "/ncs:netconf/ncs:ned-id," +
-             "'junos-ned-id:juniper-junos-nc')" {
-          tailf:dependency "../device";
-        }
+        when "derived-from(/ncs:devices/ncs:device" +
+             "[ncs:name=current()/../device]/ncs:device-type" +
+             "/ncs:netconf/ncs:ned-id, 'junos-ned-id:juniper-junos-nc')";
         tailf:info "Junos interface";
         type leafref {
           path "deref(../device)/../ncs:config/junos:configuration" +
@@ -167,20 +160,18 @@ module tme-demo {
         }
       }
       leaf alu-interface {
-        when "derived-from(deref(../device)/../ncs:device-type" +
-             "/ncs:cli/ncs:ned-id, 'alu-ned-id:alu-sr-cli')" {
-          tailf:dependency "../device";
-        }
+        when "derived-from(/ncs:devices/ncs:device" +
+             "[ncs:name=current()/../device]/ncs:device-type" +
+             "/ncs:cli/ncs:ned-id, 'alu-ned-id:alu-sr-cli')";
         tailf:info "ALU interface";
         type leafref {
           path "deref(../device)/../ncs:config/alu:port/alu:port-id";
         }
       }
       leaf nx-Ethernet {
-        when "derived-from(deref(../device)/../ncs:device-type" +
-             "/ncs:cli/ncs:ned-id, 'nx-ned-id:cisco-nx-cli')" {
-          tailf:dependency "../device";
-        }
+        when "derived-from(/ncs:devices/ncs:device" +
+             "[ncs:name=current()/../device]/ncs:device-type" +
+             "/ncs:cli/ncs:ned-id, 'nx-ned-id:cisco-nx-cli')";
         tailf:info "Cisco NX Ethernet interface";
         type leafref {
           path "deref(../device)/../ncs:config/nx:interface" +
@@ -188,10 +179,9 @@ module tme-demo {
         }
       }
       leaf nx-port-channel {
-        when "derived-from(deref(../device)/../ncs:device-type" +
-             "/ncs:cli/ncs:ned-id, 'nx-ned-id:cisco-nx-cli')" {
-          tailf:dependency "../device";
-        }
+        when "derived-from(/ncs:devices/ncs:device" +
+             "[ncs:name=current()/../device]/ncs:device-type" +
+             "/ncs:cli/ncs:ned-id, 'nx-ned-id:cisco-nx-cli')";
         tailf:info "Cisco NX Port Channel interface";
         type leafref {
           path "deref(../device)/../ncs:config/nx:interface" +
@@ -199,10 +189,9 @@ module tme-demo {
         }
       }
       leaf f10-GigabitEthernet {
-        when "derived-from(deref(../device)/../ncs:device-type" +
-             "/ncs:cli/ncs:ned-id, 'force10-ned-id:dell-ftos-cli')" {
-          tailf:dependency "../device";
-        }
+        when "derived-from(/ncs:devices/ncs:device" +
+             "[ncs:name=current()/../device]/ncs:device-type" +
+             "/ncs:cli/ncs:ned-id, 'force10-ned-id:dell-ftos-cli')";
         tailf:info "Dell Force10 GigabitEthernet interface";
         type leafref {
           path "deref(../device)/../ncs:config/force10:interface" +

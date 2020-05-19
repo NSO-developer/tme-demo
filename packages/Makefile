@@ -6,12 +6,7 @@ PACKAGE_DEPENDENCIES = resource-manager esc openstack-cos-gen-4.2 \
 	                     l3vpn datacenter
 NED_STORE=$(NCS_DIR)/packages/neds
 
-all: cisco-ios cisco-iosxr juniper-junos alu-sr cisco-nx dell-ftos cisco-asa \
-	   l3vpn datacenter
-	for i in $(PACKAGE_DEPENDENCIES) $(PACKAGES); do \
-	    $(MAKE) -C $${i}/src all || exit 1; \
-	done
-	rm -f $(NED_STORE)/cisco-nx-cli-3.0/src/ncsc-out/modules/yang/tailf-ned-cisco-nx-router.yang
+all: dependencies tme-demo
 .PHONY: all
 
 tme-demo:
@@ -19,6 +14,13 @@ tme-demo:
 	    $(MAKE) -C $${i}/src all || exit 1; \
 	done
 .PHONY: tme-demo
+
+dependencies: cisco-ios cisco-iosxr juniper-junos alu-sr cisco-nx dell-ftos \
+	            cisco-asa l3vpn datacenter
+	for i in $(PACKAGE_DEPENDENCIES); do \
+	    $(MAKE) -C $${i}/src all || exit 1; \
+	done
+.PHONY: dependencies
 
 cisco-ios:
 	cp -r $(NED_STORE)/cisco-ios-cli-3.8 $@
@@ -34,7 +36,14 @@ alu-sr:
 	ln -s $(NED_STORE)/alu-sr-cli-3.4 $@
 
 cisco-nx:
-	ln -s $(NED_STORE)/cisco-nx-cli-3.0 $@
+	cp -r $(NED_STORE)/cisco-nx-cli-3.0 $@
+	$(MAKE) -C $@/src clean || exit 1
+	cd $@/src/yang; \
+	cp tailf-ned-cisco-nx.yang tmp.yang; \
+	sed '/include tailf-ned-cisco-nx-router-ospf;/d; /include tailf-ned-cisco-nx-router;/d; s/type ospf-area-type/type string/' \
+	    tmp.yang > tailf-ned-cisco-nx.yang; \
+	rm tmp.yang
+	$(MAKE) -C $@/src all || exit 1
 
 dell-ftos:
 	ln -s $(NED_STORE)/dell-ftos-cli-3.0 $@
@@ -60,13 +69,13 @@ deep-clean: clean
 	for i in $(PACKAGE_DEPENDENCIES); do \
 	    $(MAKE) -C $${i}/src clean || exit 0; \
 	done
-	rm -rf l3vpn
-	rm -f datacenter
 	rm -f cisco-iosxr
 	rm -f juniper-junos
 	rm -f alu-sr
-	rm -f cisco-nx
 	rm -f dell-ftos
 	rm -f cisco-asa
+	rm -f datacenter
 	rm -rf cisco-ios
+	rm -rf cisco-nx
+	rm -rf l3vpn
 .PHONY: clean-deep

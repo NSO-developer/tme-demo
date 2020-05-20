@@ -14,14 +14,17 @@ FXS = $(SRC:yang/%.yang=../load-dir/%.fxs)
 # 	../../<pkt-name>/src/yang
 
 YANGPATH += ../../cisco-ios/src/ncsc-out/modules/yang \
+	          ../../cisco-ios/src/ \
 	          ../../cisco-iosxr/src/ncsc-out/modules/yang \
+	          ../../cisco-iosxr/src/ \
 	          ../../juniper-junos/src/ncsc-out/modules/yang \
+	          ../../juniper-junos/src \
 	          ../../alu-sr/src/ncsc-out/modules/yang \
-	          ../../cisco-nx/src/yang \
+	          ../../alu-sr/src \
 	          ../../cisco-nx/src/ncsc-out/modules/yang \
+	          ../../cisco-nx/src \
 	          ../../dell-ftos/src/ncsc-out/modules/yang \
-	          ../../esc/src/yang \
-	          ../../esc/src/ncsc-out/modules/yang \
+	          ../../dell-ftos/src \
 	          ../../cisco-etsi-nfvo/src/yang \
 	          ../../resource-manager/src/yang \
 	          ../../l3vpn/src/yang

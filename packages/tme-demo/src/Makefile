@@ -13,18 +13,18 @@ FXS = $(SRC:yang/%.yang=../load-dir/%.fxs)
 # YANGPATH += ../../<ned-name>/src/ncsc-out/modules/yang \
 # 	../../<pkt-name>/src/yang
 
-YANGPATH += ../../cisco-ios-cli-3.8/src/ncsc-out/modules/yang \
-	          ../../cisco-ios-cli-3.8/src/ \
-	          ../../cisco-iosxr-cli-3.5/src/ncsc-out/modules/yang \
-	          ../../cisco-iosxr-cli-3.5/src/ \
-	          ../../juniper-junos-nc-3.0/src/ncsc-out/modules/yang \
-	          ../../juniper-junos-nc-3.0/src \
-	          ../../alu-sr-cli-3.4/src/ncsc-out/modules/yang \
-	          ../../alu-sr-cli-3.4/src \
-	          ../../cisco-nx-cli-3.0/src/ncsc-out/modules/yang \
-	          ../../cisco-nx-cli-3.0/src \
-	          ../../dell-ftos-cli-3.0/src/ncsc-out/modules/yang \
-	          ../../dell-ftos-cli-3.0/src \
+YANGPATH += ../../cisco-ios/src/ncsc-out/modules/yang \
+	          ../../cisco-ios/src/ \
+	          ../../cisco-iosxr/src/ncsc-out/modules/yang \
+	          ../../cisco-iosxr/src/ \
+	          ../../juniper-junos/src/ncsc-out/modules/yang \
+	          ../../juniper-junos/src \
+	          ../../alu-sr/src/ncsc-out/modules/yang \
+	          ../../alu-sr/src \
+	          ../../cisco-nx/src/ncsc-out/modules/yang \
+	          ../../cisco-nx/src \
+	          ../../dell-ftos/src/ncsc-out/modules/yang \
+	          ../../dell-ftos/src \
 	          ../../cisco-etsi-nfvo/src/yang \
 	          ../../resource-manager/src/yang \
 	          ../../l3vpn/src/yang

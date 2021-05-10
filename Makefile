@@ -148,8 +148,8 @@ init:
 	while [ ! -f $$FILE ]; do sleep 5; done; \
 	while ! grep -qs RUNNING $$FILE; do sleep 5; done
 	ncs_load -u admin -l -m -O initial-data/platform-infos.xml > $@
-	ncs_cli -u admin <<< 'request devices device * ssh fetch-host-keys' >> $@
-	ncs_cli -u admin <<< 'request devices sync-from' >> $@
+	echo 'request devices device * ssh fetch-host-keys' | ncs_cli -u admin >> $@
+	echo 'request devices sync-from' | ncs_cli -u admin >> $@
 	ncs_load -u admin -m -l initial-data/default-ns-connections.xml >> $@
 
 start-netsim:

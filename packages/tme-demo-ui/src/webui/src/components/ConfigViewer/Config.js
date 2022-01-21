@@ -2,9 +2,9 @@ import React from 'react';
 import { PureComponent, Fragment } from 'react';
 import { connect } from 'react-redux';
 import classNames from 'classnames';
-import Tippy from '@tippy.js/react';
+import Tippy from '@tippyjs/react';
 
-import hljs from 'highlight.js/lib/highlight.js';
+import hljs from 'highlight.js';
 
 import Accordion from '../Sidebar/Accordion';
 import LoadingOverlay from '../common/LoadingOverlay';
@@ -128,7 +128,7 @@ class Config extends PureComponent {
     } else if (format == 'curly-braces') {
       return /<span class="hljs-comment">\/\* Backpointer: \[(.*)\] \*\/<\/span>/;
     } else if (format == 'xml') {
-      return / <span class="hljs-attr">backpointer<\/span>=<span class="hljs-string">"([^"]*)"<\/span> /;
+      return / <span class="hljs-attr">backpointer<\/span>=<span class="hljs-string">&quot;(.*)&quot;<\/span>/;
     }
   }
 
@@ -139,7 +139,7 @@ class Config extends PureComponent {
     } else if (format == 'curly-braces') {
       return /<span class="hljs-comment">\/\* Refcount: .*<\/span>/;
     } else if (format == 'xml') {
-      return / <span class="hljs-attr">refcounter<\/span>=<span class="hljs-string">".d*"<\/span> /;
+      return / <span class="hljs-attr">refcounter<\/span>=<span class="hljs-string">&quot;\d*&quot;<\/span>/;
     }
   }
 
@@ -193,7 +193,7 @@ class Config extends PureComponent {
             ({ value, done } = iter.next());
           } else {
             processBlock(backpointer ?
-              backpointer.includes(`name='${openTenant}']`) : highlight);
+              backpointer.includes(`name=&#x27;${openTenant}&#x27;]`) : highlight);
             backpointer = undefined;
           }
         }
@@ -263,7 +263,7 @@ class Config extends PureComponent {
           <pre className="config-viewer__pre">
             <code className="config-viewer__code">{
               config !== undefined && format ?
-                this.highlightService(hljs.highlight(format, config).value).map(
+                this.highlightService(hljs.highlight(config, {language: format}).value).map(
                   ([ configLine, highlight ], index) => <div key={index}
                     className={classNames(
                       'config-viewer__line', {

@@ -19,7 +19,7 @@ import rootReducer from './reducers';
 import JsonRpc from './utils/JsonRpc';
 import Comet from './utils/Comet';
 
-import hljs from 'highlight.js/lib/highlight.js';
+import hljs from 'highlight.js';
 import json from 'highlight.js/lib/languages/json';
 import xml from 'highlight.js/lib/languages/xml';
 import yaml from 'highlight.js/lib/languages/yaml';

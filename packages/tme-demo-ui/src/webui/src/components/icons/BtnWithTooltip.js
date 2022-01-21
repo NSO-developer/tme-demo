@@ -1,5 +1,5 @@
 import React from 'react';
-import Tippy from '@tippy.js/react';
+import Tippy from '@tippyjs/react';
 import * as IconTypes from '../../constants/Icons';
 
 import BtnAddIcon from '../icons/BtnAdd';

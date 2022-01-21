@@ -6,7 +6,7 @@ import { DragSource, DropTarget } from 'react-dnd';
 import { renderToStaticMarkup } from 'react-dom/server';
 import { getEmptyImage } from 'react-dnd-html5-backend';
 import classNames from 'classnames';
-import Tippy from '@tippy.js/react';
+import Tippy from '@tippyjs/react';
 
 import { ICON, INTERFACE, ENDPOINT } from '../../constants/ItemTypes';
 import { CIRCLE_ICON_RATIO, LINE_ICON_RATIO,
@@ -400,7 +400,7 @@ class Icon extends PureComponent {
                     placement="left"
                     delay="250"
                     content={this.tooltipContent(vm.status, vnfIndex)}
-                    isEnabled={!editMode}
+                    disabled={editMode}
                   >
                     <div
                       onClick={this.handleOnClick}
@@ -463,7 +463,7 @@ class Icon extends PureComponent {
               placement="left"
               delay="250"
               content={this.tooltipContent(status)}
-              isEnabled={!editMode}
+              disabled={editMode}
             >
               {connectEndpointDragSource(
                 connectIconDropTarget(

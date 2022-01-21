@@ -1,5 +1,10 @@
 module.exports = {
-  "parser": "babel-eslint",
+  'parser': "@babel/eslint-parser",
+  "parserOptions": {
+    "babelOptions": {
+      "rootMode": "upward",
+    },
+  },
   "env": {
     "browser": true,
     "node": true,
@@ -16,16 +21,19 @@ module.exports = {
   "extends": [
     "eslint:recommended",
     "plugin:promise/recommended"
+    "plugin:react/recommended",
   ],
   "rules": {
-    "strict": "warn",
-    "quotes": ["error", "single", { "allowTemplateLiterals": true }],
-    "prefer-template": "warn",
-    "jsx-quotes": ["error", "prefer-double"],
-    "no-unused-vars": "off",
     "camelcase": "off",
-    "no-underscore-dangle": "off",
+    "jsx-quotes": ["error", "prefer-double"],
     "no-console": "off",
-    "semi": ["error", "always"]
+    "no-underscore-dangle": "off",
+    "no-unused-vars": ["error", { "args": "none" }],
+    "no-var": "warn",
+    "prefer-template": "warn",
+    "quotes": ["error", "single", { "allowTemplateLiterals": true }],
+    "semi": ["error", "always"],
+    "strict": "warn",
+    "react/prop-types": "off"
   }
 }

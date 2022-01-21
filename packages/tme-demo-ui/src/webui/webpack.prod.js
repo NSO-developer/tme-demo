@@ -1,8 +1,6 @@
 const HTMLWebpackPlugin = require('html-webpack-plugin');
+const CssMinimizerPlugin = require('css-minimizer-webpack-plugin');
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
-const UglifyJsPlugin = require('uglifyjs-webpack-plugin');
-const OptimizeCSSAssetsPlugin = require('optimize-css-assets-webpack-plugin');
-const postcssCustomProperties = require('postcss-custom-properties');
 
 module.exports = {
   entry: [
@@ -12,25 +10,20 @@ module.exports = {
   output: {
     filename: '[name].js',
     path: `${__dirname}/../../webui`,
+    assetModuleFilename: '[name][ext]'
   },
   mode: 'production',
   performance: {
-      hints: false,
-      maxEntrypointSize: 512000,
-      maxAssetSize: 512000
+    hints: false
   },
   optimization: {
-    usedExports: true,
     splitChunks: {
-      chunks: 'all'
+      chunks: 'all',
+      name: 'vendors'
     },
     minimizer: [
-      new UglifyJsPlugin({
-        cache: true,
-        parallel: true,
-        sourceMap: true
-      }),
-      new OptimizeCSSAssetsPlugin({})
+      '...',
+      new CssMinimizerPlugin()
     ]
   },
   plugins: [
@@ -39,7 +32,7 @@ module.exports = {
       filename: 'index.html',
       inject: 'body'
     }),
-    new MiniCssExtractPlugin(),
+    new MiniCssExtractPlugin()
   ],
   module: {
     rules: [
@@ -47,50 +40,17 @@ module.exports = {
         test: /\.js$/,
         exclude: /node_modules/,
         use: {
-          loader: 'babel-loader',
-          options: {
-            presets: [
-              [ '@babel/preset-env', {
-                targets: {
-                  chrome: '72',
-                  firefox: '66',
-                  edge: '18',
-                  safari: '12',
-                  ie: '11'
-                },
-                useBuiltIns: 'usage',
-                corejs: {
-                  version: 3
-                }
-              }],
-              [ '@babel/preset-react', {} ]
-            ],
-            plugins: [
-              [ '@babel/plugin-proposal-decorators', { 'legacy': true } ],
-              [ '@babel/plugin-proposal-class-properties', { 'loose' : true } ]
-            ]
-          }
+          loader: 'babel-loader'
         }
       }, {
         test: /\.css$/,
         use: [
-          { loader: MiniCssExtractPlugin.loader },
-          'css-loader',
-          { loader: 'postcss-loader',
-            options: {
-              plugins: () => ([ postcssCustomProperties ])
-            }
-          }
+          MiniCssExtractPlugin.loader,
+          'css-loader'
         ]
       }, {
         test: /\.(svg|ttf|eot|png)$/,
-        use: {
-          loader: 'file-loader',
-          options: {
-            name: '[name].[ext]',
-            outputPath: '.'
-          }
-        }
+        type: 'asset/resource'
       }
     ]
   },

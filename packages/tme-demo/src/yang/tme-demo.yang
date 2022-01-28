@@ -428,9 +428,9 @@ module tme-demo {
     leaf vms-scaling {
       type uint8;
       config false;
-      tailf:cdb-oper {
-        tailf:persistent true;
-      }
+//      tailf:cdb-oper {
+//        tailf:persistent true;
+//      }
     }
   }
 

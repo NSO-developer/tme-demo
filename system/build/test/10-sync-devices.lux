@@ -1,0 +1,137 @@
+[include test-common.luxinc]
+
+[config timeout=120000]
+
+[shell ncs_cli]
+    !cd /test
+    ?SH-PROMPT:
+    [invoke ncs_cli]
+    !devices sync-from
+    """?
+    sync-result {
+        device ce0
+        result true
+    }
+    sync-result {
+        device ce1
+        result true
+    }
+    sync-result {
+        device ce2
+        result true
+    }
+    sync-result {
+        device ce3
+        result true
+    }
+    sync-result {
+        device ce4
+        result true
+    }
+    sync-result {
+        device ce5
+        result true
+    }
+    sync-result {
+        device ce6
+        result true
+    }
+    sync-result {
+        device ce7
+        result true
+    }
+    sync-result {
+        device dci0
+        result true
+    }
+    sync-result {
+        device dci1
+        result true
+    }
+    sync-result {
+        device dci2
+        result true
+    }
+    sync-result {
+        device dci3
+        result true
+    }
+    sync-result {
+        device esc0
+        result true
+    }
+    sync-result {
+        device p0
+        result true
+    }
+    sync-result {
+        device p1
+        result true
+    }
+    sync-result {
+        device p2
+        result true
+    }
+    sync-result {
+        device p3
+        result true
+    }
+    sync-result {
+        device pe0
+        result true
+    }
+    sync-result {
+        device pe1
+        result true
+    }
+    sync-result {
+        device pe2
+        result true
+    }
+    sync-result {
+        device pe3
+        result true
+    }
+    sync-result {
+        device spine0
+        result true
+    }
+    sync-result {
+        device spine1
+        result true
+    }
+    sync-result {
+        device spine2
+        result true
+    }
+    sync-result {
+        device spine3
+        result true
+    }
+    sync-result {
+        device sw0
+        result true
+    }
+    sync-result {
+        device sw1
+        result true
+    }
+    sync-result {
+        device sw2
+        result true
+    }
+    sync-result {
+        device sw3
+        result true
+    }
+    sync-result {
+        device sw4
+        result true
+    }
+    sync-result {
+        device sw5
+        result true
+    }
+    """
+    !exit
+    ?SH-PROMPT:

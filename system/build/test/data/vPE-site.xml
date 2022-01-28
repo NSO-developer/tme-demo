@@ -1,0 +1,15 @@
+<tme-demo xmlns="http://example.com/tme-demo">
+  <tenant>
+    <name>tenant-1</name>
+    <l3vpn>
+      <endpoint>
+        <id>site7</id>
+        <ce-device>ce7</ce-device>
+        <ce-interface>0/7</ce-interface>
+        <ip-network>10.1.70.0/28</ip-network>
+        <bandwidth>70000000</bandwidth>
+        <as-number>700</as-number>
+      </endpoint>
+    </l3vpn>
+  </tenant>
+</tme-demo>

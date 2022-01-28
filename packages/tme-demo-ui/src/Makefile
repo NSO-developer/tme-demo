@@ -34,3 +34,7 @@ clean-webui: clean
 
 ../webui:
 	$(MAKE) -C webui all || exit 1
+
+strip:
+	rm -rf webui/node_modules
+.PHONY: strip

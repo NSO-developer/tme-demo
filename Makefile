@@ -1,156 +1,119 @@
-# The create-network argument to ncs-netsim
-NETWORK = \
-	create-network packages/cisco-ios       8 ce \
-	create-network packages/cisco-iosxr     2 pe \
-	create-network packages/juniper-junos   1 pe \
-	create-network packages/alu-sr          1 pe \
-	create-network packages/cisco-iosxr     4 dci \
-	create-network packages/cisco-iosxr     4 p \
-	create-network packages/esc             1 esc \
-	create-network packages/cisco-nx        4 spine \
-	create-network packages/cisco-ios       2 sw \
-	create-network packages/dell-ftos       1 sw \
-	create-network packages/cisco-ios       2 sw \
-	create-network packages/dell-ftos       1 sw
+# This Makefile has targets for both building / running the TME demo locally,
+# and building / running a docker image containing the demo.
+#
+# The docker image uses an NSO system install and so the supporting packages,
+# pre and post start scripts and initial data files are arranged into a system
+# directory structure that is copied into the docker image. The local install
+# targets use references / symlink to the files in these locations.
 
-DEMO_DIR = $(shell basename $(CURDIR))
 
-EXTERNAL_DEPS = resource-manager esc openstack-cos-gen-4.2 \
-	              etsi-sol003-gen-1.13 cisco-etsi-nfvo
-DEP_CLEANUP_DIRS = doc doc-internal examples initial_data test
+# DEPENDENCIES
+#
+# This demo depends on the Resource Manager and NFVO projects / function packs.
+# The individual packages from these function packs should be extracted
+# and placed in system/opt/ncs/packages (in the extracted directory format).
+# Once done, the following directories should be present:
+#
+#  ▾ tme-demo/
+#    ▾ system/
+#      ▾ opt/
+#        ▾ ncs/
+#          ▾ packages/
+#            ▸ cisco-etsi-nfvo/
+#            ▸ esc/
+#            ▸ etsi-sol003-gen-1.13/
+#            ▸ openstack-cos-gen-4.2/
+#            ▸ resource-manager/
+#
+# For a local install, NSO should be pre-installed. To build a docker image,
+# the NSO installer binary should be placed in the nso-install-file directory.
+# Only one file should be placed in this directory.
+#
+# The docker image automatically includes all of the OS package pre-requisites
+# in the Dockerfile. For a local install, the following packages are required:
+#
+#   Ant
+#   Make
+#   Java
+#   Python 3 and pyyaml (from pip3)
+#   Node.js and npm
+#   XMLStarlet
+#   Erlang and Lux (both optional for running tests)
 
-CONTENT_SECURITY_POLICY = default-src 'self' 'unsafe-inline'; \
-	                        block-all-mixed-content; \
-	                        base-uri 'self'; frame-ancestors 'none'; \
-	                        img-src 'self' data:;
 
-PACKAGES = all
+# LOCAL INSTALL
+#
+# To build the demo run the "make all" target
+#
+# To start and stop the demo run the "make start" and "make stop" targets
+#
+# To clean the demo run the "make clean" target, this will completely delete
+# everything and the demo will require rebuilding. The demo should be stopped
+# before running the clean target.
+#
+# To quickly reset the demo run the "make reset" target. This will reset the
+# CDB and netsim devices without needing to rebuild the packages.
 
-NX = NX=$$(printf '\nx'); NL=$${NX%x}
-NL = $${NL}
+.SUFFIXES:
 
-all: setup.mk packages netsim ncs-cdb add-content-security-policy
+REAL_ESC = false
+
+all: packages ncs-cdb netsim
 .PHONY: all
 
-tme-demo: override PACKAGES = tme-demo
-tme-demo: all
-.PHONY: tme-demo
-
-real-esc-tme-demo: override PACKAGES = tme-demo
-real-esc-tme-demo: real-esc
-.PHONY: real-esc-tme-demo
-
-real-esc: override NETWORK := $(shell echo $(NETWORK) | sed -e \
-		's/create-network packages\/esc 1 esc//g')
-real-esc: all
-	cp initial-data/real-esc.xml ncs-cdb
+all-real-esc: override REAL_ESC := true
+all-real-esc: all
 .PHONY: real-esc
 
-setup.mk:
-	for i in $(EXTERNAL_DEPS); do \
-	    if [ ! -d packages/$${i} ]; then ncs-project update; break; fi; \
-	done
-	if [ ! -f setup.mk ]; then touch setup.mk; fi
-	for i in $(EXTERNAL_DEPS); do \
-	    for n in $(DEP_CLEANUP_DIRS); do \
-	        [ -d packages/$${i}/$${n} ] && rm -r packages/$${i}/$${n} || true; \
-	    done; \
-	done
+clean: clean-packages clean-cdb clean-netsim
+.PHONY: clean
 
-packages:
-	$(MAKE) -C packages $(PACKAGES)
-.PHONY: packages
+start: start-netsim start-ncs post-ncs-start-data
+.PHONY: start
+
+stop:
+	-ncs-netsim stop
+	-ncs --stop
+.PHONY: stop
+
+reset:
+	ncs-netsim reset
+	ncs-setup --reset
+	rm -f post-ncs-start-data
+.PHONY: reset
+
+test:
+	@now=$$(date +%Y_%m_%d_%H_%M_%S_%N); \
+	log_dir=run_$${now%???}; \
+	cd system/build/test; \
+	lux --log_dir ../../../logs/lux_logs/$${log_dir} .; \
+	ln -sfn $${log_dir} ../../../logs/lux_logs/latest_run
+
+.PHONY: test
+
 
 netsim:
-	ncs-netsim --dir netsim $(NETWORK)
-	cp initial-data/netsim/ios.xml netsim/ce/ce0/cdb
-	cp initial-data/netsim/ios.xml netsim/ce/ce1/cdb
-	cp initial-data/netsim/ios.xml netsim/ce/ce2/cdb
-	cp initial-data/netsim/ios.xml netsim/ce/ce3/cdb
-	cp initial-data/netsim/ios.xml netsim/ce/ce4/cdb
-	cp initial-data/netsim/ios.xml netsim/ce/ce5/cdb
-	cp initial-data/netsim/ios.xml netsim/ce/ce6/cdb
-	cp initial-data/netsim/ios.xml netsim/ce/ce7/cdb
-	cp initial-data/netsim/iosxr.xml netsim/pe/pe0/cdb
-	cp initial-data/netsim/iosxr.xml netsim/pe/pe1/cdb
-	cp initial-data/netsim/alu-sr.xml netsim/pe/pe3/cdb
-	cp initial-data/netsim/iosxr.xml netsim/dci/dci0/cdb
-	cp initial-data/netsim/iosxr.xml netsim/dci/dci1/cdb
-	cp initial-data/netsim/iosxr.xml netsim/dci/dci2/cdb
-	cp initial-data/netsim/iosxr.xml netsim/dci/dci3/cdb
-	cp initial-data/netsim/iosxr.xml netsim/p/p0/cdb
-	cp initial-data/netsim/iosxr.xml netsim/p/p1/cdb
-	cp initial-data/netsim/iosxr.xml netsim/p/p2/cdb
-	cp initial-data/netsim/iosxr.xml netsim/p/p3/cdb
-	cp initial-data/netsim/dci0.xml netsim/dci/dci0/cdb
-	cp initial-data/netsim/dci1.xml netsim/dci/dci1/cdb
-	cp initial-data/netsim/dci2.xml netsim/dci/dci2/cdb
-	cp initial-data/netsim/dci3.xml netsim/dci/dci3/cdb
-	cp initial-data/netsim/nexus.xml netsim/spine/spine0/cdb
-	cp initial-data/netsim/nexus.xml netsim/spine/spine1/cdb
-	cp initial-data/netsim/nexus.xml netsim/spine/spine2/cdb
-	cp initial-data/netsim/nexus.xml netsim/spine/spine3/cdb
-	cp initial-data/netsim/spine0.xml netsim/spine/spine0/cdb
-	cp initial-data/netsim/spine1.xml netsim/spine/spine1/cdb
-	cp initial-data/netsim/spine2.xml netsim/spine/spine2/cdb
-	cp initial-data/netsim/spine3.xml netsim/spine/spine3/cdb
-	cp initial-data/netsim/ios.xml netsim/sw/sw0/cdb
-	cp initial-data/netsim/ios.xml netsim/sw/sw1/cdb
-	cp initial-data/netsim/f10.xml netsim/sw/sw2/cdb
-	cp initial-data/netsim/ios.xml netsim/sw/sw3/cdb
-	cp initial-data/netsim/ios.xml netsim/sw/sw4/cdb
-	cp initial-data/netsim/f10.xml netsim/sw/sw5/cdb
+	CDB_DIR=ncs-cdb \
+	NETSIM_DATA_DIR=system/var/opt/ncs/netsim-data \
+	system/etc/ncs/pre-ncs-start.d/10-netsim.sh
 
+clean-netsim:
+	rm -rf netsim
+.PHONY: clean-netsim
 
 ncs-cdb:
 	ncs-setup --no-netsim --dest .
-	cp initial-data/authgroups.xml ncs-cdb
-	cp initial-data/data-centre-topology.xml ncs-cdb
-	cp initial-data/device-groups.xml ncs-cdb
-	cp initial-data/esc-ned-template.xml ncs-cdb
-	cp initial-data/esc-scaling-template.xml ncs-cdb
-	cp initial-data/icon-positions.xml ncs-cdb
-	cp initial-data/nsd-catalogue.xml ncs-cdb
-	cp initial-data/qos.xml ncs-cdb
-	cp initial-data/resource-pools.xml ncs-cdb
-	cp initial-data/topology.xml ncs-cdb
-	cp initial-data/topology-layout.xml ncs-cdb
-	cp initial-data/vnfd-catalogue.xml ncs-cdb
-	cp initial-data/webui-applications.xml ncs-cdb
-	ncs-netsim ncs-xml-init > ncs-cdb/netsim-devices-init.xml
+	cp system/var/opt/ncs/cdb/*.xml ncs-cdb
+	KEEP_PORTS="true" CONF_FILE="ncs.conf" \
+	system/etc/ncs/pre-ncs-start.d/50-mangle-config.sh
 
-add-content-security-policy:
-	if [ -z $(ncs_conf_tool -r ncs-config webui content-security-policy < ncs.conf) ]; \
-	then $(NX); \
-	  sed "s/^.*<\/webui>/\\$(NL)    <content-security-policy><\/content-security-policy>\\$(NL)&/" \
-	      ncs.conf > ncs.conf.tmp; \
-	else \
-	  cp ncs.conf ncs.conf.tmp; \
-	fi
-	sed "s/\(<content-security-policy>\).*\(<\/content-security-policy>\)/\1\$(CONTENT_SECURITY_POLICY)\2/" \
-	    ncs.conf.tmp > ncs.conf
-	rm ncs.conf.tmp
-
-clean:
-	$(MAKE) -C packages clean
-	rm -f README.ncs README.netsim ncs.conf storedstate
-	rm -rf netsim running.DB logs state ncs-cdb *.trace *.log
-	rm -rf bin
-	rm -f init
-.PHONY: clean
-
-deep-clean: clean
-	$(MAKE) -C packages deep-clean
-.PHONY: clean-deep
-
-init:
-	FILE=logs/ncs-python-vm-tme-demo.log; \
-	while [ ! -f $$FILE ]; do sleep 5; done; \
-	while ! grep -qs RUNNING $$FILE; do sleep 5; done
-	ncs_load -u admin -l -m -O initial-data/platform-infos.xml > $@
-	echo 'request devices device * ssh fetch-host-keys' | ncs_cli -u admin >> $@
-	echo 'request devices sync-from' | ncs_cli -u admin >> $@
-	ncs_load -u admin -m -l initial-data/default-ns-connections.xml >> $@
+clean-cdb:
+	rm -f README.ncs ncs.conf
+	rm -rf ncs-cdb logs state scripts
+	rm -f storedstate
+	rm -rf target
+	rm -f post-ncs-start-data
+.PHONY: clean-cdb
 
 start-netsim:
 	ncs-netsim start
@@ -160,56 +123,141 @@ start-ncs:
 	ncs --ignore-initial-validation
 .PHONY: start-ncs
 
-start: start-netsim start-ncs init
-.PHONY: start
+post-ncs-start-data:
+	ln -s system/var/opt/ncs/post-ncs-start-data
+	system/etc/ncs/post-ncs-start.d/10-sync-from.sh
+	system/etc/ncs/post-ncs-start.d/20-initial-data.sh
 
-stop:
-	-ncs-netsim stop
-	-ncs --stop
-.PHONY: stop
-
-wait-until-started:
-	ncs --wait-started
-.PHONY: wait-until-started
-
-reset:
-	ncs-netsim reset
-	ncs-netsim start
-	ncs-setup --reset
-	ncs
-.PHONY: reset
-
-cli:
-	ncs_cli -u admin
-.PHONY: cli
-
-dist: stop deep-clean
+demo_dir = $(shell basename $(CURDIR))
+dist: stop clean
 	$(MAKE) -C packages/tme-demo-ui/src/webui || exit 1;
 	cd .. ; \
-	tar -cf $(DEMO_DIR).tar \
+	tar -cvf $(demo_dir).tar \
 	  --exclude='.git' \
 	  --exclude='*.swp' \
 	  --exclude='.*' \
-	  --exclude='doc' \
-	  --exclude='doc-internal' \
-	  --exclude='lux_logs' \
-	  --exclude='node' \
 	  --exclude='node_modules' \
-	  --exclude='node_releases' \
-	  --exclude='test' \
-	  --exclude='cisco-etsi-nfvo\/src\/webui\/*' \
-	  --exclude='cisco-etsi-nfvo\/src\/deps' \
-	  --exclude='__pycache__' \
-	  --exclude='ncs-cdb' \
-	  --exclude='logs' \
-	  --exclude='$(DEMO_DIR)\/netsim' \
-	  --exclude='$(DEMO_DIR)\/state' \
-	  --exclude='$(DEMO_DIR)\/target' \
-	  $(DEMO_DIR); \
-	echo all: > nfvoWebuiMakefile; \
-	tar -rf $(DEMO_DIR).tar -s \
-	  ,nfvoWebuiMakefile,tme-demo/packages/cisco-etsi-nfvo/src/webui/Makefile, \
-	  nfvoWebuiMakefile; \
-	rm nfvoWebuiMakefile; \
-	gzip -9 $(DEMO_DIR).tar
+	  --exclude='resource-manager/doc' \
+	  --exclude='resource-manager/test' \
+	  $(demo_dir); \
+	gzip -9 $(demo_dir).tar
 .PHONY: dist
+
+
+# DOCKER INSTALL
+#
+# To build the docker image run the "make docker-build" target. This creates
+# two docker images. The larger build image is used to compile the packages,
+# the smaller run image contains the final packages. Once the images are built,
+# the build image is no longer required, but can be used to run the Lux tests
+# (the docker-test target will start the build image and automatically run the
+# Lux tests). If the demo has previously been built locally, run the
+# "make clean" target before creating the docker build, and ensure the packages
+# directory has no symlinks and only the tme-demo and tme-demo-ui source
+# package directories.
+#
+# To start and stop the run image use the "make docker-start" and
+# "make docker-stop" targets. The start target will output the startup progress
+# from the docker logs until the demo is fully ready. The demo can then be
+# accessed in a web browser on the standard HTTP port 80, and SSH access
+# directly into NSO is on the standard SSH port 22. The stop target will
+# cleanly stop the netsim devices and shutdown NSO, and then remove the
+# container.
+#
+# To access the OS shell run the "make docker-shell" target.
+
+CNT_NAME = tme-demo
+IMAGE_NAME = tme-demo
+
+nso_install_file = $(wildcard nso-install-file/nso-*.linux.x86_64.installer.bin)
+
+docker-build:
+	@if [ $(words $(nso_install_file)) -ne 1 ]; then \
+	  echo "Unable to find NSO installer binary"; \
+	  exit 1; \
+	fi
+	docker build --build-arg NSO_INSTALL_FILE=$(nso_install_file) --progress=plain --target nso-build -t $(IMAGE_NAME)-build .
+	docker build --build-arg NSO_INSTALL_FILE=$(nso_install_file) --progress=plain --target nso-run -t $(IMAGE_NAME) .
+
+docker-start: docker-run docker-wait-started
+
+docker-test: IMAGE_NAME = tme-demo-build
+docker-test: docker-run docker-wait-started
+	docker exec -t $(CNT_NAME) bash -lc 'cd /build/test && lux .' || exit 0
+	docker stop --time 60 $(CNT_NAME)
+	docker rm $(CNT_NAME)
+
+docker-stop:
+	@docker logs -f --since 0m $(CNT_NAME) &
+	docker stop --time 60 $(CNT_NAME)
+	docker rm $(CNT_NAME)
+
+docker-shell:
+	docker exec -it tme-demo bash -l
+
+
+docker-run:
+	docker run -p 22:22/tcp -p 80:80/tcp -p 443:443/tcp -p 830:830/tcp --name $(CNT_NAME) -td $(IMAGE_NAME)
+
+docker-wait-started:
+	@docker logs -f $(CNT_NAME) & LOGS_PID="$$!"; \
+	while ! docker logs $(CNT_NAME) | grep -q "run-nso.sh: startup complete"; do \
+	  sleep 10; \
+	done; \
+	kill $${LOGS_PID}
+
+.PHONY: docker-build docker-start docker-test docker-stop docker-shell docker-run docker-wait-started
+
+
+# PACKAGE COMPILATION
+#
+# local-packages:
+# To minimise package dependencies and demo size, the demo uses the NEDs
+# shipped with NSO. These are already pre-compiled (and are not recompiled),
+# they are symlinked to the packages directory. In addition, the demo uses some
+# of the example packages included in examples.ncs. These are not already
+# pre-compiled, they are copied to the packages directory and compiled.
+#
+# included-packages:
+# The external package dependencies are mentioned at the top of this file.
+# These are already pre-compiled and should be placed in
+# system/opt/ncs/packages where they are symlinked to the packages directory.
+#
+# demo packages
+# The tme-demo (and tme-demo-ui) source package is already in the packages
+# directory and is compiled when the demo is built.
+
+local-packages = $(notdir $(wildcard system/build/local-packages/*))
+included-packages = $(notdir $(wildcard system/opt/ncs/packages/*))
+all-required-packages = $(local-packages:%=packages/%) $(included-packages:%=packages/%)
+
+packages: $(all-required-packages)
+	$(MAKE) -C packages/tme-demo/src all
+	$(MAKE) -C packages/tme-demo-ui/src all
+	cp -r post-install-fixes/opt/ncs/packages/* packages
+.PHONY: packages
+
+packages/% :: system/opt/ncs/packages/%
+	ln -sr $< $@;
+
+clean-packages:
+	@for pkg in $(all-required-packages); do \
+	  if [ -L $${pkg} ] || [ -d $${pkg} ]; then \
+	    cmd=$$([ -L $${pkg} ] && echo "rm " || echo "rm -r"); \
+	    cmd="$${cmd} $${pkg}"; echo $${cmd}; eval $${cmd}; \
+	  fi; \
+	done;
+	$(MAKE) -C packages/tme-demo/src clean
+	$(MAKE) -C packages/tme-demo-ui/src clean
+.PHONY: clean-packages
+
+
+.SECONDEXPANSION:
+
+packages/% :: $$(NCS_DIR)/examples.ncs/$$(subst examples.ncs/,,$$(file <system/build/local-packages/%))
+	cp -r $< $@;
+	$(MAKE) -C $@/src all
+
+packages/% :: $$(NCS_DIR)/$$(file <system/build/local-packages/%)
+	ln -s $< $@;
+

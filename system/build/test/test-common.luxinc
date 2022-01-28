@@ -1,0 +1,47 @@
+[config timeout=30000]
+[config cleanup_timeout=30000]
+
+[macro oper-prompt]
+    ?ncs-oper#
+[endmacro]
+[macro cfg-prompt]
+    ?ncs-cfg#
+[endmacro]
+[macro set-prompts]
+    ?#
+    !prompt1 "ncs-oper# "
+    [invoke oper-prompt]
+    [invoke oper-prompt]
+    !prompt2 "ncs-cfg# "
+    [invoke oper-prompt]
+[endmacro]
+
+[macro set-automation]
+    !autowizard false
+    [invoke oper-prompt]
+    !complete-on-space false
+    [invoke oper-prompt]
+    !ignore-leading-space true
+    [invoke oper-prompt]
+    !paginate false
+    [invoke oper-prompt]
+[endmacro]
+
+[macro commit]
+    !commit
+    ?Commit complete
+    [invoke cfg-prompt]
+[endmacro]
+
+[macro ncs_cli]
+    !ncs_cli -u admin -C
+    ?admin connected
+    [invoke set-prompts]
+    [invoke set-automation]
+    [invoke fail-on-error]
+[endmacro]
+
+[macro fail-on-error]
+    # Any error message now means failure
+    -[Ee][Rr][Rr][Oo][Rr]|Aborted|% No configuration changes found.
+[endmacro]

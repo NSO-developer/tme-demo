@@ -1,0 +1,10 @@
+<config xmlns="http://tail-f.com/ns/config/1.0">
+  <devices xmlns="http://tail-f.com/ns/ncs">
+    <global-settings>
+     <ssh-algorithms>
+       <public-key>ssh-ed25519</public-key>
+       <public-key>ssh-rsa</public-key>
+     </ssh-algorithms>
+    </global-settings>
+  </devices>
+</config>

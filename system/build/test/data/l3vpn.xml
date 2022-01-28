@@ -1,0 +1,25 @@
+<tme-demo xmlns="http://example.com/tme-demo">
+  <tenant>
+    <name>tenant-1</name>
+    <l3vpn>
+      <route-distinguisher>65100</route-distinguisher>
+      <qos-policy>GOLD</qos-policy>
+      <endpoint>
+        <id>site2</id>
+        <ce-device>ce2</ce-device>
+        <ce-interface>0/2</ce-interface>
+        <ip-network>10.1.20.0/28</ip-network>
+        <bandwidth>20000000</bandwidth>
+        <as-number>200</as-number>
+      </endpoint>
+      <endpoint>
+        <id>site4</id>
+        <ce-device>ce4</ce-device>
+        <ce-interface>0/4</ce-interface>
+        <ip-network>10.1.40.0/28</ip-network>
+        <bandwidth>10000000</bandwidth>
+        <as-number>400</as-number>
+      </endpoint>
+    </l3vpn>
+  </tenant>
+</tme-demo>

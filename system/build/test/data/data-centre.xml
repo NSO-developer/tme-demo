@@ -1,0 +1,23 @@
+<config xmlns="http://tail-f.com/ns/config/1.0">
+  <tme-demo xmlns="http://example.com/tme-demo">
+    <tenant>
+      <name>tenant-1</name>
+      <data-centre>
+        <vlan>501</vlan>
+        <ip-network>10.42.0.0/24</ip-network>
+        <preserve-vlan-tags>true</preserve-vlan-tags>
+        <endpoint>
+          <device>sw1</device>
+          <compute>compute0</compute>
+          <ios-GigabitEthernet>0/1</ios-GigabitEthernet>
+        </endpoint>
+        <endpoint>
+          <device>sw5</device>
+          <compute>compute0</compute>
+          <f10-GigabitEthernet>0/5</f10-GigabitEthernet>
+        </endpoint>
+      </data-centre>
+    </tenant>
+  </tme-demo>
+</config>
+

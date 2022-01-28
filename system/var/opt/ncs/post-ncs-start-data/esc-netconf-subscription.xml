@@ -1,0 +1,12 @@
+<config xmlns="http://tail-f.com/ns/config/1.0">
+  <nfv xmlns="urn:etsi:nfv:yang:etsi-nfv-descriptors">
+    <settings xmlns="http://cisco.com/ns/nso/cfp/cisco-etsi-nfvo">
+      <esc>
+        <netconf-subscription>
+          <esc-device>esc0</esc-device>
+          <username>admin</username>
+        </netconf-subscription>
+      </esc>
+    </settings>
+  </nfv>
+</config>

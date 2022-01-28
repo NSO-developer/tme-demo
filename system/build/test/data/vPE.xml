@@ -1,0 +1,34 @@
+<config xmlns="http://tail-f.com/ns/config/1.0">
+
+  <tme-demo xmlns="http://example.com/tme-demo">
+    <tenant>
+      <name>tenant-1</name>
+      <nfvo>
+        <network-service>
+          <name>vPE</name>
+          <nsd>vPE</nsd>
+          <flavour>basic-assurance</flavour>
+          <use-default-topology-connections/>
+        </network-service>
+      </nfvo>
+    </tenant>
+  </tme-demo>
+
+  <webui xmlns="http://tail-f.com/ns/webui">
+    <data-stores>
+      <static-map xmlns="http://com.example/tme-demo-ui">
+        <icon>
+          <name>vPE</name>
+          <ns-info>tenant-1-vPE</ns-info>
+          <type>service-chain</type>
+          <container>transport</container>
+          <coord>
+            <x>1</x>
+            <y>0.9</y>
+          </coord>
+        </icon>
+      </static-map>
+    </data-stores>
+  </webui>
+
+</config>

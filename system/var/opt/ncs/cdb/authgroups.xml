@@ -2,21 +2,26 @@
   <authgroups>
     <group>
       <name>asa</name>
-      <umap>
-        <local-user>admin</local-user>
+      <default-map>
         <remote-name>admin</remote-name>
-        <remote-password>$8$fAF8I+RdiAnK7pgywq2NbKtqObaufNs1Ro3/EkMw/Eg=</remote-password>
-        <remote-secondary-password>$8$WzuKJGmYZ/EuUpKMbFKKwn/9YgmmJXSA3qgPzdqdkNk=</remote-secondary-password>
-      </umap>
+        <remote-password>admin</remote-password>
+        <remote-secondary-password>admin</remote-secondary-password>
+      </default-map>
     </group>
     <group>
       <name>csr</name>
-      <umap>
-        <local-user>admin</local-user>
+      <default-map>
         <remote-name>admin</remote-name>
-        <remote-password>$8$fAF8I+RdiAnK7pgywq2NbKtqObaufNs1Ro3/EkMw/Eg=</remote-password>
-        <remote-secondary-password>$8$WzuKJGmYZ/EuUpKMbFKKwn/9YgmmJXSA3qgPzdqdkNk=</remote-secondary-password>
-      </umap>
+        <remote-password>admin</remote-password>
+        <remote-secondary-password>admin</remote-secondary-password>
+      </default-map>
+    </group>
+    <group>
+      <name>default</name>
+      <default-map>
+        <remote-name>admin</remote-name>
+        <remote-password>admin</remote-password>
+      </default-map>
     </group>
   </authgroups>
 </devices>

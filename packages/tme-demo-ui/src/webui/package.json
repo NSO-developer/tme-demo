@@ -33,7 +33,7 @@
     "@babel/preset-env": "^7.16.8",
     "@babel/preset-react": "^7.16.7",
     "@pmmmwh/react-refresh-webpack-plugin": "^0.5.4",
-    "babel-loader": "^8.2.3",
+    "babel-loader": "^8.3.0",
     "boxen": "^6.2.1",
     "core-js": "^3.20.2",
     "css-loader": "^6.5.1",

@@ -2,7 +2,7 @@ import React from 'react';
 import { PureComponent, Fragment } from 'react';
 import { connect } from 'react-redux';
 
-import { CONFIGURATION_EDITOR_URL } from '../../constants/Layout';
+import { CONFIGURATION_EDITOR_EDIT_URL } from '../../constants/Layout';
 import * as IconTypes from '../../constants/Icons';
 
 import Accordion from '../Sidebar/Accordion';
@@ -32,7 +32,7 @@ class NetworkService extends PureComponent {
 
   goTo = (event) => {
     event.stopPropagation();
-    window.location.assign(CONFIGURATION_EDITOR_URL + this.keyPath);
+    window.location.assign(CONFIGURATION_EDITOR_EDIT_URL + this.keyPath);
   }
 
   render() {

@@ -41,7 +41,7 @@ class NsoWrapper extends PureComponent {
         title : 'Commit manager',
         abb   : 'C'
       }, {
-        href  : Layout.CONFIGURATION_EDITOR_URL,
+        href  : Layout.CONFIGURATION_EDITOR_EDIT_URL,
         title : 'Configuration editor',
         abb   : 'E'
       }, {

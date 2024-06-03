@@ -4,7 +4,7 @@ import { PureComponent, createRef } from 'react';
 import { connect } from 'react-redux';
 import classNames from 'classnames';
 
-import { CONFIGURATION_EDITOR_URL } from '../../constants/Layout';
+import { CONFIGURATION_EDITOR_EDIT_URL } from '../../constants/Layout';
 import * as IconTypes from '../../constants/Icons';
 
 import Btn from '../icons/BtnWithTooltip';
@@ -47,7 +47,7 @@ class NewItem extends PureComponent {
         await this.processDefaults(th, defaultsKeyPath, defaults || [],  value);
         this.setState({ value: '' });
         close();
-        Comet.stopThenGoToUrl(CONFIGURATION_EDITOR_URL + keyPath);
+        Comet.stopThenGoToUrl(CONFIGURATION_EDITOR_EDIT_URL + keyPath);
       } catch (error) {
         handleError(`Error creating ${value}`, error);
       }

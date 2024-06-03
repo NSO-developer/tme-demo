@@ -7,7 +7,7 @@ import classNames from 'classnames';
 
 import { ENDPOINT, NETWORK_SERVICE } from '../../constants/ItemTypes';
 import { CUSTOMER_ROUTER, SWITCH } from '../../constants/Icons';
-import { CONFIGURATION_EDITOR_URL,
+import { CONFIGURATION_EDITOR_EDIT_URL,
          COMMIT_MANAGER_URL } from '../../constants/Layout';
 import * as IconTypes from '../../constants/Icons';
 
@@ -161,7 +161,7 @@ class Tenant extends PureComponent {
 
   goTo = (event) => {
     event.stopPropagation();
-    Comet.stopThenGoToUrl(CONFIGURATION_EDITOR_URL + this.keyPath);
+    Comet.stopThenGoToUrl(CONFIGURATION_EDITOR_EDIT_URL + this.keyPath);
   }
 
   redeploy = async (event) => {
@@ -199,7 +199,7 @@ class Tenant extends PureComponent {
     const th = await JsonRpc.write();
     try {
       await JsonRpc.request('create', { th, path });
-      Comet.stopThenGoToUrl(CONFIGURATION_EDITOR_URL + path);
+      Comet.stopThenGoToUrl(CONFIGURATION_EDITOR_EDIT_URL + path);
     } catch (error) {
       handleError(`Error creating data-centre endpiont ${name}`, error);
     }

@@ -1,4 +1,4 @@
-FROM debian:buster AS deb-base
+FROM debian:bookworm AS deb-base
 
 RUN apt-get update \
   && echo 'debconf debconf/frontend select Noninteractive' | debconf-set-selections \
@@ -8,8 +8,8 @@ RUN apt-get update \
      less \
      libexpat1 \
      libxml2-utils \
-     openssh-client \
      make \
+     openssh-client \
      procps \
      python3 \
      python3-pip \
@@ -19,7 +19,7 @@ RUN apt-get update \
      vim-tiny \
      xsltproc \
      xmlstarlet \
-  && pip3 install pyyaml \
+  && pip3 install --break-system-packages pyyaml \
   && apt-get -qy purge python3-pip \
   && apt-get -qy autoremove \
   && apt-get clean \
@@ -40,6 +40,7 @@ RUN apt-get update \
      curl \
      erlang \
      erlang-dev \
+     nodejs \
   && apt-get -qy autoremove \
   && apt-get clean \
   && rm -rf /var/lib/apt/lists/* /root/.cache
@@ -50,8 +51,8 @@ RUN curl -L -s https://github.com/hawk/lux/archive/refs/tags/lux-2.6.tar.gz | ta
   && rm -rf /tmp/lux
 
 # Get latest Node.js (the version included with debian is too old)
-RUN curl -fsSL https://deb.nodesource.com/setup_17.x | bash - \
-  && apt-get install -qy --no-install-recommends nodejs
+# RUN curl -fsSL https://deb.nodesource.com/setup_17.x | bash - \
+#  && apt-get install -qy --no-install-recommends nodejs
 
 ARG NSO_INSTALL_FILE
 COPY $NSO_INSTALL_FILE /tmp/nso

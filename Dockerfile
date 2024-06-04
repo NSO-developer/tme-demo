@@ -41,6 +41,7 @@ RUN apt-get update \
      erlang \
      erlang-dev \
      nodejs \
+     npm \
   && apt-get -qy autoremove \
   && apt-get clean \
   && rm -rf /var/lib/apt/lists/* /root/.cache

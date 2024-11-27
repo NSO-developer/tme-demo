@@ -2,6 +2,7 @@
 
 source /opt/ncs/current/ncsrc
 source /opt/ncs/installdirs
+source /etc/profile.d/jdk21.sh
 export NCS_CONFIG_DIR NCS_LOG_DIR NCS_RUN_DIR
 
 # install signal handlers

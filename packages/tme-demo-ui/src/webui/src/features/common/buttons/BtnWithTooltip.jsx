@@ -1,17 +1,27 @@
 import React from 'react';
 import Tippy from '@tippyjs/react';
-import * as IconTypes from '../../constants/Icons';
+import * as IconTypes from 'constants/Icons';
 
-import BtnAddIcon from '../icons/BtnAdd';
-import BtnDeleteIcon from '../icons/BtnDelete';
-import BtnGoToIcon from '../icons/BtnGoTo';
-import BtnRedeployIcon from '../icons/BtnRedeploy';
-import BtnConfirmIcon from '../icons/BtnConfirm';
-import BtnDragIcon from '../icons/BtnDrag';
-import BtnZoomIn from '../icons/BtnZoomIn';
-import BtnZoomOut from '../icons/BtnZoomOut';
-import BtnHideUnderlay from '../icons/BtnHideUnderlay';
-import BtnShowUnderlay from '../icons/BtnShowUnderlay';
+import BtnAddIcon from './BtnAdd';
+import BtnDeleteIcon from './BtnDelete';
+import BtnGoToIcon from './BtnGoTo';
+import BtnRedeployIcon from './BtnRedeploy';
+import BtnConfirmIcon from './BtnConfirm';
+import BtnDragIcon from './BtnDrag';
+import BtnZoomIn from './BtnZoomIn';
+import BtnZoomOut from './BtnZoomOut';
+import BtnHideUnderlay from './BtnHideUnderlay';
+import BtnShowUnderlay from './BtnShowUnderlay';
+import BtnDefineIcon from './BtnDefine';
+import BtnUndefineIcon from './BtnUndefine';
+import BtnStartIcon from './BtnStart';
+import BtnRestartIcon from './BtnRestart';
+import BtnResetIcon from './BtnReset';
+import BtnStopIcon from './BtnStop';
+import BtnConsoleIcon from './BtnConsole';
+import BtnConsoleConnectedIcon from './BtnConsoleConnected';
+import BtnConsoleDisconnectIcon from './BtnConsoleDisconnect';
+import BtnHideConsoleViewerIcon from './BtnHideConsoleViewer';
 
 const getBtnIcon = (type, size) => {
   switch (type) {
@@ -35,11 +45,32 @@ const getBtnIcon = (type, size) => {
       return <BtnHideUnderlay size={size}/>;
     case IconTypes.BTN_SHOW_UNDERLAY:
       return <BtnShowUnderlay size={size}/>;
+    case IconTypes.BTN_DEFINE:
+      return <BtnDefineIcon size={size}/>;
+    case IconTypes.BTN_UNDEFINE:
+      return <BtnUndefineIcon size={size}/>;
+    case IconTypes.BTN_START:
+      return <BtnStartIcon size={size}/>;
+    case IconTypes.BTN_RESTART:
+      return <BtnRestartIcon size={size}/>;
+    case IconTypes.BTN_RESET:
+      return <BtnResetIcon size={size}/>;
+    case IconTypes.BTN_STOP:
+      return <BtnStopIcon size={size}/>;
+    case IconTypes.BTN_CONSOLE:
+      return <BtnConsoleIcon size={size}/>;
+    case IconTypes.BTN_CONSOLE_CONNECTED:
+      return <BtnConsoleConnectedIcon size={size}/>;
+    case IconTypes.BTN_CONSOLE_DISCONNECT:
+      return <BtnConsoleDisconnectIcon size={size}/>;
+    case IconTypes.BTN_HIDE_CONSOLE_VIEWER:
+      return <BtnHideConsoleViewerIcon size={size}/>;
   }
 };
 
-export default ({ type, tooltip, size }) => {
-  return (
-    <Tippy placement="bottom" content={tooltip}>{getBtnIcon(type, size)}</Tippy>
+export default function BtnWithTooltip({ type, tooltip, size }) {
+  return (tooltip ?
+    <Tippy placement="bottom" content={tooltip}>{getBtnIcon(type, size)}</Tippy> :
+    getBtnIcon(type, size)
   );
-};
+}

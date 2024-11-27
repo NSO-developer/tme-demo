@@ -1,153 +1,95 @@
-import './index.css';
+import './nso.css';
 
 import React from 'react';
-import { PureComponent } from 'react';
-import { connect } from 'react-redux';
+import { PureComponent, Fragment } from 'react';
 import Modal from 'react-modal';
+import { connect } from 'react-redux';
 import classNames from 'classnames';
 
-import * as Layout from '../../constants/Layout';
-
+import { TITLE } from 'constants/Layout';
 import Header from './Header';
-import Footer from './Footer';
 
 import { getError, getHasWriteTransaction, getCommitInProgress,
-         getBodyOverlayVisible } from '../../reducers';
-import { handleError } from '../../actions/uiState';
-
-import JsonRpc from '../../utils/JsonRpc';
+         getBodyOverlayVisible, handleError } from './nsoSlice';
+import { getSystemSetting } from 'api';
 
 
 const mapStateToProps = state => ({
   error: getError(state),
   hasWriteTransaction: getHasWriteTransaction(state),
   commitInProgress: getCommitInProgress(state),
-  bodyOverlayVisible: getBodyOverlayVisible(state)
+  bodyOverlayVisible: getBodyOverlayVisible(state),
+  version: getSystemSetting.select('version')(state).data?.result,
+  user: getSystemSetting.select('user')(state).data?.result
 });
 
 const mapDispatchToProps = {
-  handleError
+  handleError,
+  getSystemSettingQuery: getSystemSetting.initiate,
 };
 
-
-class NsoWrapper extends PureComponent {
+class WebuiOne extends PureComponent {
   constructor(props) {
     super(props);
     this.state = {
       user: '<username>',
       version: '<version>',
-      applications: [{
-        href  : Layout.COMMIT_MANAGER_URL,
-        title : 'Commit manager',
-        abb   : 'C'
-      }, {
-        href  : Layout.CONFIGURATION_EDITOR_EDIT_URL,
-        title : 'Configuration editor',
-        abb   : 'E'
-      }, {
-        href  : Layout.DASHBOARD_URL,
-        title : 'Dashboard',
-        abb   : 'B'
-      }, {
-        href  : Layout.DEVICE_MANAGER_URL,
-        title : 'Device manager',
-        abb   : 'D'
-      }, {
-        href  : Layout.SERVICE_MANAGER_URL,
-        title : 'Service manager',
-        abb   : 'S'
-      }]
     };
   }
 
   closeBodyOverlay = () => {
     const { setBodyOverlay } = this.props;
     setBodyOverlay(false);
-  }
+  };
 
   clearError = () => {
     const { handleError } = this.props;
     handleError(undefined);
-  }
-
-  getVersion() {
-    return JsonRpc.request(
-      'get_system_setting', { operation: 'version' }
-    );
-  }
-
-  getUser() {
-    return JsonRpc.request(
-      'get_system_setting', { operation: 'user' }
-    );
-  }
-
-  async getApplications() {
-    const json = await JsonRpc.query({
-      path: '/webui:webui/webui-one:applications/application',
-      selection: [
-        'href',
-        'title',
-        'abbreviation',
-        'shortcut'
-    ]});
-    return json.results.reduce((acc, [href, title, abb, shortcut]) => {
-      if (shortcut) {
-        acc.push({href, title, abb});
-      }
-      return acc;
-    }, []);
-  }
+  };
 
   async componentDidMount() {
-    const { handleError } = this.props;
-    try {
-      const [version, user, applications] = await Promise.all([
-        this.getVersion(), this.getUser(), this.getApplications()
-      ]);
-      this.setState({ user, version,
-        applications: [ ...this.state.applications, ...applications ]
-      });
-    } catch(error) {
-      handleError('Error retrieving NSO settings', error);
-    }
+    const { getSystemSettingQuery } = this.props;
+    await getSystemSettingQuery('version');
+    await getSystemSettingQuery('user');
   }
 
   render() {
     console.debug('NsoWrapper Render');
-    const { user, version, applications } = this.state;
+    const { user, version } = this.props;
     const { children, error, hasWriteTransaction,
-            commitInProgress, bodyOverlayVisible } = this.props;
+      commitInProgress, bodyOverlayVisible } = this.props;
     return (
       <div className="nso-background">
         <Header
-          user={user} version={version} title={Layout.TITLE}
+          user={user} version={version} title={TITLE}
           commitInProgress={commitInProgress}
           hasWriteTransaction={hasWriteTransaction}
         />
-          <div className="nso-body">
-            <div className={classNames('nso-body__overlay', {
-              'nso-body__overlay--visible': bodyOverlayVisible
-            })}/>
-            <div className="nso-body__content">{children}</div>
-          </div>
-        <Footer
-          applications={applications}
-          current={Layout.TITLE}
-          hasWriteTransaction={hasWriteTransaction}
-        />
+        <div className="nso-body">
+          <div className={classNames('nso-body__overlay', {
+            'nso-body__overlay--visible': bodyOverlayVisible
+          })}/>
+          <div className="nso-body__content">{children}</div>
+        </div>
         <Modal
           isOpen={!!error}
           contentLabel="Error Message"
           onRequestClose={this.clearError}
           className="nso-modal__content"
           overlayClassName="nso-modal__overlay"
+          closeTimeoutMS={1000}
         >
           <div className="nso-modal__title">Oops! Something went wrong....</div>
-          <div className="nso-modal__body">{error && error.title}</div>
-          <div className="nso-modal__body">{error && error.message}</div>
+          <div className="nso-modal__body">{error &&
+            <Fragment>
+              <p>{error.title}</p>
+              <p>{error.message}</p>
+            </Fragment>}
+          </div>
           <div className="nso-modal__footer">
-            <button className="nso-btn" onClick={this.clearError}>Close</button>
+            <button className="btn__primary" onClick={this.clearError}>
+              <span className="btn__label">Close</span>
+            </button>
           </div>
         </Modal>
       </div>
@@ -155,4 +97,4 @@ class NsoWrapper extends PureComponent {
   }
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(NsoWrapper);
+export default connect(mapStateToProps, mapDispatchToProps)(WebuiOne);

@@ -1,11 +1,12 @@
-import './index.css';
+import './common.css';
+
 import React from 'react';
-import { PureComponent, createRef } from 'react';
+import { Component, createRef } from 'react';
 import ReactResizeDetector from 'react-resize-detector';
 import classNames from 'classnames';
 
 
-class Sidebar extends PureComponent {
+class Sidebar extends Component {
   constructor(props) {
     super(props);
     this.ref = createRef();

@@ -1,5 +1,5 @@
 import React from 'react';
-import { SWITCH_STROKE, SWITCH } from '../../constants/Colours';
+import { SWITCH_STROKE, SWITCH } from '../../../constants/Colours';
 
 /* Symbols don't appear correctly when dragging in IE and Edge.
       <symbol id="arrow" width="160" height="160">

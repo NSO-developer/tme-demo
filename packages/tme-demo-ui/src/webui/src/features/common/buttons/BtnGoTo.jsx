@@ -1,9 +1,10 @@
 import React from 'react';
 
-export default React.forwardRef(({size}, ref) =>
+const BtnGoTo = React.forwardRef(({size}, ref) =>
   <svg
     ref={ref}
     className="round-btn__svg-icon"
+    style={{height: `${size}px`, width: `${size}px`}}
     xmlns="http://www.w3.org/2000/svg"
     viewBox="0 0 512 512"
   >
@@ -13,3 +14,5 @@ export default React.forwardRef(({size}, ref) =>
     />
   </svg>
 );
+
+export default BtnGoTo;

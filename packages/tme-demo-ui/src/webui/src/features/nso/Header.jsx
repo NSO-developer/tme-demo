@@ -1,53 +1,74 @@
 import React from 'react';
-import classNames from 'classnames';
+import { useCallback } from 'react';
+import { useDispatch } from 'react-redux';
 
+import ciscoImg from 'resources/cisco.svg';
+import { COMMIT_MANAGER_URL } from 'constants/Layout';
 import UserMenu from './UserMenu';
-import JsonRpc from '../../utils/JsonRpc';
+import BtnCommitMgr from 'features/common/buttons/BtnCommitMgr';
+import InlineBtn from 'features/common/buttons/InlineBtn';
 
-import ciscoImg from '../../cisco.svg';
+import { useRevertMutation, useApplyMutation, useGetTransChangesQuery } from 'api';
+import { stopThenGoToUrl } from 'api/comet';
 
 
 function Header({ user, version, title, hasWriteTransaction, commitInProgress }) {
   console.debug('NSO Header Render');
+  const [ revert ] = useRevertMutation();
+  const [ apply ] = useApplyMutation();
+
+  const commitTransaction = useCallback(event => { apply(); });
+  const revertTransaction = useCallback(event => { revert(); });
+
+  const dispatch = useDispatch();
+  const transChanges = useGetTransChangesQuery()?.data;
+
+  const goToCommitManager = () => {
+    dispatch(stopThenGoToUrl(COMMIT_MANAGER_URL));
+  };
+
   return (
     <div className="nso-header">
-      <div className="nso-header__inner">
-        <a href="/webui-one/" className="nso-header__link">
-          <img
-            src={ciscoImg}
-            className="nso-header__cisco-logo"
-            alt="Cisco"
-          />
-        </a>
-        <div className="nso-header__left">
-          <div className="nso-header__title">{title}</div>
-          <div className="nso-header__version">VERSION: {version}</div>
-        </div>
-        <div className="nso-header__right">
-          <div className="nso-header__item">
-          <button onClick={JsonRpc.revert} className={classNames('nso-btn',
-            'nso-btn--header', {
-            'nso-btn--disabled': !hasWriteTransaction || commitInProgress
-          })}>Revert</button>
-          </div>
-          <div className="nso-header__item">
-          <button onClick={JsonRpc.apply} className={classNames('nso-btn',
-              'nso-btn--header', {
-              'nso-btn--disabled': !hasWriteTransaction || commitInProgress
-          })}>{commitInProgress ?
-            <div>
-              <span className="loading__dot"/>
-              <span className="loading__dot"/>
-              <span className="loading__dot"/>
-            </div>
+      <a href="/webui-one/" className="nso-header__link">
+        <img
+          src={ciscoImg}
+          className="nso-header__cisco-logo"
+          alt="Cisco"
+        />
+        <div className="nso-header__title">{title}</div>
+      </a>
+      <div className="nso-header__utilities">
+        <InlineBtn
+          disabled={!hasWriteTransaction || commitInProgress}
+          label="Revert"
+          tooltip="Revert transaction now without going to Commit Manager"
+          onClick={revertTransaction}
+        />
+        <InlineBtn
+          disabled={!hasWriteTransaction || commitInProgress}
+          label={commitInProgress
+            ? <span>
+                <span className="loading__dot"/>
+                <span className="loading__dot"/>
+                <span className="loading__dot"/>
+              </span>
             : 'Commit'}
-          </button>
-          </div>
-          <div className="nso-header__item">
-            <UserMenu user={user}/>
-          </div>
-        </div>
+          tooltip="Commit transaction now without going to Commit Manager"
+          onClick={commitTransaction}
+        />
+        <button className="btn__header" onClick={goToCommitManager}>
+          <span className="btn__icon">
+            <BtnCommitMgr size={24}/>
+            {transChanges > 0 && hasWriteTransaction &&
+              <span className="btn__badge">
+                <span className="btn__badge-text">{transChanges}</span>
+              </span>
+            }
+          </span>
+        </button>
+        <div className="nso-header__divider"/>
       </div>
+      <UserMenu user={user} hasWriteTransaction={hasWriteTransaction}/>
     </div>
   );
 }

@@ -1,103 +1,131 @@
-import JsonRpc from './JsonRpc';
+import { jsonRpcApi } from './index';
+import { updateQueryData, removeKeys, removePredicates } from './query';
 
-class Comet {
-  constructor(store) {
-    this.callbacks = {};
-    this.polling = false;
-    this.cometId = `main-1.${String(Math.random()).substring(2)}`;
-  }
+export const unsubscribeAll = () => async (dispatch, getState) => {
+  const state = getState();
+  await Promise.all(
+    cometApi.util.selectInvalidatedBy(state, [ 'subscription' ]).map(
+      ({ originalArgs }) => dispatch(unsubscribe.initiate({
+        handle: subscribe.select(originalArgs)(state).data.result.handle
+      }))
+    )
+  );
+};
 
-  poll = async () => {
-    if (this.polling) {
-      return;
-    }
+export const stopThenGoToUrl = (url) => async (dispatch, getState) => {
+  await unsubscribeAll();
+  window.location.assign(url);
+};
 
-    this.polling = true;
+const processCometUpdates = (results, dispatch, getState) => {
+  const invalidateTags = new Set([]);
+  const state = getState();
+  const queries = jsonRpcApi.util.selectCachedArgsForQuery(state, 'query');
 
-    while (this.polling) {
-      try {
-        const notifications = await JsonRpc.request('comet', {
-          comet_id: this.cometId
-        });
-
-        notifications.forEach(notification => {
-          const { handle, message } = notification;
-          const callback = this.callbacks[handle];
-
-          if (!callback) {
-            if (!message || (message.stopped !== true)) {
-              console.error(`No callback handler for event handle ${handle}`);
+  results.forEach(({ message }) => {
+    message.changes?.forEach(({ keypath, op, value }) => {
+      if (op === 'value_set') {
+        const [ , itemKeypath, leaf ] = keypath.match(/(.*)\/(.*)/);
+        const queryKey = removeKeys(itemKeypath);
+        const query = queries.find(({ xpathExpr }) =>
+          removePredicates(xpathExpr) === queryKey
+        );
+        if (query?.selection.includes(leaf)) {
+          const { data } = jsonRpcApi.endpoints['query'].select(queryKey)(state);
+          if (data.find(({ keypath }) => keypath === itemKeypath)) {
+            if (dispatch) {
+              dispatch(updateQueryData(itemKeypath, leaf, value));
             }
           } else {
-            callback(message);
+            invalidateTags.add(queryKey);
+          }
+        }
+      } else if (op === 'created') {
+        const queryKey = removeKeys(keypath);
+        const query = queries.find(({ xpathExpr }) =>
+          removePredicates(xpathExpr) === queryKey
+        );
+        if (query) {
+          const { data } = jsonRpcApi.endpoints['query'].select(queryKey)(state);
+          if (!data.find(item => item.keypath === keypath)) {
+            invalidateTags.add(queryKey);
+          }
+        }
+      } else if (op === 'deleted') {
+        queries.filter(({ xpathExpr }) => {
+          const queryKey = removePredicates(xpathExpr);
+          if (queryKey.startsWith(removeKeys(keypath))) {
+            const { data } = jsonRpcApi.endpoints['query'].select(queryKey)(state);
+            data.forEach(({ keypath: itemKeypath }) => {
+              if (itemKeypath.startsWith(keypath)) {
+                dispatch(updateQueryData(itemKeypath));
+              }
+            });
           }
         });
-      } catch(exception) {
-        this.polling = false;
-        throw exception;
       }
-    }
-  }
+    });
+  });
+  return [ ...invalidateTags ].map(id => ({ type: 'data', id }));
+};
 
-  stop = async () => {
-    try {
-      await Promise.all(Object.keys(this.callbacks).map(
-        handle => JsonRpc.request('unsubscribe', { handle })
-      ));
-    } catch (error) {
-      console.error('Failed to stop all subscriptions');
-      console.log(error);
-    }
-    this.polling = false;
-    this.callbacks = {};
-  }
 
-  stopThenGoToUrl = async url => {
-    await this.stop();
-    window.location.assign(url);
-  }
+export const cometApi = jsonRpcApi.injectEndpoints({
+  endpoints: (build) => ({
 
-  start = async () => {
-    await this.unsubscribeAll();
-    this.poll();
-  }
+    comet: build.mutation({
+      query: () => ({
+        method: 'comet'
+      }),
+      async onQueryStarted(args, { dispatch, queryFulfilled, getState }) {
+        const { data } = await queryFulfilled;
+        dispatch(comet.initiate());
 
-  subscribe = async ({ path, cdbOper, skipLocal, hideChanges, callback }) => {
-    const result = cdbOper
-      ? await JsonRpc.request('subscribe_cdboper', {
-          comet_id: this.cometId,
-          path: path
-        })
-      : await JsonRpc.request('subscribe_changes', {
-          comet_id: this.cometId,
+        const result = data?.result || [];
+        const invalidateTags = processCometUpdates(result, dispatch, getState);
+        if (invalidateTags.length > 0) {
+          console.log(`Invaliding tags ${invalidateTags.map(({ id }) => id)}`);
+          dispatch(jsonRpcApi.util.invalidateTags(invalidateTags));
+        }
+      }
+    }),
+
+    subscribe: build.query({
+      query: ({ path, cdbOper, skipLocal, hideValues }) => cdbOper === false ? {
+        method: 'subscribe_changes',
+        params: {
           path: path,
           skip_local_changes: Boolean(skipLocal),
-          hide_changes: Boolean(hideChanges)
-        });
+          hide_values: Boolean(hideValues)
+        },
+      } : {
+        method: 'subscribe_cdboper',
+        params: { path }
+      },
+      providesTags: [ 'subscription' ],
+      async onQueryStarted(args, { dispatch, queryFulfilled }) {
+        const response = await queryFulfilled;
+        dispatch(startSubscription.initiate(
+          { handle: response.data.result.handle }));
+      }
+    }),
 
-    const { handle } = result;
-    if (this.callbacks[handle]) {
-      console.error(`Callback handler '${handle}' already set`);
-    } else {
-      this.callbacks[handle] = callback;
-    }
-    await JsonRpc.request('start_subscription', { handle });
-    return handle;
-  }
+    startSubscription: build.mutation({
+      query: ({ handle }) => ({
+        method: 'start_subscription',
+        params: { handle: handle },
+      }),
+    }),
 
-  unsubscribe = async handle => {
-    await JsonRpc.request('unsubscribe', { handle });
-    delete this.callbacks[handle];
-  }
+    unsubscribe: build.mutation({
+      query: ({ handle }) => ({
+        method: 'unsubscribe',
+        params: { handle: handle },
+      }),
+    })
 
-  unsubscribeAll = async () => {
-    const result = await JsonRpc.request('get_subscriptions');
-    if (result && result.subscriptions) {
-      await Promise.all(result.subscriptions.map(({ handle }) =>
-        JsonRpc.request('unsubscribe', { handle })
-      ));
-    }
-  }
-}
+  })
+});
 
-export default new Comet();
+const { endpoints: { comet, startSubscription } } = cometApi;
+export const { endpoints: { subscribe, unsubscribe } } = cometApi;

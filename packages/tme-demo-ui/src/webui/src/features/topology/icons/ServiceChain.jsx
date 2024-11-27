@@ -1,5 +1,5 @@
 import React from 'react';
-import { STROKE, SERVICE_CHAIN } from '../../constants/Colours';
+import { STROKE, SERVICE_CHAIN } from '../../../constants/Colours';
 
 /* Symbols don't appear correctly when dragging in IE and Edge.
       <symbol id={`link-${background}`} width="160" height="160">

@@ -1,5 +1,5 @@
 import React from 'react';
-import { STROKE, WEB_SERVER } from '../../constants/Colours';
+import { STROKE, WEB_SERVER } from '../../../constants/Colours';
 
 export default function({ size, colour }) {
   const background = colour ? colour : WEB_SERVER;

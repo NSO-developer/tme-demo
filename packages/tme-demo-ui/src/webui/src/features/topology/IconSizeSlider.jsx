@@ -2,26 +2,32 @@ import React from 'react';
 import { PureComponent, Fragment } from 'react';
 import { connect } from 'react-redux';
 
-import { getIconSize, calculateInitialIconSize } from '../../reducers';
-import { iconSizeChanged } from '../../actions/uiSizing';
+import { getIconSize, getDimensions, iconSizeChanged } from './topologySlice';
+
+import { ICON_INITIAL_MAX_SIZE_PC,
+         ICON_INITIAL_MAX_SIZE_PX } from 'constants/Layout';
 
 
 const mapDispatchToProps = { iconSizeChanged };
 
 const mapStateToProps = state => ({
   iconSize: getIconSize(state),
-  initialIconSize: calculateInitialIconSize(state)
+  dimensions: getDimensions(state)
 });
+
+const calculateInitialIconSize = ({ width, height })  => {
+  if (width === 0 || height === 0) {
+    return undefined;
+  }
+  const sizePc = ICON_INITIAL_MAX_SIZE_PX / Math.min(width, height) * 100;
+  return Math.min(Math.ceil(sizePc), ICON_INITIAL_MAX_SIZE_PC);
+};
 
 
 class IconSizeSlider extends PureComponent {
   constructor(props) {
     super(props);
-    const { iconSize, initialIconSize, iconSizeChanged } = this.props;
     this.handleChange = this.handleChange.bind(this);
-    if (iconSize === null) {
-      iconSizeChanged(initialIconSize);
-    }
   }
 
   handleChange(event) {
@@ -34,14 +40,19 @@ class IconSizeSlider extends PureComponent {
     setTimeout(() => { this.forceUpdate(); }, 500);
   }
 
+  componentDidUpdate() {
+    const { iconSize, dimensions, iconSizeChanged } = this.props;
+    if (!iconSize && dimensions) {
+      iconSizeChanged(calculateInitialIconSize(dimensions));
+    }
+  }
+
   render() {
     console.debug('IconSizeSlider Render');
     const { iconSize } = this.props;
-    return (iconSize !== null &&
+    return (iconSize !== undefined &&
       <Fragment>
-        <div className="topology-footer__label topology-footer__label--left">
-          <span className="topology-footer__label-text">Icon Size</span>
-        </div>
+        <span className="footer__text footer__text--right">Icon Size</span>
         <label className="slider">
           <input
             type="range"

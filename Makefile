@@ -68,10 +68,10 @@ all-real-esc: all
 clean: clean-packages clean-cdb clean-netsim
 .PHONY: clean
 
-start: start-netsim start-ncs post-ncs-start-data
+start: start-netsim start-ncs post-ncs-start-data start-ssh-proxy
 .PHONY: start
 
-stop:
+stop: stop-ssh-proxy
 	-ncs-netsim stop
 	-ncs --stop
 .PHONY: stop
@@ -122,6 +122,12 @@ start-netsim:
 start-ncs:
 	ncs --ignore-initial-validation
 .PHONY: start-ncs
+
+start-ssh-proxy:
+	$(MAKE) -C packages/tme-demo-ui/src start-ssh-proxy
+
+stop-ssh-proxy:
+	$(MAKE) -C packages/tme-demo-ui/src stop-ssh-proxy
 
 post-ncs-start-data:
 	ln -s system/var/opt/ncs/post-ncs-start-data
@@ -197,7 +203,7 @@ docker-shell:
 
 
 docker-run:
-	docker run -p 22:22/tcp -p 80:80/tcp -p 443:443/tcp -p 830:830/tcp --name $(CNT_NAME) -td $(IMAGE_NAME)
+	docker run -p 22:22/tcp -p 80:80/tcp -p 443:443/tcp -p 830:830/tcp -p 4000:4000 --name $(CNT_NAME) -td $(IMAGE_NAME)
 
 docker-wait-started:
 	@docker logs -f $(CNT_NAME) & LOGS_PID="$$!"; \

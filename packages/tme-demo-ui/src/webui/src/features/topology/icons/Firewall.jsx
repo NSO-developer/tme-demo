@@ -1,5 +1,5 @@
 import React from 'react';
-import { STROKE, FIREWALL, BACKGROUND, FLAME } from '../../constants/Colours';
+import { STROKE, FIREWALL, BACKGROUND, FLAME } from '../../../constants/Colours';
 
 /* Symbols don't appear correctly when dragging in IE and Edge.
       <symbol id="flame">

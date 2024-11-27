@@ -1,116 +1,129 @@
-import * as ActionTypes from '../actions/uiState';
-
+import { createSlice } from '@reduxjs/toolkit';
 
 // === Selectors ==============================================================
 
-export const getDraggedItem = state => state.draggedItem;
-export const getSelectedConnection = state => state.selectedConnection;
-export const getSelectedIcon = state => state.selectedIcon;
-export const getExpandedIcons = state => state.expandedIcons;
-export const getVisibleUnderlays = state => state.visibleUnderlays;
-
-export const getNewNetworkService = state => state.newNetworkService;
-export const getOpenTenant = state => state.openTenant;
-export const getEditMode = state => state.editMode;
-export const getBodyOverlayVisible = state => state.bodyOverlayVisible;
-export const getHasWriteTransaction = state => state.hasWriteTransaction;
-export const getCommitInProgress = state => state.commitInProgress;
-export const getConfigViewerVisible = state => state.configViewerVisible;
-
-export const getError = state => state.error;
+export const getDimensions = state => state.topology.dimensions;
+export const getDraggedItem = state => state.topology.draggedItem;
+export const getHoveredIcon = state => state.topology.hoveredIcon;
+export const getSelectedConnection = state => state.topology.selectedConnection;
+export const getSelectedIcon = state => state.topology.selectedIcon;
+export const getExpandedIcons = state => state.topology.expandedIcons;
+export const getVisibleUnderlays = state => state.topology.visibleUnderlays;
+export const getZoomedContainer = state => state.topology.zoomedContainer;
+export const getEditMode = state => state.topology.editMode;
+export const getConfigViewerVisible = state => state.topology.configViewerVisible;
+export const getIconSize = state => state.topology.iconSize;
+export const getHighlightedIcons = state => state.topology.highlightedIcons;
+export const getOpenTerminals = state => state.topology.openTerminals;
+export const getConsoleViewerHidden = state => state.topology.consoleViewerHidden;
 
 
 // === Reducer ================================================================
 
-export default function(state = {
-  expandedIcons: [],
-  visibleUnderlays: [ 'transport' ],
-  editMode: false
-}, action) {
-  const { type, name } = action;
-  switch (type) {
+const topologySlice = createSlice({
+  name: 'topology',
+  initialState: {
+    dimensions: { width: 0, height: 0 },
+    expandedIcons: [],
+    visibleUnderlays: [],
+    editMode: false,
+    openTerminals: []
+  },
+  reducers: {
+    dimensionsChanged: (state, action) => {
+      state.dimensions.width = action.payload.width;
+      state.dimensions.height = action.payload.height;
+      state.dimensions.left = action.payload.left;
+      state.dimensions.top = action.payload.top;
+    },
 
-    case ActionTypes.ITEM_DRAGGED:
-      return { ...state, draggedItem: action.item };
+    itemDragged: (state, action) => {
+      state.draggedItem = action.payload;
+    },
 
-    case ActionTypes.CONNECTION_SELECTED:
-      return {
-        ...state,
-        selectedConnection: state.selectedConnection === name ? null : name,
-        selectedIcon: null
-      };
+    iconHovered: (state, { payload }) => {
+      state.hoveredIcon = payload;
+    },
 
-    case ActionTypes.ICON_SELECTED:
-      return {
-        ...state,
-        selectedIcon: state.selectedIcon === name ? null : name,
-        selectedConnection: null
-      };
+    connectionSelected: (state, action) => {
+      const { aEndDevice, zEndDevice } = action.payload || {};
+      state.selectedConnection = state.selectedConnection &&
+        state.selectedConnection.aEndDevice === aEndDevice &&
+        state.selectedConnection.zEndDevice === zEndDevice ?
+          undefined : { aEndDevice, zEndDevice },
+      state.selectedIcon = null;
+    },
 
-    case ActionTypes.ICON_EXPAND_TOGGLED:
-      return {
-        ...state,
-        expandedIcons: state.expandedIcons.includes(name)
-            ? state.expandedIcons.filter(icon => icon !== name)
-            : [ name, ...state.expandedIcons ]
-      };
+    iconSelected: (state, action) => {
+      state.selectedIcon = state.selectedIcon === action.payload
+        ? undefined : action.payload;
+      state.selectedConnection = null;
+    },
 
-    case ActionTypes.UNDERLAY_TOGGLED:
-      return {
-        ...state,
-        visibleUnderlays: state.visibleUnderlays.includes(name)
-            ? state.visibleUnderlays.filter(container => container !== name)
-            : [ ...state.visibleUnderlays, name ]
-      };
+    iconExpandToggled: (state, { payload }) => {
+      state.expandedIcons = state.expandedIcons.includes(payload)
+        ? state.expandedIcons.filter(icon => icon !== payload)
+        : [ payload, ...state.expandedIcons ];
+    },
 
-    case ActionTypes.NEW_NETWORK_SERVICE_TOGGLED: {
-      const { container, pos } = action;
-      return {
-        ...state,
-        newNetworkService: state.newNetworkService ? null : { container, pos },
-        bodyOverlayVisible: state.newNetworkService ? false : true
-      };
+    underlayToggled: (state, { payload }) => {
+      state.visibleUnderlays = state.visibleUnderlays.includes(payload)
+        ? state.visibleUnderlays.filter(container => container !== payload)
+        : [ ...state.visibleUnderlays, payload ];
+    },
+
+    containerZoomToggled: (state, action) => {
+      state.zoomedContainer = state.zoomedContainer === action.payload
+        ? undefined : action.payload;
+    },
+
+    editModeToggled: (state, { payload }) => {
+      state.editMode = payload;
+      state.expandedIcons = [];
+      state.bodyOverlayVisible = payload;
+    },
+
+    configViewerToggled: (state, { payload }) => {
+      state.configViewerVisible = payload;
+    },
+
+    iconSizeChanged: (state, action) => {
+      state.iconSize = action.payload;
+    },
+
+    terminalToggled: (state, { payload }) => {
+      state.openTerminals = state.openTerminals[0] == payload ?
+        state.consoleViewerHidden ? state.openTerminals :
+        state.openTerminals.slice(1) : state.openTerminals.includes(payload)
+        ? [ payload, ...state.openTerminals.filter(terminal => terminal !== payload) ]
+        : [ payload, ...state.openTerminals ];
+      state.consoleViewerHidden = false;
+    },
+
+    hideConsoleViewer: (state) => {
+      state.consoleViewerHidden = true;
+    },
+
+    highlightedIconsUpdated: (state, { payload }) => {
+      const { highlightedIcons } = payload;
+      state.highlightedIcons = highlightedIcons;
     }
+  },
 
-    case ActionTypes.TENANT_TOGGLED:
-      return {
-        ...state,
-        openTenant: state.openTenant === name ? null : name
-      };
-
-    case ActionTypes.EDIT_MODE_TOGGLED: {
-      const { editMode } = action;
-      return {
-        ...state, expandedIcons: [], bodyOverlayVisible: editMode, editMode
-      };
-    }
-
-    case ActionTypes.BODY_OVERLAY_TOGGLED: {
-      const { bodyOverlayVisible } = action;
-      return { ...state, bodyOverlayVisible };
-    }
-
-    case ActionTypes.WRITE_TRANSACTION_TOGGLED: {
-      const { hasWriteTransaction } = action;
-      return { ...state, hasWriteTransaction };
-    }
-
-    case ActionTypes.COMMIT_IN_PROGRESS_TOGGLED: {
-      const { commitInProgress } = action;
-      return { ...state, commitInProgress };
-    }
-
-    case ActionTypes.CONFIG_VIEWER_TOGGLED: {
-      const { configViewerVisible } = action;
-      return { ...state, configViewerVisible };
-    }
-
-    case ActionTypes.ERROR_RAISED: {
-      const { error } = action;
-      return { ...state, error };
-    }
-
-    default:
-      return state;
+  extraReducers: (builder) => {
+    builder.addCase('menu/serviceToggled', (state, { payload }) => {
+      const { highlightedIcons } = payload;
+      state.highlightedIcons = highlightedIcons;
+    });
   }
-}
+});
+
+const { actions, reducer } = topologySlice;
+export const {
+  dimensionsChanged, itemDragged, iconHovered,
+  connectionSelected, iconSelected, iconExpandToggled,
+  underlayToggled, containerZoomToggled,
+  editModeToggled, configViewerToggled, linkMetricsToggled,
+  iconSizeChanged, terminalToggled, hideConsoleViewer,
+  highlightedIconsUpdated } = actions;
+export default reducer;

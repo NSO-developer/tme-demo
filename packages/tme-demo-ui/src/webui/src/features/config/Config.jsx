@@ -2,20 +2,34 @@ import React from 'react';
 import { PureComponent, Fragment } from 'react';
 import { connect } from 'react-redux';
 import classNames from 'classnames';
-import Tippy from '@tippyjs/react';
+import * as IconTypes from 'constants/Icons';
 
 import hljs from 'highlight.js';
 
-import Accordion from '../Sidebar/Accordion';
-import LoadingOverlay from '../common/LoadingOverlay';
+import { CONFIGURATION_EDITOR_EDIT_URL } from 'constants/Layout';
+import Accordion from 'features/common/Accordion';
+import InlineBtn from 'features/common/buttons/InlineBtn';
 
-import JsonRpc from '../../utils/JsonRpc';
-import { safeKey } from '../../utils/UiUtils';
-import { handleError } from '../../actions/uiState';
-import { simpleSubscribe, unsubscribe } from '../../actions/comet';
+import { getOpenTerminals, terminalToggled,
+         getConsoleViewerHidden } from 'features/topology/topologySlice';
+import { handleError } from 'features/nso/nsoSlice';
+import { action } from 'api/data';
+import { stopThenGoToUrl } from 'api/comet';
 
 
-const mapDispatchToProps = { handleError, simpleSubscribe, unsubscribe };
+const mapDispatchToProps = {
+  handleError, stopThenGoToUrl, terminalToggled,
+  action: action.initiate
+};
+
+const mapStateToProps = (state, { device }) => {
+  const openTerminals = getOpenTerminals(state);
+  return ({
+    consoleState: (openTerminals[0] == device) &&
+      !getConsoleViewerHidden(state) ? 'Active' :
+      openTerminals.includes(device) ? 'Connected' : 'Disconnected'
+  });
+};
 
 const trim = (configLines) => {
   const indent = configLines.length > 0 ? configLines[0].search(/\S/) : 0;
@@ -35,7 +49,24 @@ const reIndent = (configLines, level=2) => {
       }
     }
     lastIndent = leadingSpace;
-    return (' '.repeat(indent) + line.trim());
+    return ' '.repeat(indent) + line.trim();
+  });
+};
+
+const reIndentXml = (configLines, level=2) => {
+  let nextIndent = 0;
+  return configLines.map(line => {
+    let indent = nextIndent;
+    const trimmed = line.trim();
+    if (trimmed.startsWith('</')) {
+      indent -= level;
+      nextIndent = indent;
+    } else if (trimmed.search(/^[^<]+<\//) !== -1) {
+      nextIndent -= level;
+    } else if (trimmed.search(/^<[^>]*[^/]>[^<]*$/) !== -1) {
+      nextIndent += level;
+    }
+    return ' '.repeat(indent) + line.trim();
   });
 };
 
@@ -44,6 +75,8 @@ const pretty = (configLines, format) => {
     return trim(configLines);
   } else if (format == 'json') {
     return reIndent(configLines, 1);
+  } else if (format == 'xml') {
+    return reIndentXml(configLines);
   } else {
     return reIndent(configLines);
   }
@@ -77,43 +110,33 @@ class Config extends PureComponent {
   constructor(props) {
     super(props);
     this.state = {
-      devicePath: `/ncs:devices/device{${safeKey(props.device)}}/config`,
+      devicePath: `/ncs:devices/device{${props.device}}/config`,
       subscriptionHandle: undefined,
       config: undefined,
       format: undefined,
       serviceMetaData: false
     };
+    this.goToDevice = this.goToDevice.bind(this);
+    this.terminalToggled = this.terminalToggled.bind(this);
   }
 
   async componentDidMount() {
-    const { device, simpleSubscribe } = this.props;
-    const { devicePath } = this.state;
-    this.getConfig(undefined);
-    const result = await simpleSubscribe(
-      devicePath, () => { this.getConfig(this.state.format); }
-    );
-    this.setState({subscriptionHandle: result.handle});
-  }
-
-  async componentWillUnmount() {
-    const { unsubscribe } = this.props;
-    const { devicePath, subscriptionHandle } = this.state;
-    await unsubscribe(devicePath, subscriptionHandle);
+    this.props.managed && this.getConfig(undefined);
   }
 
   async getConfig(format) {
-    const { device, handleError } = this.props;
+    const { action, device, handleError } = this.props;
     this.setState({ isFetching: true });
     try {
-      const result = await JsonRpc.runAction({
+      const result = await action({
         path: `/ncs:devices/ncs:device{${
-          safeKey(device)}}/tme-demo:get-configuration`,
+          device}}/tme-demo:get-configuration`,
         params: { format, 'service-meta-data': true }
       });
       this.setState({
         isFetching: false,
-        config: formatConfig(result.config, result.format),
-        format: result.format,
+        config: formatConfig(result.data.config, result.data.format),
+        format: result.data.format,
       });
     } catch(exception) {
       this.setState({ isFetching: false });
@@ -143,9 +166,21 @@ class Config extends PureComponent {
     }
   }
 
+  async goToDevice(event, action) {
+    event.stopPropagation();
+    const { keypath, stopThenGoToUrl } = this.props;
+    stopThenGoToUrl(`${CONFIGURATION_EDITOR_EDIT_URL}${keypath}`);
+  }
+
+  terminalToggled(event) {
+    event.stopPropagation();
+    const { device, terminalToggled } = this.props;
+    terminalToggled(device);
+  }
+
   highlightService(highlightedConfig) {
     const { format, serviceMetaData } = this.state;
-    const { openTenant } = this.props;
+    const { openService } = this.props;
 
     const backpointerRegex = this.getBackpointerRegex();
     const refcountRegex = this.getRefcountRegex();
@@ -193,7 +228,7 @@ class Config extends PureComponent {
             ({ value, done } = iter.next());
           } else {
             processBlock(backpointer ?
-              backpointer.includes(`name=&#x27;${openTenant}&#x27;]`) : highlight);
+              backpointer.includes(openService) : highlight);
             backpointer = undefined;
           }
         }
@@ -207,38 +242,63 @@ class Config extends PureComponent {
   btn = (label, selectFormat, tooltip) => {
     const { format, isFetching } = this.state;
     return (
-      <Tippy placement="bottom" content={tooltip}>
-        <button
-          onClick={() => { this.getConfig(selectFormat || format); }}
-          className={classNames('nso-btn', 'nso-btn--config-viewer', {
-            'nso-btn--inactive': format !== selectFormat,
-            'nso-btn--disabled': isFetching,
-          })}
-        >{label}</button>
-      </Tippy>
+      <InlineBtn
+        disabled={isFetching}
+        style={format === selectFormat && 'primary'}
+        label={label}
+        tooltip={tooltip}
+        onClick={() => { this.getConfig(selectFormat || format); }}
+        align="left"
+      />
     );
   };
 
   render() {
     console.debug('Config Render');
-    const { device } = this.props;
+    const { device, managed, consoleState } = this.props;
     const { format, serviceMetaData, isFetching, config } = this.state;
 
     return (
       <Accordion
         level="1"
         right={true}
-        startOpen={true}
+        startOpen={false}
         variableHeight={true}
         header={<Fragment>
-          <span className="config-viewer__title-text">{device}</span>{
-          isFetching && <div className="config-viewer__loading-dots">
+          <InlineBtn
+            icon={IconTypes.BTN_CONSOLE}
+            hidden={consoleState !== 'Disconnected'}
+            tooltip={'Connect to device console'}
+            onClick={this.terminalToggled}
+          />
+          <InlineBtn
+            icon={IconTypes.BTN_CONSOLE_CONNECTED}
+            hidden={consoleState !== 'Connected'}
+            tooltip={'Switch to device console'}
+            onClick={this.terminalToggled}
+          />
+          <InlineBtn
+            icon={IconTypes.BTN_CONSOLE_DISCONNECT}
+            style="danger"
+            hidden={consoleState !== 'Active'}
+            tooltip={'Disconnect from device console'}
+            onClick={this.terminalToggled}
+          />
+          <span className="header__title-text">{device}{
+            !managed && ' (unmanaged)'}</span>
+          {isFetching && <div className="loading__dots">
             <span className="loading__dot"/>
             <span className="loading__dot"/>
             <span className="loading__dot"/>
           </div>}
+          <InlineBtn
+            icon={IconTypes.BTN_GOTO}
+            classSuffix="goto"
+            tooltip={'View device in Configuration Editor'}
+            onClick={(event) => this.goToDevice(event)}
+          />
         </Fragment>}>
-        <div className="config-viewer__panel">
+        {managed && <Fragment>
           <div className="config-viewer__btn-row">
             {this.btn('cli', 'cli', 'Format configuration as Cisco-style CLI')}
             {this.btn('cb', 'curly-braces',
@@ -246,19 +306,17 @@ class Config extends PureComponent {
             {this.btn('json', 'json', 'Format configuration as JSON')}
             {this.btn('xml', 'xml', 'Format configuration as XML')}
             {this.btn('yaml', 'yaml', 'Format configuration as YAML')}
-            <Tippy placement="bottom" content={`${serviceMetaData ? 'Exclude' :
-              'Include'} service meta-data annotations`}>
-              <button
+            <InlineBtn
+              disabled={isFetching}
+              style={serviceMetaData && 'primary'}
+              label="svc-meta"
+              tooltip={`${serviceMetaData ? 'Exclude' :
+                'Include'} service meta-data annotations`}
                 onClick={() => {
                   this.setState({ serviceMetaData: !serviceMetaData });
                 }}
-                className={classNames('nso-btn', 'nso-btn--config-viewer',
-                  'nso-btn--right-align', {
-                    'nso-btn--inactive': !serviceMetaData,
-                    'nso-btn--disabled': isFetching
-                })}
-              >svc-meta</button>
-            </Tippy>
+              align="right"
+            />
           </div>
           <pre className="config-viewer__pre">
             <code className="config-viewer__code">{
@@ -278,10 +336,10 @@ class Config extends PureComponent {
             className="loading__overlay"
             style={{ opacity: isFetching | 0 }}
           />
-        </div>
+        </Fragment>}
       </Accordion>
     );
   }
 }
 
-export default connect(null, mapDispatchToProps)(Config);
+export default connect(mapStateToProps, mapDispatchToProps)(Config);

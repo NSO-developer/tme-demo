@@ -1,7 +1,7 @@
 #!/bin/sh
 
 CONF_FILE=${CONF_FILE:-/etc/ncs/ncs.conf}
-CONTENT_SECURITY_POLICY="default-src 'self' 'unsafe-inline'; block-all-mixed-content; base-uri 'self'; frame-ancestors 'none'; img-src 'self' data:;"
+CONTENT_SECURITY_POLOCY="default-src 'self'; connect-src 'self' ws:; img-src 'self' data:; block-all-mixed-content; base-uri 'self'; frame-ancestors 'none'" \
 
 # update ports for various protocols for which the default value in ncs.conf is
 # different from the protocols default port (to allow starting ncs without root)

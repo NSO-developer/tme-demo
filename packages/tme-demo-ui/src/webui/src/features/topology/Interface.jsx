@@ -4,36 +4,40 @@ import { connect } from 'react-redux';
 import { DragSource } from 'react-dnd';
 import { renderToStaticMarkup } from 'react-dom/server';
 
-import { INTERFACE } from '../../constants/ItemTypes';
-import { SELECTED_CONNECTION } from '../../constants/Colours';
+import { INTERFACE } from 'constants/ItemTypes';
+import { SELECTED_CONNECTION } from 'constants/Colours';
 
 import RoundButton from './RoundButton';
 
-import { connectionSelected, iconSelected,
-         itemDragged } from '../../actions/uiState';
-
-import { isSafari, connectPngDragPreview } from '../../utils/UiUtils';
+import { itemDragged, connectionSelected, iconSelected } from './topologySlice';
+import { isSafari, connectPngDragPreview } from './DragLayerCanvas';
 
 
 const mapDispatchToProps = { itemDragged, connectionSelected, iconSelected };
 
 const interfaceSource = {
-  beginDrag: ({ connection, endpoint, fromIcon, fromDevice, x, y,
+  beginDrag: ({ keypath, aEndDevice, zEndDevice, fromDevice, x, y,
     itemDragged, connectionSelected }, monitor, { mouseDownPos }) => {
-    const item = { connection, endpoint, fromIcon, fromDevice, x, y,
-                   mouseDownPos };
+    const item = {
+      interface: { keypath, aEndDevice, zEndDevice, fromDevice },
+      x, y, mouseDownPos
+    };
     requestAnimationFrame(() => {
-      itemDragged(item);
+      itemDragged({ fromDevice });
       connectionSelected(undefined);
     });
     return item;
   },
 
-  endDrag: ({ connection, fromIcon,
+  endDrag: ({ aEndDevice, zEndDevice, fromDevice,
     itemDragged, iconSelected, connectionSelected }, monitor) => {
     itemDragged(undefined);
     if (!monitor.didDrop()) {
-      fromIcon ? iconSelected(fromIcon) : connectionSelected(connection);
+      (aEndDevice || zEndDevice)
+        ? connectionSelected({
+            aEndDevice: aEndDevice || fromDevice,
+            zEndDevice: zEndDevice || fromDevice })
+        : iconSelected(fromDevice);
     }
   },
 
@@ -56,7 +60,7 @@ class Interface extends PureComponent {
       x: event.clientX,
       y: event.clientY
     };
-  }
+  };
 
   componentDidMount() {
     const { connectDragPreview, size } = this.props;
@@ -84,7 +88,7 @@ class Interface extends PureComponent {
   render() {
     console.debug('Interface Render');
     const { connectDragSource, onClick, pcX, pcY,
-            type, size, active, expanded, disabled, tooltip } = this.props;
+            type, size, active, tooltip } = this.props;
 
     return (
       <RoundButton
@@ -96,8 +100,6 @@ class Interface extends PureComponent {
         type={type}
         size={size}
         active={active}
-        expanded={expanded}
-        disabled={disabled}
         tooltip={tooltip}
       />
     );

@@ -4,19 +4,20 @@ import { PureComponent, createRef } from 'react';
 import { connect } from 'react-redux';
 import classNames from 'classnames';
 
-import { CONFIGURATION_EDITOR_EDIT_URL } from '../../constants/Layout';
-import * as IconTypes from '../../constants/Icons';
+import { CONFIGURATION_EDITOR_EDIT_URL } from 'constants/Layout';
+import * as IconTypes from 'constants/Icons';
 
-import Btn from '../icons/BtnWithTooltip';
+import InlineBtn from './buttons/InlineBtn';
 
-import { handleError } from '../../actions/uiState';
-import JsonRpc from '../../utils/JsonRpc';
-import Comet from '../../utils/Comet';
-import { safeKey } from '../../utils/UiUtils';
+import { create, setValue } from 'api/data';
+import { stopThenGoToUrl } from 'api/comet';
 
 
-const mapDispatchToProps = { handleError };
-
+const mapDispatchToProps = {
+  create: create.initiate,
+  setValue: setValue.initiate,
+  stopThenGoToUrl
+};
 
 class NewItem extends PureComponent {
   constructor(props) {
@@ -27,41 +28,35 @@ class NewItem extends PureComponent {
     this.inputRef = createRef();
   }
 
-  processDefaults = (th, context, defaults, value) =>
-    Promise.all(defaults.map(val => JsonRpc.request('set_value', {
-      th: th,
-      path: `${context}/${val.path}`,
-      value: `${val.value}${val.prefix ? value : ''}`
+  processDefaults = async (keypath, defaults, name) =>
+    Promise.all(defaults.map(({ path, value, prefix }) => this.props.setValue({
+      keypath, leaf: path,
+      value: `${value}${prefix ? name : ''}`
     })));
 
   create = async () => {
     const { value } = this.state;
-    const { path, defaultsPath, defaults, close, handleError } = this.props;
+    const { path, defaultsPath, defaults, close, create, stopThenGoToUrl } = this.props;
     if (value) {
-      const keyPath = `${path}{${safeKey(value)}}`;
+      const keypath = `${path}{${value}}`;
       const defaultsKeyPath = defaultsPath
-        ? `${defaultsPath}{${safeKey(value)}}` : keyPath;
-      const th = await JsonRpc.write();
-      try {
-        await JsonRpc.request('create', { th: th, path: keyPath });
-        await this.processDefaults(th, defaultsKeyPath, defaults || [],  value);
-        this.setState({ value: '' });
-        close();
-        Comet.stopThenGoToUrl(CONFIGURATION_EDITOR_EDIT_URL + keyPath);
-      } catch (error) {
-        handleError(`Error creating ${value}`, error);
-      }
+        ? `${defaultsPath}{${value}}` : keypath;
+      await create({ keypath: path, name: value });
+      await this.processDefaults(defaultsKeyPath, defaults || [], value);
+      this.setState({ value: '' });
+      close();
+      stopThenGoToUrl(CONFIGURATION_EDITOR_EDIT_URL + keypath);
     }
-  }
+  };
 
   handleSubmit = (event) => {
     event.preventDefault();
     this.create();
-  }
+  };
 
   handleChange = (event) => {
     this.setState({ value: event.target.value });
-  }
+  };
 
   render() {
     console.debug('New Item Render');
@@ -86,13 +81,11 @@ class NewItem extends PureComponent {
           onSubmit={this.handleSubmit}
           ref={this.formRef}
         >
-          <div
-            className={classNames('inline-round-btn',
-              'inline-round-btn--new-item', 'inline-round-btn--delete')}
+          <InlineBtn
+            icon={IconTypes.BTN_DELETE}
+            tooltip="Cancel"
             onClick={close}
-          >
-            <Btn type={IconTypes.BTN_DELETE} tooltip="Cancel"/>
-          </div>
+          />
           <label className="new-item__label">{label}</label>
           <input
             className="new-item__value"
@@ -101,15 +94,11 @@ class NewItem extends PureComponent {
             type="text"
             value={value}
           />
-          <div
-            className={classNames('inline-round-btn',
-              'inline-round-btn--new-item', {
-              'inline-round-btn--confirm-active': value !== '',
-              'inline-round-btn--confirm-inactive': value === ''
-            })} onClick={this.create}
-          >
-            <Btn type={IconTypes.BTN_CONFIRM} tooltip="Create"/>
-          </div>
+          <InlineBtn
+            icon={IconTypes.BTN_CONFIRM}
+            disabled={value === ''}
+            tooltip="Create"
+          />
         </form>
       </div>,
       document.body

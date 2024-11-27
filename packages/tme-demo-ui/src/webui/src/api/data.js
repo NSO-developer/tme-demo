@@ -1,121 +1,95 @@
-import JsonRpc from '../utils/JsonRpc';
-import { handleError } from '../actions/uiState';
-import { safeKey } from '../utils/UiUtils';
+import { jsonRpcApi } from './index';
+import { updateQueryData } from './query';
 
-export default store => next => async action => {
-  const { jsonRpcGetValues, jsonRpcSetValues, jsonRpcDelete, jsonRpcQuery,
-          types, actions, errorMessage } = action;
+export const dataApi = jsonRpcApi.injectEndpoints({
+  endpoints: (build) => ({
 
-  if (jsonRpcGetValues) {
-    const { name, path, leafs, resultKeys } = jsonRpcGetValues;
-    const [ requestType, successType, failureType ] = types;
-
-    next({ type: requestType, name });
-
-    try {
-      const json = await JsonRpc.getValues({ path, leafs });
-      const values = json && json.values ? json.values : [];
-      const result = values.reduce((accumulator, current, index) => {
-        accumulator[resultKeys[index]] = current.value ? current.value : '';
-        return accumulator;
-      }, {});
-
-      return next({
-        type: successType,
-        name: name,
-        item: result,
-        receivedAt: Date.now()
-      });
-    } catch(exception) {
-      return next(handleError(errorMessage ||
-        `Failed to get values from ${path}`, exception, failureType));
-    }
-  }
-
-  if (jsonRpcSetValues) {
-    const [ startAction ] = actions;
-    const { pathValues } = jsonRpcSetValues;
-    try {
-      next(startAction);
-      const th = await JsonRpc.write();
-      await Promise.all(pathValues.map(pathValue =>
-        JsonRpc.request('set_value', {
-          th    : th,
-          path  : pathValue.path,
-          value : pathValue.value
-        })
-      ));
-      return;
-    } catch(exception){
-      return next(handleError(errorMessage ||
-        'Failed to set values', exception));
-    }
-  }
-
-  if (jsonRpcDelete) {
-    const { path, name, key } = jsonRpcDelete;
-    const [ doneType ] = types;
-
-    try {
-      const th = await JsonRpc.write();
-      await JsonRpc.request('delete', {
-        th, path: `${path}{${key ? key : safeKey(name)}}`});
-      return next({
-        type: doneType,
-        name: name
-      });
-    } catch(exception) {
-      return next(handleError(errorMessage ||
-        `Failed to delete ${name}`, exception));
-    }
-  }
-
-  if (jsonRpcQuery) {
-    const { contextNode, xpathExpr, selection,
-            resultKeys, objectKey, transform } = jsonRpcQuery;
-    const [ requestType, successType, failureType ] = types;
-
-    next({ type: requestType });
-
-    try {
-      const json = await JsonRpc.query({
-        context_node : contextNode,
-        xpath_expr   : xpathExpr,
-        selection    : selection
-      });
-
-      const result = json.results.reduce((resultAcc, resultArray) => {
-        const item = resultArray.reduce((accumulator, current, index) => {
-          if (resultKeys[index] === 'name' &&
-              resultKeys.filter(value => value === 'name').length > 1) {
-            if (accumulator['name']) {
-              accumulator['name'] += ` ${safeKey(current)}`;
-            } else {
-              accumulator['name'] = safeKey(current);
-            }
-          } else if (!accumulator[resultKeys[index]]) {
-            accumulator[resultKeys[index]] = current;
-          }
-          return accumulator;
-        }, {});
-        if (objectKey) {
-          resultAcc[item[objectKey]] = item;
-        } else {
-          resultAcc.push(item);
+    getValue: build.query({
+      query: ({ keypath }) => ({
+        method: 'get_value',
+        params: {
+          path: keypath
         }
-        return resultAcc;
-      }, objectKey ? {} : []);
+      }),
+      providesTags: (_, __, { tag }) => tag ? [ 'data', tag ] : [ 'data' ],
+      transformResponse: (response) => response?.result?.value
+    }),
 
-      return next({
-        type: successType,
-        items: typeof transform === 'function' ? await transform(result) : result,
-        receivedAt: Date.now()
-      });
-    } catch(exception) {
-      return next(handleError(errorMessage ||
-        'Failed to execute query', exception, failureType));
-    }
-  }
+    setValue: build.mutation({
+      query: ({ keypath, actionPath, leaf, value }) => ({
+        method: 'set_value',
+        actionPath,
+        params: {
+          path: `${actionPath || keypath}/${leaf}`,
+          value: value
+        }
+      }),
+      invalidatesTags: [ 'changes' ],
+      async onQueryStarted(
+        { keypath, actionPath, leaf, value }, { dispatch, queryFulfilled }
+      ) {
+        if (!actionPath) {
+          await queryFulfilled;
+          dispatch(updateQueryData(keypath, leaf, value, undefined, dispatch));
+        }
+      }
+    }),
 
-  return next(action);
-};
+    create: build.mutation({
+      query: ({ name, keypath, ...rest }) => ({
+        method: 'create',
+        params: {
+          path: name ? `${keypath}{${name}}` : keypath
+        }
+      }),
+      invalidatesTags: [ 'changes' ],
+      async onQueryStarted(
+        { name, keypath, ...rest }, { dispatch, queryFulfilled }
+      ){
+        await queryFulfilled;
+        dispatch(updateQueryData(`${keypath}{${name}}`, name, rest));
+      }
+    }),
+
+    deletePath: build.mutation({
+      query: ({ keypath }) => ({
+        method: 'delete',
+        params: {
+          path: keypath
+        }
+      }),
+      invalidatesTags: [ 'changes' ],
+      async onQueryStarted({ keypath, queryKey }, { dispatch, queryFulfilled }) {
+        await queryFulfilled;
+        dispatch(updateQueryData(keypath, undefined, undefined, queryKey));
+      }
+    }),
+
+    action: build.mutation({
+      query: ({ transType, path, params }) => ({
+        method: 'action',
+        params: { path, params }
+      }),
+      transformResponse: (response) => {
+        if (Array.isArray(response?.result)) {
+          return response?.result.reduce(
+            (accumulator, { name, value }) => {
+              accumulator[name] = value;
+              return accumulator;
+            }, {}
+          );
+        } else {
+          return response?.result;
+        }
+      }
+    }),
+
+  })
+});
+
+export const {
+  endpoints: { action, create, setValue },
+  useGetValueQuery, useSetValueMutation,
+  useCreateMutation, useDeletePathMutation,
+  useActionMutation
+} = dataApi;

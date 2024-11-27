@@ -1,506 +1,518 @@
 import React from 'react';
-import { PureComponent, Fragment } from 'react';
-import { connect } from 'react-redux';
-import { createSelector } from 'reselect';
-import { DragSource, DropTarget } from 'react-dnd';
+import { Fragment, memo, useCallback,
+         useContext, useEffect } from 'react';
+import { useDrop, useDrag } from 'react-dnd';
 import { renderToStaticMarkup } from 'react-dom/server';
 import { getEmptyImage } from 'react-dnd-html5-backend';
 import classNames from 'classnames';
 import Tippy from '@tippyjs/react';
 
+import { LayoutContext} from './LayoutContext';
+import { useSelector, useDispatch } from 'react-redux';
 import { ICON, INTERFACE, ENDPOINT } from '../../constants/ItemTypes';
-import { CIRCLE_ICON_RATIO, LINE_ICON_RATIO,
-         ICON_VNF_SPACING, ICON_VM_SPACING } from '../../constants/Layout';
+import { CIRCLE_ICON_RATIO,
+         ICON_VNF_SPACING, ICON_VM_SPACING } from 'constants/Layout';
 import { BTN_ADD } from '../../constants/Icons';
 import { HIGHLIGHT, HOVER } from '../../constants/Colours';
 
 import Interface from './Interface';
-import IconHighlight from '../icons/IconHighlight';
-import IconSvg from '../icons/IconSvg';
+import IconHighlight from './icons/IconHighlight';
+import IconSvg from './icons/IconSvg';
+import VnfVmIcon from './Vnf';
+import { useNsInfoVnfs, useVmDevice } from './Vnf';
+import { getVnfVmIndex } from './Vnf';
 
-import { getIcon, getZoomedIcon, getActualIconSize, getSelectedIcon,
-         getZoomedContainer, getIsIconExpanded, getHighlightedDevices,
-         getIconVnfs, getConnections, getIconPosition, getDevice,
-         getDimensions, getLayout, getEditMode } from '../../reducers';
+import { getExpandedIcons, getSelectedIcon, getEditMode, getHighlightedIcons,
+         itemDragged, iconHovered, connectionSelected, iconSelected,
+         iconExpandToggled, getVisibleUnderlays, getZoomedContainer } from './topologySlice';
+import { useConnectedDevices, createConnection } from './Connection';
 
-import { iconSelected, connectionSelected,
-         itemDragged, iconExpandToggled } from '../../actions/uiState';
-import { moveIcon } from '../../actions/icons';
-import { moveZoomedIcon } from '../../actions/zoomedIcons';
-import { addConnection, moveConnection } from '../../actions/connections';
+import { isSafari, connectPngDragPreview } from './DragLayerCanvas';
 
-import { pxCoordToSafePc, isSafari,
-         connectPngDragPreview } from '../../utils/UiUtils';
+import { selectItem, useQueryQuery } from '/api/query';
+
+import { useSetValueMutation, useCreateMutation } from '/api/data';
+
+
+const roundPc = (n) =>
+  +Number.parseFloat(n).toFixed(2);
+
+function calculateIconPosition(
+  icon, container, hidden, dimensions, expanded, iconHeightPc,
+  vnfCount, vmCount, vnfIndex, vmIndex
+) {
+  const { coordX, coordY } = icon;
+  const { pc: { left, top, width, height }, connectionColour } = container;
+
+  const pcX = roundPc(left + coordX * width);
+  const pcY = roundPc(top + coordY * height);
+
+  const position = (pcX, pcY) => ({
+    pcX, pcY,
+    x: Math.round(pcX * dimensions.width / 100),
+    y: Math.round(pcY * dimensions.height / 100),
+    connectionColour, hidden, expanded
+  });
+
+  if (vnfCount) {
+    const vnfOffset = (
+      (vnfCount + 1) * ICON_VNF_SPACING +
+      (Math.min(vmCount - vnfCount, 0)) * ICON_VM_SPACING
+    ) * iconHeightPc / 2;
+
+    const vnfPcX = pcX;
+    const vnfPcY = (expanded)
+      ? roundPc(pcY + ((vnfIndex + 1) * ICON_VNF_SPACING +
+        vmIndex * ICON_VM_SPACING) * iconHeightPc  - vnfOffset)
+      : pcY;
+    return position(vnfPcX, vnfPcY);
+  }
+
+  return position(pcX, pcY);
+}
+
+function getIconDetails(
+  icon, zoomedContainer, zoomedIcons, visibleUnderlays, containers
+) {
+  const zoomedIcon = zoomedIcons?.find(({ parentName, name }) =>
+    parentName === icon.name && name === zoomedContainer);
+  const container = zoomedIcon?.name || icon?.container;
+  const hidden = zoomedContainer && zoomedContainer !== container ||
+    icon.underlay === 'true' && !visibleUnderlays.includes(container);
+
+  return [ zoomedIcon || icon, containers[container], hidden ];
+}
+
+
+// === Queries ================================================================
+
+export function useIconsQuery(selectFromResult) {
+  return useQueryQuery({
+    xpathExpr: '/webui:webui/data-stores/tme-demo-ui:static-map/icon',
+    selection: [
+      'name',
+      'device',
+      'ns-info',
+      'type',
+      'container',
+      'underlay',
+      'coord/x',
+      'coord/y' ],
+    subscribe: { cdbOper: false, skipLocal: false }
+    }, { selectFromResult }
+  );
+}
+
+export function useIcon(name) {
+  return useIconsQuery(selectItem('name', name)).data;
+}
+
+export function useIconByDevice(device) {
+  return useIconsQuery(selectItem('device', device)).data;
+}
+
+export function useIconByNsInfo(nsInfo) {
+  return useIconsQuery(selectItem('nsInfo', nsInfo)).data;
+}
+
+export function useZoomedIconsQuery(selectFromResult) {
+  return useQueryQuery({
+    xpathExpr: '/webui:webui/data-stores/tme-demo-ui:static-map/icon/zoomed',
+    selection: [
+      'container',
+      '../name',
+      'coord/x',
+      'coord/y' ]
+    }, { selectFromResult }
+  );
+}
+
+export function usePlatformsQuery(itemSelector) {
+  return useQueryQuery({
+    xpathExpr: '/ncs:devices/device/platform',
+    selection: [
+      '../name',
+      'name',
+      'model',
+      'version',
+      '../address',
+      '../port',
+      '../authgroup' ]
+  }, { selectFromResult: itemSelector });
+}
+
+export function usePlatform(deviceName) {
+  return usePlatformsQuery(selectItem('parentName', deviceName)).data;
+}
+
+export function useAuthgroupsQuery(itemSelector) {
+  return useQueryQuery({
+    xpathExpr: '/ncs:devices/authgroups/group',
+    selection: [ 'name', 'default-map/remote-name' ]
+  }, { selectFromResult: itemSelector });
+}
+
+export function useAuthgroup(groupName) {
+  return useAuthgroupsQuery(selectItem('name', groupName)).data;
+}
+
 
 
 // === Util functions =========================================================
 
-function positionStyle(position, size) {
+export function positionStyle(pcX, pcY, size) {
   return {
-    left: `${position.pcX}%`,
-    top: `${position.pcY}%`,
+    left: `${pcX}%`,
+    top: `${pcY}%`,
     transform: `translate(-50%, ${-size/2}px)`,
   };
 }
 
-function svgStyle(size) {
+export function svgStyle(size) {
   return {
     height: `${size}px`,
     width: `${size}px`,
   };
 }
 
-// === Mapping functions ======================================================
+// === Hooks ==================================================================
 
-const getIconHighlightedDevicesFactory = device => createSelector(
-  [getIconVnfs, getHighlightedDevices], (vnfs, deviceList) => {
-    console.debug('Re-select highlighted devices');
-    const devices = deviceList ? vnfs.flatMap(
-        ({ vmDevices }) => vmDevices.map(({ name }) => name)
-      ).concat([ device ])
-        .filter(device => deviceList.includes(device)) : [];
-    return devices.length == 0 ? undefined : devices;
+export function useIsExpanded(name) {
+  return useSelector((state) => getExpandedIcons(state)?.includes(name));
+}
+
+export function useIconPosition(name, vnfCount, vmCount, vnfIndex, vmIndex) {
+  const { containers, dimensions, iconHeightPc } = useContext(LayoutContext);
+
+  return calculateIconPosition(
+    ...getIconDetails(
+      useIcon(name),
+      useSelector(state => getZoomedContainer(state)),
+      useZoomedIconsQuery().data,
+      useSelector((state) => getVisibleUnderlays(state)),
+      containers),
+    dimensions, useIsExpanded(name), iconHeightPc,
+    vnfCount, vmCount, vnfIndex, vmIndex);
+}
+
+
+export function useDeviceIconPosition(device) {
+  const vmDevice = useVmDevice(device).data;
+  const deploymentId = vmDevice?.parentParentId;
+  const deviceIcon = useIconByDevice(device);
+  const nsInfoIcon = useIconByNsInfo(deploymentId?.replace(/.*ns-info-/, ''));
+  const icon = vmDevice?.name ? nsInfoIcon : deviceIcon;
+
+  if (!icon) {
+    console.error(`Missing icon for device ${device}`);
+    return {};
   }
-);
 
-const mapStateToPropsFactory = (initialState, initialProps) => {
-  const { name } = initialProps;
-  const { device } = getIcon(initialState, name);
-  const getIconHighlightedDevices = getIconHighlightedDevicesFactory(device);
-  return state => ({
-    ...getIcon(state, name),
-    ...getZoomedContainer(state) ? getZoomedIcon(state, name) : {},
-    label: name,
-    size: getActualIconSize(state),
-    selected: getSelectedIcon(state) === name,
-    expanded: getIsIconExpanded(state, name),
-    highlightedDevices: getIconHighlightedDevices(state, name),
-    vnfs: getIconVnfs(state, name),
-    connections: getConnections(state),
-    deviceInfo: getDevice(state, device),
-    positions: getIconPosition(state, name),
-    dimensions: getDimensions(state),
-    layout: getLayout(state),
-    editMode: getEditMode(state),
-    zoomedContainer: getZoomedContainer(state)
-  });
-};
+  const vnfs = useNsInfoVnfs(icon?.nsInfo);
+  const [ vmCount, vnfIndex, vmIndex ] = getVnfVmIndex(vnfs, device);
 
-const mapDispatchToProps = {
-  itemDragged, iconSelected, iconExpandToggled, moveIcon, moveZoomedIcon,
-  connectionSelected, addConnection, moveConnection
-};
+  return {
+    ...useIconPosition(icon?.name, vnfs.length, vmCount, vnfIndex, vmIndex)
+  };
+}
 
+export function useIconPositionCalculator() {
+  console.debug(`Reselect iconPositionCalculator`);
+  const { containers, dimensions } = useContext(LayoutContext);
+  const visibleUnderlays = useSelector((state) => getVisibleUnderlays(state));
+  const zoomedContainer = useSelector((state) => getZoomedContainer(state));
+  const zoomedIcons = useZoomedIconsQuery().data;
 
-// === Drag and Drop Specs ====================================================
-
-// Standard mode endpoint drag
-const endpointSource = {
-  beginDrag: ({ name, type, device }) => ({ icon: name, type, device }),
-  canDrag: ({ editMode  }) => !editMode
-};
-
-// Edit mode interface drop
-const iconTarget = {
-  drop: (
-    { device, nsInfo, iconSelected, connectionSelected, addConnection,
-      moveConnection }, monitor, component
-  ) => {
-    const { connection, endpoint, fromIcon, fromDevice } = monitor.getItem();
-    if (component.getDecoratedComponentInstance().canDrop()) {
-      if (fromDevice) {
-        const newConnectionName = `${fromDevice}-${device}`;
-        addConnection(newConnectionName, fromDevice, device);
-        connectionSelected(newConnectionName);
-
-      } else {
-        moveConnection(connection, endpoint, device, nsInfo);
-        connectionSelected(connection);
-      }
-    } else {
-      fromIcon ? iconSelected(fromIcon) : connectionSelected(connection);
+  return useCallback(icon => {
+    if (!icon) {
+      return {};
     }
-  },
-};
 
-// Edit mode icon drag
-const iconSource = {
-  beginDrag: ({
-    name, type, container, label, size, positions, itemDragged
-  }, monitor, { mouseDownPos, getStatus }) => {
-    const img = new Image();
-    img.src = `data:image/svg+xml,${encodeURIComponent(renderToStaticMarkup(
-      <IconSvg type={type} status={getStatus()} size={size} />
-    ))}`;
-    const { x, y } = positions[name];
-    const item = { icon: name, imgReady: false,
-                   x, y, img, label, container, mouseDownPos };
-    img.onload = () => { item.imgReady = true; };
-    requestAnimationFrame(() => { itemDragged(item); });
-    return item;
-  },
+    return calculateIconPosition(...getIconDetails(
+        icon, zoomedContainer, zoomedIcons, visibleUnderlays, containers),
+      dimensions);
 
-  endDrag: ({ itemDragged }, monitor, component) => {
-    const offset = monitor.getDifferenceFromInitialOffset();
-    const { x, y } = monitor.getItem();
-    itemDragged(undefined);
-    component.moveIcon(x + offset.x, y + offset.y);
-  },
-
-  canDrag: ({ editMode }) => editMode
-};
-
+  }, [ containers, visibleUnderlays, zoomedContainer, zoomedIcons ]);
+}
 
 // === Component ==============================================================
 
-@DragSource(ENDPOINT, endpointSource, connect => ({
-  connectEndpointDragPreview: connect.dragPreview(),
-  connectEndpointDragSource: connect.dragSource()
-}))
-@DropTarget(INTERFACE, iconTarget, (connect, monitor) => ({
-  connectIconDropTarget: connect.dropTarget(),
-  isOver: monitor.isOver(),
-  hoveredInterface: monitor.isOver() && monitor.getItem()
-}))
-@DragSource(ICON, iconSource, (connect, monitor) => ({
-  connectIconDragPreview: connect.dragPreview(),
-  connectIconDragSource: connect.dragSource(),
-  isDragging: monitor.isDragging()
-}))
-class Icon extends PureComponent {
-  constructor(props) {
-    super(props);
-    this.mouseDownPos = {};
-  }
+function Icon({ name }) {
+  console.debug('Icon Render');
+  const mouseDownPos = {};
 
-  handleOnClick = () => {
-    const { name, device, editMode,
-      iconSelected, iconExpandToggled } = this.props;
-    if (editMode && device ) {
-      iconSelected(name);
+  const dispatch = useDispatch();
+  const [ setValue ] = useSetValueMutation();
+  const [ create ] = useCreateMutation();
+
+  const { iconSize: size, pxToPc } = useContext(LayoutContext);
+
+  const icon = useIcon(name);
+  const platform = usePlatform(name);
+
+  const selected = useSelector((state) => getSelectedIcon(state) === name);
+  const highlightedDevices = useSelector((state) => getHighlightedIcons(state));
+  const editMode = useSelector((state) => getEditMode(state));
+
+  const zoomedContainer = useSelector((state) => getZoomedContainer(state));
+  const container = zoomedContainer || icon.container;
+
+  const { keypath, device, type, nsInfo } = icon;
+  const { x, y, pcX, pcY, hidden, expanded } = useIconPosition(name);
+
+  const vnfs = useNsInfoVnfs(nsInfo);
+  const vmCount = vnfs?.reduce( (acc, vnf) => acc += vnf.vmDevices.length, 0);
+
+  const connectedDevices = useConnectedDevices(device);
+
+  const [ , endpointDrag, endpointDragPreview] = useDrag(() => ({
+    type: ENDPOINT,
+    item: { name: device, type },
+    canDrag: !editMode
+  }));
+
+  const [ collectedDragProps, iconDrag, iconDragPreview ] = useDrag(() => ({
+    type: ICON,
+    item: () => {
+      const img = new Image();
+      img.src = `data:image/svg+xml,${encodeURIComponent(renderToStaticMarkup(
+            <IconSvg type={type} status={status} size={size} />
+      ))}`;
+      const item = {
+        icon: { name, img, imgReady: false, container}, x, y,  mouseDownPos
+      };
+      img.onload = () => { item.icon.imgReady = true; };
+      requestAnimationFrame(
+        () => { dispatch(itemDragged({ device, nsInfo, container })); });
+      return item;
+    },
+    end: (item, monitor) => {
+      const offset = monitor.getDifferenceFromInitialOffset();
+      dispatch(itemDragged(undefined));
+      moveIcon(item.x + offset.x, item.y + offset.y);
+    },
+    canDrag: editMode,
+    collect: (monitor) => ({ isDragging: monitor.isDragging() })
+  }), [ mouseDownPos ]);
+
+  const [ collectedDropProps, drop ] = useDrop(() => ({
+    accept: INTERFACE,
+    drop: (item) => {
+      const { keypath, aEndDevice, zEndDevice, fromDevice } = item.interface;
+      const endpoint1Device = aEndDevice ? name : fromDevice;
+      const endpoint2Device = (zEndDevice || !aEndDevice) ? name : fromDevice;
+
+      if (keypath) {
+        setValue({ keypath, leaf: 'endpoint-1/device', value: endpoint1Device });
+        setValue({ keypath, leaf: 'endpoint-2/device', value: endpoint2Device });
+      } else {
+        createConnection(endpoint1Device, endpoint2Device, create, setValue);
+      }
+
+      dispatch(connectionSelected(endpoint1Device, endpoint2Device));
+    },
+    canDrop: (item, monitor) => {
+      if (!monitor.isOver()) {
+        return false;
+      }
+      const { fromDevice } = item.interface;
+      if (name === fromDevice ) {
+        return false;
+      }
+      return !connectedDevices.includes(fromDevice);
+    },
+    collect: (monitor) => ({
+      canDrop: monitor.canDrop()
+    })
+  }), [ connectedDevices ]);
+
+  const handleOnClick = () => {
+    if (editMode && name ) {
+      dispatch(iconSelected(name));
     } else if (!editMode) {
-      iconExpandToggled(name);
+      dispatch(iconExpandToggled(name));
     }
-  }
+  };
 
-  moveIcon = (x, y) => {
-    const { name, container, dimensions, layout, moveIcon,
-            moveZoomedIcon, zoomedContainer } = this.props;
-    if (zoomedContainer) {
-      moveZoomedIcon(name, pxCoordToSafePc(x, y, layout[container],
-                                           dimensions), zoomedContainer);
-    } else {
-      moveIcon(name, pxCoordToSafePc(x, y, layout[container], dimensions));
-    }
-  }
+  const moveIcon = (x, y) => {
+    const path = zoomedContainer ? `${keypath}/zoomed{${container}}` : keypath;
+    const coordValue = pxToPc({ x, y }, container);
+    setValue({ keypath: path, leaf: 'coord/x', value: coordValue.x });
+    setValue({ keypath: path, leaf: 'coord/y', value: coordValue.y});
+  };
 
-  handleMouseDown = event => {
-    this.mouseDownPos = {
-      x: event.clientX,
-      y: event.clientY
-    };
-  }
+  const handleMouseDown = event => {
+    mouseDownPos.x = event.clientX;
+    mouseDownPos.y = event.clientY;
+  };
 
-  tooltipContent = (status, vnfIndex) => {
-    const { name, device, nsInfo, vnfs, deviceInfo } = this.props;
-    if (device) {
-      return (
+  const tooltipContent = (status, vnfIndex) =>
+    device ?
+      <table className="tooltip">
+        <tbody>
+          <tr><td>Device:</td><td>{device}</td></tr>
+          <tr><td>Status:</td><td>{status}</td></tr>
+          {status === 'reachable' &&
+            <Fragment>
+              <tr><td>Platform:</td><td>{platform.name}</td></tr>
+              <tr><td>Version:</td><td>{platform.version}</td></tr>
+              <tr><td>Model:</td><td>{platform.model}</td></tr>
+            </Fragment>
+          }
+        </tbody>
+      </table>
+    : nsInfo ?
         <table className="tooltip">
           <tbody>
-            <tr><td>Device:</td><td>{device}</td></tr>
-            <tr><td>Status:</td><td>{status}</td></tr>
-            {status === 'reachable' &&
-              <Fragment>
-                <tr><td>Platform:</td><td>{deviceInfo.platform}</td></tr>
-                <tr><td>Version:</td><td>{deviceInfo.version}</td></tr>
-                <tr><td>Model:</td><td>{deviceInfo.model}</td></tr>
-              </Fragment>
-            }
+            <tr><td>NS Info:</td><td>{nsInfo}</td></tr>
+            <tr><td>VNF Count:</td><td>{vnfs.length}</td></tr>
           </tbody>
         </table>
-      );
-    } else if (nsInfo) {
-      if (!Number.isInteger(vnfIndex)) {
-        return (
-          <table className="tooltip">
-            <tbody>
-              <tr><td>NS Info:</td><td>{nsInfo}</td></tr>
-              <tr><td>VNF Count:</td><td>{vnfs.length}</td></tr>
-            </tbody>
-          </table>
-        );
-      } else {
-        const vnf = vnfs[vnfIndex];
-        return (
-          <table className="tooltip">
-            <tbody>
-              <tr><td>VNF Info:</td><td>{vnf.vnfInfo}</td></tr>
-              <tr><td>VDU:</td><td>{vnf.vdu}</td></tr>
-              <tr><td>Status:</td><td>{status}</td></tr>
-            </tbody>
-          </table>
-        );
-      }
-    } else {
-      return name;
-    }
-  }
+    : name;
 
-  getStatus = () => {
-    const { device, nsInfo, vnfs, deviceInfo } = this.props;
+  const { canDrop } = collectedDropProps;
+  const { isDragging } = collectedDragProps;
+
+  useEffect(() => {
+    dispatch(iconHovered(canDrop && name));
+  }, [ canDrop ]);
+
+  useEffect(() => {
+    iconDragPreview(getEmptyImage(), {});
+  });
+
+  const getStatus = () => {
     return (device
-      ? deviceInfo && deviceInfo.platform ? 'reachable' : 'unreachable'
+      ? platform ? 'reachable' : 'unreachable'
       : nsInfo ? vnfs.length > 0 ? 'ready' : 'init' : undefined
     );
-  }
+  };
 
-  canDrop = () => {
-    const { device, connections, hoveredInterface } = this.props;
-    if (!hoveredInterface) {
-      return false;
-    }
-    const { connection, fromDevice, endpoint } = hoveredInterface;
-    const from = fromDevice ? fromDevice :
-      connections[connection][`ep${endpoint === 1 ? 2 : 1}Device`];
-    // Can't drop interface if:
-    //  - From icon is the same as the target icon
-    //  - From icon is not a device
-    //  - Target icon is not a device
-    //  - Connection from icon to target already exists (return statement)
-    if (from === device || !from || !device) {
-      return false;
-    }
-    return (
-      Object.keys(connections).findIndex(key => {
-        const conn = connections[key];
-        return (
-          (conn.ep1Device === from && conn.ep2Device === device) ||
-          (conn.ep1Device === device && conn.ep2Device === from)
-        );
-      }) === -1
-    );
-  }
+  let status = getStatus();
+  const top = useIconPosition(name, vnfs.length, vmCount, 0, 0);
+  const outlineSize = expanded ? Math.round(size * ICON_VNF_SPACING) : size;
+  const outlineRadius = outlineSize / 2;
 
-  componentDidMount() {
-    const { connectIconDragPreview } = this.props;
-    connectIconDragPreview(getEmptyImage(), {});
-  }
+  const height = (expanded && vnfs.length > 0)
+    ? vnfs.length * outlineSize + vnfs.reduce((accumulator, vnf) =>
+        accumulator += (vnf.vmDevices.length - 1) * ICON_VM_SPACING, 0) * size
+    : outlineSize;
 
-  render() {
-    console.debug('Icon Render');
-    const {
-      name,
-      device,
-      nsInfo,
-      type,
-      container,
-      label,
-      size,
-      selected,
-      expanded,
-      highlightedDevices,
-      vnfs,
-      deviceInfo,
-      positions,
-      editMode,
-      connectEndpointDragPreview,
-      connectEndpointDragSource,
-      connectIconDropTarget,
-      connectIconDragSource,
-      isOver,
-      isDragging,
-      hoveredIcon
-    } = this.props;
-    if (this.canDrop() && hoveredIcon.name !== name) {
-      hoveredIcon.name = name;
-    } else if (!isOver && hoveredIcon.name === name) {
-      hoveredIcon.name = null;
-    }
+  // The drag preview is not captured correctly on Safari,
+  // so generate PNG image and use that
+  isSafari && connectPngDragPreview(renderToStaticMarkup(
+    <IconSvg type={type} status={status} size={size} />),
+    size, endpointDragPreview, false
+  );
 
-    let status = this.getStatus();
-    const { hidden } = positions[name];
-    const hasVnfs = vnfs && vnfs.length > 0;
-    const top = positions[hasVnfs ? vnfs[0].name : name];
-    const outlineSize = expanded ? Math.round(size * ICON_VNF_SPACING) : size;
-    const outlineRadius = outlineSize / 2;
-
-    const height = (expanded && hasVnfs)
-      ? vnfs.length * outlineSize + vnfs.reduce((accumulator, vnf) =>
-          accumulator += (vnf.vmDevices.length - 1) * ICON_VM_SPACING, 0) * size
-      : outlineSize;
-
-    // The drag preview is not captured correctly on Safari,
-    // so generate PNG image and use that
-    isSafari && connectPngDragPreview(renderToStaticMarkup(
-      <IconSvg type={type} status={status} size={size} />),
-      size, connectEndpointDragPreview, false
-    );
-
-    return (
-      <Fragment>
+  return (
+    <Fragment>
+      <div
+        onClick={handleOnClick}
+        id={`${name}-outline`}
+        className={classNames('icon__outline', {
+          'icon__outline--expanded': expanded,
+          'icon__container--hidden': hidden
+        })}
+        style={{
+          left: `${top.pcX}%`,
+          top: `${top.pcY}%`,
+          transform: `translate(${-outlineSize/2}px, ${-outlineSize/2}px)`,
+          borderRadius: `${outlineRadius}px`,
+          height: `${height}px`,
+          width: `${outlineSize}px`,
+        }}
+      >
+      </div>
+      {vnfs && vnfs.map(({ vmDevices }) =>
+        vmDevices.map((vm) =>
+          <VnfVmIcon
+            key={vm.name}
+            iconName={icon.name}
+            nsInfo={icon.nsInfo}
+            vmDeviceName={vm.name}
+            onClick={handleOnClick}
+          />
+        )
+      )}
+      <div
+        className={classNames('icon__container', {
+          'icon__container--hidden': !canDrop
+        })}
+        style={positionStyle(pcX, pcY, size*2)}
+      >
+        <IconHighlight size={size*2} colour={HOVER}/>
+      </div>
+      <div
+        className={classNames('icon__container', {
+          'icon__container--expanded': expanded,
+          'icon__container--hidden': hidden || editMode ||
+            expanded && vnfs.length > 0 ||
+            !highlightedDevices || !(highlightedDevices.includes(device) ||
+            (vnfs && vnfs.some(({ vmDevices }) => vmDevices.some(
+              vm => highlightedDevices.includes(vm.name)))))
+        })}
+        style={positionStyle(pcX, pcY, size*2)}
+      >
+        <IconHighlight size={size*2} colour={HIGHLIGHT}/>
+      </div>
+      {endpointDragPreview(
         <div
-          onClick={this.handleOnClick}
-          id={`${name}-outline`}
-          className={classNames('icon__outline', {
-            'icon__outline--expanded': expanded,
-            'icon__container--hidden': hidden
-          })}
-          style={{
-            left: `${top.pcX}%`,
-            top: `${top.pcY}%`,
-            transform: `translate(${-outlineSize/2}px, ${-outlineSize/2}px)`,
-            borderRadius: `${outlineRadius}px`,
-            height: `${height}px`,
-            width: `${outlineSize}px`,
-          }}
-        >
-        </div>
-        {vnfs && vnfs.map((vnf, vnfIndex) =>
-          <Fragment key={vnfIndex}>{
-            vnf.linkToPrevious &&
-              <div
-                className={classNames('icon__vnf-connection', {
-                  'icon__vnf-connection--expanded': expanded && !hidden
-                })}
-                style={{
-                  height: `${expanded ? outlineSize : 0}px`,
-                  width: `${size * LINE_ICON_RATIO}px`,
-                  left: `${positions[vnf.name].pcX}%`,
-                  bottom: `${100 - positions[vnf.name].pcY}%`
-                }}
-              />}
-            {vnf.vmDevices.map((vm, vmIndex) => {
-              const vnfVmName = `${vnf.name}${vmIndex > 0 ? `-${vmIndex}` : ''}`;
-              if (vm.status === 'error') {
-                status = 'error';
-              } else if (vm.status !== 'ready' && status !== 'error') {
-                status = 'not-ready';
-              }
-              return <Fragment key={vnfVmName}>
-                <div
-                  className={classNames('icon__container', {
-                    'icon__container--expanded': expanded,
-                    'icon__container--hidden': !expanded || hidden ||
-                      editMode || !highlightedDevices ||
-                      !highlightedDevices.includes(vm.name)
-                  })}
-                  style={positionStyle(positions[vnfVmName], size*2)}
-                >
-                  <IconHighlight size={size*2} colour={HIGHLIGHT}/>
-                </div>
-                <div
-                  id={`${vnfVmName}-vnf-vm`}
-                  className={classNames('icon__container', {
-                    'icon__container--expanded': expanded,
-                    'icon__container--hidden': !expanded || hidden
-                  })}
-                  style={positionStyle(positions[vnfVmName], size)}
-                >
-                  <Tippy
-                    placement="left"
-                    delay="250"
-                    content={this.tooltipContent(vm.status, vnfIndex)}
-                    disabled={editMode}
-                  >
-                    <div
-                      onClick={this.handleOnClick}
-                      className="icon__svg-wrapper"
-                      style={svgStyle(size)}
-                    >
-                      <IconSvg type={vnf.type} status={vm.status} size={size} />
-                    </div>
-                  </Tippy>
-                  {vmIndex === Object.keys(vnf.vmDevices).length - 1 &&
-                    <div className="icon__label icon__label--vnf" >
-                      <span className="icon__label-text">{vnf.vnfInfo}</span>
-                    </div>
-                  }
-                </div>
-              </Fragment>;
-            })}
-          </Fragment>
-        )}
-        <div
-          className={classNames('icon__container', {
-            'icon__container--hidden': hoveredIcon.name !== name
-          })}
-          style={positionStyle(positions[name], size*2)}
-        >
-          <IconHighlight size={size*2} colour={HOVER}/>
-        </div>
-        <div
+          id={`${name}-icon`}
           className={classNames('icon__container', {
             'icon__container--expanded': expanded,
-            'icon__container--hidden': hidden || editMode ||
-              expanded && vnfs.length > 0 ||
-              !highlightedDevices || highlightedDevices.length == 0
+            'icon__container--dragging': isDragging,
+            'icon__container--hidden': hidden
           })}
-          style={positionStyle(positions[name], size*2)}
+          style={positionStyle(pcX, pcY, size)}
         >
-          <IconHighlight size={size*2} colour={HIGHLIGHT}/>
-        </div>
-        {connectEndpointDragPreview(
           <div
-            id={`${name}-icon`}
-            className={classNames('icon__container', {
-              'icon__container--expanded': expanded,
-              'icon__container--dragging': isDragging,
-              'icon__container--hidden': hidden
-            })}
-            style={positionStyle(positions[name], size)}
-          >
-            <div
-              className="icon__svg-wrapper icon__svg-wrapper--hidden"
-              style={{
-                height: `${(height + size) / 2}px`,
-                width: `${size}px`
-              }}
-            />
-            <div className="icon__label">
-              <span className="icon__label-text">{label}</span>
-            </div>
-            <Tippy
-              placement="left"
-              delay="250"
-              content={this.tooltipContent(status)}
-              disabled={editMode}
-            >
-              {connectEndpointDragSource(
-                connectIconDropTarget(
-                  connectIconDragSource(
-                    <div
-                      onClick={this.handleOnClick}
-                      onMouseDown={this.handleMouseDown}
-                      className={classNames('icon__svg-wrapper',
-                        'icon__svg-wrapper-absolute', {
-                        'icon__svg-wrapper--hidden': hidden ||
-                          expanded && vnfs.length > 0
-                      })}
-                      style={svgStyle(size)}
-                    >
-                      <IconSvg type={type} status={status} size={size} />
-                      <Interface
-                        fromIcon={name}
-                        fromDevice={device}
-                        x={positions[name].x}
-                        y={positions[name].y}
-                        pcX={50}
-                        pcY={50}
-                        size={size * CIRCLE_ICON_RATIO}
-                        active={selected && editMode}
-                        type={BTN_ADD}
-                        tooltip="Add Connection (drag me)"
-                      />
-                    </div>
-                  )
-                )
-              )}
-            </Tippy>
+            className="icon__svg-wrapper icon__svg-wrapper--hidden"
+            style={{
+              height: `${(height + size) / 2}px`,
+              width: `${size}px`
+            }}
+          />
+          <div className="icon__label">
+            <span className="icon__label-text">{name}</span>
           </div>
-        )}
-      </Fragment>
-    );
-  }
+          <Tippy
+            placement="left"
+            delay="250"
+            content={tooltipContent(status)}
+            disabled={editMode}
+          >
+            {endpointDrag(drop(iconDrag(
+              <div
+                onClick={handleOnClick}
+                onMouseDown={handleMouseDown}
+                className={classNames('icon__svg-wrapper',
+                  'icon__svg-wrapper-absolute', {
+                  'icon__svg-wrapper--hidden': hidden ||
+                    expanded && vnfs.length > 0
+                })}
+                style={svgStyle(size)}
+              >
+                <IconSvg type={type} status={status} size={size} />
+                <Interface
+                  fromIcon={name}
+                  fromDevice={device}
+                  x={x}
+                  y={y}
+                  pcX={50}
+                  pcY={50}
+                  size={size * CIRCLE_ICON_RATIO}
+                  active={selected && editMode}
+                  type={BTN_ADD}
+                  tooltip="Add Connection (drag me)"
+                />
+              </div>
+            )))}
+          </Tippy>
+        </div>
+      )}
+    </Fragment>
+  );
 }
 
-export default connect(mapStateToPropsFactory, mapDispatchToProps)(Icon);
+export default Icon;

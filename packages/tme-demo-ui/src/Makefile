@@ -38,3 +38,14 @@ clean-webui: clean
 strip:
 	rm -rf webui/node_modules
 .PHONY: strip
+
+start-ssh-proxy:
+	nohup node ../webui/ssh-proxy.js > /tmp/ssh-proxy.out 2>&1 &\
+	echo $$! > /tmp/SSH_PROXY_PID
+	cat /tmp/SSH_PROXY_PID
+
+stop-ssh-proxy:
+	if [ -f /tmp/SSH_PROXY_PID ]; then \
+	  kill $$(cat /tmp/SSH_PROXY_PID); \
+	  rm /tmp/SSH_PROXY_PID; \
+	fi

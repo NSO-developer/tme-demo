@@ -1,18 +1,7 @@
-.config-viewer__title-text {
-  flex: 1 1 auto;
-  overflow: hidden;
-}
-
-.config-viewer__loading-dots {
-}
-
-.config-viewer__panel {
-  position: relative;
-}
-
 .config-viewer__btn-row {
-  background: var(--background-alt);
+  background: var(--accordion-level1-hover);
   display: flex;
+  gap: 0.25rem;
   padding: 0.5rem 0.25rem;
 }
 
@@ -39,16 +28,6 @@
   background: PaleTurquoise;
 }
 
-.nso-btn.nso-btn--config-viewer {
-  margin: 0rem 0.125rem;
-  padding: 0rem 0.75rem;
-}
-
-.nso-btn.nso-btn--right-align {
-  margin-left: auto;
-}
-
-
-.accordion--closed > .accordion__header > .config-viewer__loading-dots > .loading__dot {
-  background-color: var(--sub-header);
+.accordion--open > .accordion__header > .loading__dots > .loading__dot {
+  background-color: White;
 }

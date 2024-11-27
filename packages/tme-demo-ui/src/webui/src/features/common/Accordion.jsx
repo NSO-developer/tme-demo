@@ -2,6 +2,7 @@ import React from 'react';
 import { PureComponent, createRef } from 'react';
 import classNames from 'classnames';
 
+
 class Accordion extends PureComponent {
   constructor(props) {
     super(props);
@@ -48,17 +49,17 @@ class Accordion extends PureComponent {
       return this.state.isOpen;
     }
     return this.props.isOpen;
-  }
+  };
 
   render() {
     console.debug('Accordion Render');
     const { fade, level, variableHeight, right, header, children } = this.props;
-    const { isOver, canDrop } = this.props;
 
     const isOpen = this.isOpen();
 
     const accordion =
-      <div className={classNames(`accordion accordion--level${level}`, {
+      <div className={classNames({
+        [ `accordion accordion--level${level}` ]: level,
         'accordion--right': right,
         'accordion--open': isOpen,
         'accordion--closed-fade': !isOpen && fade,
@@ -81,7 +82,7 @@ class Accordion extends PureComponent {
     this.ref.current.removeEventListener(
       'transitionend', this.onTransitionEnd);
     this.ref.current.style.maxHeight = 'none';
-  }
+  };
 
   animateToggle = () => {
     if (this.isOpen()) {
@@ -102,7 +103,7 @@ class Accordion extends PureComponent {
         });
       });
     }
-  }
+  };
 }
 
 export default Accordion;

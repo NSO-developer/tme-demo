@@ -8,7 +8,7 @@ export default React.forwardRef(({size}, ref) =>
     xmlns="http://www.w3.org/2000/svg"
     viewBox="0 0 400 400"
   >
-    <g stroke="dimGrey" fill="dimGrey">
+    <g stroke="#C1C6CC" fill="#C1C6CC">
       <g strokeWidth="10">
         <circle cx="55" cy="140" r="50" />
         <circle cx="200" cy="140" r="50" />

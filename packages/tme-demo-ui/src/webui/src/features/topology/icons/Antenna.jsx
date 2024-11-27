@@ -1,5 +1,5 @@
 import React from 'react';
-import { ANTENNA, ANTENNA_STROKE } from '../../constants/Colours';
+import { ANTENNA, ANTENNA_STROKE } from '../../../constants/Colours';
 
 export default function({ size, colour }) {
   const background = colour ? colour : ANTENNA;

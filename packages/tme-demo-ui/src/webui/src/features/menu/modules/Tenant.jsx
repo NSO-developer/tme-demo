@@ -1,106 +1,142 @@
-import JsonRpc from '../utils/JsonRpc';
-import { fetchSidebarData } from './index';
-import { safeKey } from '../utils/UiUtils';
+import React from 'react';
+import { useMemo } from 'react';
 
-export const TENANT_ADDED = 'tenant-added';
-export const TENANT_DELETED = 'tenant-deleted';
+import { NETWORK_SERVICE } from 'constants/ItemTypes';
+import { CUSTOMER_ROUTER, SERVICE_CHAIN, SWITCH } from 'constants/Icons';
 
-export const FETCH_TENANTS_REQUEST = 'fetch-tenants-request';
-export const FETCH_TENANTS_SUCCESS = 'fetch-tenants-success';
-export const FETCH_TENANTS_FAILURE = 'fetch-tenants-failure';
+import ServicePane from '../panels/ServicePane';
+import DroppableNodeList, { DROP_BEHAVIOUR_OPEN_NEW_ITEM,
+       DROP_BEHAVIOUR_GOTO } from '../panels/DroppableNodeList';
 
-export const FETCH_ONE_TENANT_REQUEST = 'fetch-one-tenant-request';
-export const FETCH_ONE_TENANT_FAILURE = 'fetch-one-tenant-failure';
-
-export const TENANT_PATH = '/tme-demo:tme-demo/tenant';
+import { useQueryQuery, useMemoizeWhenFetched, swapLabels, selectItem,
+         createItemsSelector, useQueryState } from 'api/query';
 
 
-// === Action Creators ========================================================
+export const label = 'Tenant';
+export const service = 'tenant';
 
-const tenantDeleted = name => ({
-  type: TENANT_DELETED, name
-});
+const selection = {
+  'l3vpn/route-distinguisher':      'Route Distinguisher',
+  'l3vpn/qos-policy':               'QoS Policy',
+  'data-centre/ip-network':         'Data Centre IP Network',
+  'data-centre/vlan':               'Data Centre VLAN',
+  'data-centre/preserve-vlan-tags': 'Preserve VLAN Tags'
+};
 
-// === jsonRpc Middleware =====================================================
+export const path = '/tme-demo:tme-demo/tenant';
+const l3vpn = 'l3vpn/endpoint';
+const nfvo = 'nfvo/network-service';
+const datacentre='data-centre/endpoint';
 
-const selection = ['name',
-                   'l3vpn/route-distinguisher',
-                   'l3vpn/qos-policy',
-                   'data-centre/ip-network',
-                   'data-centre/vlan',
-                   'data-centre/preserve-vlan-tags'];
-const resultKeys = ['name',
-                    'Route Distinguisher',
-                    'QoS Policy',
-                    'Data Centre IP Network',
-                    'Data Centre VLAN',
-                    'Preserve VLAN Tags'];
+export function useQuery(selectFromResult) {
+  return useQueryQuery({
+    xpathExpr: path,
+    selection: [
+      'name',
+      ...Object.keys(selection)
+    ]
+  }, { selectFromResult });
+}
 
-export const fetchTenants = () => ({
-  jsonRpcQuery: {
-    xpathExpr   : TENANT_PATH,
-    selection   : selection,
-    resultKeys  : resultKeys,
-    transform   : addDeviceList
-  },
-  types: [
-    FETCH_TENANTS_REQUEST,
-    FETCH_TENANTS_SUCCESS,
-    FETCH_TENANTS_FAILURE
-  ],
-  errorMessage: 'Failed to fetch tenants'
-});
+function useTenant(name) {
+  return useQuery(selectItem('name', name));
+}
 
-export const fetchOneTenant = name => ({
-  jsonRpcGetValues: {
-    name        : name,
-    path        : `${TENANT_PATH}{${safeKey(name)}}`,
-    leafs       : selection,
-    resultKeys  : resultKeys,
-    transform   : addDeviceList
-  },
-  types: [
-    FETCH_ONE_TENANT_REQUEST,
-    TENANT_ADDED,
-    FETCH_ONE_TENANT_FAILURE
-  ],
-  errorMessage: 'Failed to fetch tenant'
-});
+export function useFetchStatus() {
+  return useMemoizeWhenFetched({
+    'Tenants': useQueryState(path),
+    'L3VPN Endpoints': useQueryState(`${path}/${l3vpn}`),
+    'Network Services': useQueryState(`${path}/${nfvo}`),
+    'DC Endpoints': useQueryState(`${path}/${datacentre}`)
+  });
+}
 
-export const deleteTenant = (name) => ({
-  jsonRpcDelete: { path: TENANT_PATH, name },
-  types: [ TENANT_DELETED ],
-  errorMessage: `Failed to delete tenant ${name}`
-});
+export function Component({ name }) {
+  console.debug('Tenant Render');
 
-export const addDeviceList = tenants => Promise.all(
-  tenants.map(async tenant => {
-    try {
-      const deviceListPath = `${TENANT_PATH}{${
-        safeKey(tenant.name)}}/modified/devices`;
-      if (await JsonRpc.exists(deviceListPath)) {
-        const deviceList = await JsonRpc.getValue(deviceListPath);
-        return { ...tenant, deviceList: deviceList.value };
-      } else {
-        return tenant;
-      }
-    } catch(exception) {
-      console.error(`Error retrieving device list for ${tenant.name}`);
-      console.log(exception);
-      return tenant;
-    }
-  })
-);
+  const { data } = useTenant(name);
+  const { keypath } = data;
 
+  const l3vpnSelector = useMemo(() =>
+    createItemsSelector('parentName', name), [ name ]);
+  const nfvoSelector = useMemo(() =>
+    createItemsSelector('parentName', name), [ name ]);
+  const datacentreSelector = useMemo(() =>
+    createItemsSelector('parentName', name), [ name ]);
 
-// === Comet Middleware =======================================================
-
-export const subscribeTenants = () => ({
-  subscribe: {
-    path: TENANT_PATH,
-    cdbOper: false,
-    skipLocal: true,
-    skipPlanOnlyChanges: true
-  },
-  actions: [ fetchSidebarData ]
-});
+  return (
+    <ServicePane
+      key={name}
+      title={name}
+      { ...{ label, keypath, ...swapLabels(data, selection) }}
+    >
+      <DroppableNodeList
+        allowDrop={true}
+        accept={CUSTOMER_ROUTER}
+        dropBehaviour={DROP_BEHAVIOUR_OPEN_NEW_ITEM}
+        label="VPN Endpoint"
+        keypath={`${keypath}/${l3vpn}`}
+        baseSelect={[ 'id', '../../name' ]}
+        labelSelect={{
+          'ce-device':    'Device',
+          'ce-interface': 'Interface',
+          'ip-network':   'IP Network',
+          'bandwidth':    'Bandwidth',
+          'as-number':    'AS Number'
+        }}
+        selector={l3vpnSelector}
+        newItemDefaults={name => (
+          [{ path: 'ce-device', value: name }]
+        )}
+      />
+      <DroppableNodeList
+        allowDrop={false}
+        newItemDragType={NETWORK_SERVICE}
+        newItemDragIcon={SERVICE_CHAIN}
+        label="Network Service"
+        keypath={`${keypath}/${nfvo}`}
+        defaultsPath="/webui:webui/data-stores/tme-demo-ui:static-map/icon"
+        baseSelect={[ 'name', '../../name' ]}
+        labelSelect={{
+          'nsd':      'NSD',
+          'flavour':  'Flavour',
+          'vnfm':     'VNFM'
+        }}
+        selector={nfvoSelector}
+      />
+      <DroppableNodeList
+        allowDrop={true}
+        accept={SWITCH}
+        calculateName={(name, data) => {
+          let compute = 0;
+          while (compute < 5) {
+            if (!data?.filter(dcEndpoint => dcEndpoint.device === name).find(
+              dcEndpoint => dcEndpoint.compute === `compute${compute}`)) {
+                break;
+            }
+            compute++;
+          }
+          return `${name} compute${compute}`;
+        }}
+        dropBehaviour={DROP_BEHAVIOUR_GOTO}
+        label="Data Centre Endpoint"
+        keypath={`${keypath}/${datacentre}`}
+        baseSelect={[ 'concat(device, " ", compute)', '../../name' ]}
+        labelSelect={{
+          'device':   'Device',
+          'compute':  'Compute',
+          'ios-GigabitEthernet':    'Interface',
+          'ios-xr-GigabitEthernet': 'Interface',
+          'ios-xr-TenGigE':         'Interface',
+          'junos-interface':        'Interface',
+          'alu-interface':          'Interface',
+          'nx-Ethernet':            'Interface',
+          'nx-port-channel':        'Interface',
+          'f10-GigabitEthernet':    'Interface',
+          'connect-multiple-vlans': 'Connect Multiple VLANS'
+        }}
+        selector={datacentreSelector}
+      />
+   </ServicePane>
+  );
+}

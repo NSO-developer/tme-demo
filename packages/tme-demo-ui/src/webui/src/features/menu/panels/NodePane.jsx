@@ -1,76 +1,79 @@
 import React from 'react';
-import { PureComponent, Fragment } from 'react';
-import { connect } from 'react-redux';
+import { Fragment, memo, useCallback } from 'react';
+import { useDispatch } from 'react-redux';
 
-import { CONFIGURATION_EDITOR_EDIT_URL } from '../../constants/Layout';
-import * as IconTypes from '../../constants/Icons';
+import { CONFIGURATION_EDITOR_EDIT_URL } from 'constants/Layout';
+import * as IconTypes from 'constants/Icons';
 
-import Accordion from '../Sidebar/Accordion';
-import Btn from '../icons/BtnWithTooltip';
+import FieldGroup from 'features/common/FieldGroup';
+import Accordion from 'features/common/Accordion';
+import InlineBtn from 'features/common/buttons/InlineBtn';
 
-import { deleteVpnEndpoint } from '../../actions/vpnEndpoints';
-import { TENANT_PATH } from '../../actions/tenants';
-import { safeKey } from '../../utils/UiUtils';
+import { stopThenGoToUrl } from 'api/comet';
+import { useDeletePathMutation } from 'api/data';
 
 
-const mapDispatchToProps = { deleteVpnEndpoint };
+const NodePane = memo(function NodePane({
+  title, label, keypath, level, isOpen, fade, nodeToggled,
+  underscore, queryKey, disableDelete,
+  disableGoTo, extraButtons, subHeader, children, ...rest
+}) {
+  console.debug('NodePane Render');
 
-class VpnEndpoint extends PureComponent {
-  constructor(props) {
-    super(props);
-    const { tenant, name } = props;
-    this.keyPath = `${TENANT_PATH}{${
-      safeKey(tenant)}}/l3vpn/endpoint{${safeKey(name)}}`;
-  }
+  const toggle = useCallback(() => {
+    Object.keys(rest).length > 0 && nodeToggled(keypath);
+  }, [ keypath, nodeToggled ]);
 
-  delete = async (event) => {
+  const dispatch = useDispatch();
+  const goToNode = useCallback((event) => {
     event.stopPropagation();
-    const { isOpen, toggle, deleteVpnEndpoint, tenant, name } = this.props;
-    await deleteVpnEndpoint(tenant, name);
+    dispatch(stopThenGoToUrl(CONFIGURATION_EDITOR_EDIT_URL + keypath));
+  });
+
+  const [ deletePath ] = useDeletePathMutation();
+  const deleteNode = useCallback(async (event) => {
+    event.stopPropagation();
+    await deletePath({ keypath, queryKey });
     if (isOpen) { toggle(); }
-  }
+  });
 
-  goTo = (event) => {
-    event.stopPropagation();
-    window.location.assign(CONFIGURATION_EDITOR_EDIT_URL + this.keyPath);
-  }
-
-  render() {
-    console.debug('VPN Endpoint Render');
-    const { isOpen, toggle, deleteVpnEndpoint,
-            name, tenant, ...rest } = this.props;
-
-    return (
-      <Accordion level="2" isOpen={isOpen} toggle={toggle} header={
+  return (
+    <Accordion
+      level={level ? level : 1}
+      isOpen={isOpen}
+      fade={fade}
+      toggle={toggle}
+      variableHeight={true}
+      header={
         <Fragment>
-          <span className="sidebar__title-text">{name} ({rest['Device']})</span>
-          <div
-            className="inline-round-btn inline-round-btn--go-to"
-            onClick={this.goTo}
-          >
-            <Btn
-              type={IconTypes.BTN_GOTO}
-              tooltip="View VPN Endpoint in Configuration Editor"
+          <span className="header__title-text">{underscore ?
+            <u>{title.charAt(0)}</u> : title.charAt(0)}{title.substr(1)}</span>
+          {!disableGoTo &&
+            <InlineBtn
+              icon={IconTypes.BTN_GOTO}
+              classSuffix="go-to"
+              tooltip={`View ${label} in Configuration Editor`}
+              onClick={goToNode}
+              style={level === 2 && 'alt'}
             />
-          </div>
-          <div
-            className="inline-round-btn inline-round-btn--delete"
-            onClick={this.delete}
-          >
-            <Btn type={IconTypes.BTN_DELETE} tooltip="Delete VPN Endpoint"/>
-          </div>
-        </Fragment>}>
-        <div className="field-group">
-          {rest && Object.keys(rest).map(key =>
-            <div key={key} className="field-group__row">
-              <span className="field-group__label">{key}</span>
-              <span className="field-group__value">{rest[key]}</span>
-            </div>
-          )}
-        </div>
-      </Accordion>
-    );
-  }
-}
+          }
+          {extraButtons}
+          {!disableDelete &&
+            <InlineBtn
+              icon={IconTypes.BTN_DELETE}
+              classSuffix="delete"
+              tooltip={`Delete ${label}`}
+              onClick={deleteNode}
+              style={'danger'}
+            />
+          }
+        </Fragment>
+      }>
+      {subHeader}
+      {rest && <FieldGroup { ...rest } />}
+      {children}
+    </Accordion>
+  );
+});
 
-export default connect(null, mapDispatchToProps)(VpnEndpoint);
+export default NodePane;

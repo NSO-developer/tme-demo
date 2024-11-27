@@ -1,67 +1,33 @@
-import './index.css';
+import './config.css';
 import React from 'react';
-import { PureComponent, createRef } from 'react';
-import { connect } from 'react-redux';
+import { useSelector } from 'react-redux';
 
-import Sidebar from '../Sidebar';
-import Config from './Config';
-import { getExpandedIcons, getIcons, getVnfs, getDevices,
-         getConfigViewerVisible, getOpenTenant } from '../../reducers';
+import ExpandedIcon from './ExpandedIcon';
+import Sidebar from 'features/common/Sidebar';
 
-const mapStateToProps = state => ({
-  expandedIcons: getExpandedIcons(state),
-  icons: getIcons(state),
-  vnfs: getVnfs(state),
-  devices: getDevices(state),
-  configViewerVisible: getConfigViewerVisible(state),
-  openTenant: getOpenTenant(state)
-});
+import { usePlatformsQuery } from 'features/topology/Icon';
+import { getExpandedIcons,
+         getConfigViewerVisible } from 'features/topology/topologySlice';
 
-class ConfigViewer extends PureComponent {
-  constructor(props) {
-    super(props);
-  }
 
-  getVmDevices = nsInfo => {
-    const { vnfs, devices } = this.props;
-    return Object.keys(vnfs).filter(
-      vnfKey => vnfs[vnfKey].nsInfo == nsInfo
-    ).flatMap(
-      vnfKey => Object.keys(vnfs[vnfKey].vmDevices).filter(
-        vmDevice => vmDevice in devices
-      )
-    );
-  };
+function ConfigViewer() {
+  console.debug('Config Viewer Render');
+  const expandedIcons = useSelector((state) => getExpandedIcons(state));
+  const configViewerVisible = useSelector((state) => getConfigViewerVisible(state));
+  const platforms = usePlatformsQuery().data;
 
-  render() {
-    console.debug('Config Viewer Render');
-    const { expandedIcons, icons, vnfs, configViewerVisible,
-            openTenant } = this.props;
-    return (
-      <Sidebar right={true} hidden={!configViewerVisible}>
-        <div className="sidebar__header">
-          <div className="sidebar__title-text">Config Viewer</div>
-        </div>
-        <div className="sidebar__body">
-          {expandedIcons && expandedIcons.flatMap(
-            iconKey => {
-              if (iconKey in icons) {
-                const icon = icons[iconKey];
-                return (icon.nsInfo
-                  ? this.getVmDevices(icon.nsInfo)
-                  : [ icon.device ]
-                );
-              }
-              return [];
-            }
-          ).map(device =>
-            <Config key={device} device={device} openTenant={openTenant}/>
-          )
+  return (
+    <Sidebar right={true} hidden={!configViewerVisible}>
+      <div className="header">
+        <div className="header__title-text">Config Viewer</div>
+      </div>
+      <div className="accordion__group">
+        {platforms && expandedIcons && expandedIcons.map(
+          icon => <ExpandedIcon key={icon} name={icon}/>)
         }
-        </div>
-      </Sidebar>
-    );
-  }
+      </div>
+    </Sidebar>
+  );
 }
 
-export default connect(mapStateToProps)(ConfigViewer);
+export default ConfigViewer;

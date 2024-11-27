@@ -1,152 +1,89 @@
-import './index.css';
 import React from 'react';
-import { PureComponent, createRef, Fragment } from 'react';
-import { connect } from 'react-redux';
-import classNames from 'classnames';
+import { useRef } from 'react';
+import { useDispatch } from 'react-redux';
 import ReactResizeDetector from 'react-resize-detector';
 
-import { LAYOUT } from '../../constants/Layout';
-
 import Container from './Container';
-import Connection from './Connection';
-import Icon from './Icon';
+import Connection, { useConnectionsQuery } from './Connection';
+import Icon, { useIconsQuery, useZoomedIconsQuery, usePlatformsQuery, useAuthgroupsQuery } from './Icon';
+import { useVnfQueries } from './Vnf';
 import DragLayerCanvas from './DragLayerCanvas';
 import CustomDragLayer from './CustomDragLayer';
-import ToggleButton from './ToggleButton';
-import IconSizeSlider from './IconSizeSlider';
 import LoadingOverlay from '../common/LoadingOverlay';
 
-import { getIcons, getConnectionPositions, getDimensions, getLayout,
-         getDraggedItem, getIsFetchingLayout, getIsFetchingIcons,
-         getIsFetchingZoomedIcons, getIsFetchingVnfs, getIsFetchingConnections,
-         getEditMode, getConfigViewerVisible } from '../../reducers';
-
-import { fetchTopologyData, subscribeTopologyData } from '../../actions';
-import { editModeToggled, configViewerToggled } from '../../actions/uiState';
-import { dimensionsChanged } from '../../actions/uiSizing';
+import { LayoutContextProvider, useLayoutsQuery } from './LayoutContext';
+import { dimensionsChanged } from './topologySlice';
+import { fetchStatus } from 'api/query';
 
 
-const mapStateToProps = state => ({
-  icons: getIcons(state),
-  connections: getConnectionPositions(state),
-  dimensions: getDimensions(state),
-  layout: getLayout(state),
-  draggedItem: getDraggedItem(state),
-  isFetchingLayout: getIsFetchingLayout(state),
-  isFetchingIcons: getIsFetchingIcons(state) || getIsFetchingZoomedIcons(state),
-  isFetchingConnections: getIsFetchingConnections(state),
-  isFetchingVnfs: getIsFetchingVnfs(state),
-  editMode: getEditMode(state),
-  configViewerVisible: getConfigViewerVisible(state)
-});
+const TopologyBody = React.memo(function TopologyBody () {
+  console.debug('TopologyBody Render');
 
-const mapDispatchToProps = {
-  dimensionsChanged, fetchTopologyData, subscribeTopologyData,
-  editModeToggled, configViewerToggled
-};
+  const dispatch = useDispatch();
 
+  const ref = useRef(null);
+  const canvasRef = useRef();
 
-class Topology extends PureComponent {
-  constructor(props) {
-    super(props);
-    this.ref = createRef();
-    this.canvasRef = createRef();
-    this.hoveredIcon = { name: null };
-    this.resize = this.resize.bind(this);
-  }
+  const layouts = useLayoutsQuery();
+  const icons = useIconsQuery();
+  const zoomedIcons = useZoomedIconsQuery();
+  const connections = useConnectionsQuery();
+  const platforms = usePlatformsQuery();
+  const vnfs = useVnfQueries();
+  const authgroups = useAuthgroupsQuery();
 
-  resize() {
+  const resize = () => {
     console.debug('Topology Resize');
-    const { offsetWidth, offsetHeight } = this.ref.current;
-    const { dimensionsChanged } = this.props;
-    const { left, top } = this.ref.current.getBoundingClientRect();
-    dimensionsChanged(left, top, offsetWidth, offsetHeight);
-  }
+    const { offsetWidth: width, offsetHeight: height } = ref.current;
+    const { left, top } = ref.current.getBoundingClientRect();
+    dispatch(dimensionsChanged({ width, height, left, top }));
+  };
 
-  componentDidMount() {
-    this.resize();
-    const { fetchTopologyData, subscribeTopologyData } = this.props;
-    fetchTopologyData();
-    subscribeTopologyData();
-  }
-
-  render() {
-    console.debug('Topology Render');
-    const { icons, connections, layout, dimensions, draggedItem,
-            isFetchingLayout, isFetchingIcons, isFetchingVnfs,
-            isFetchingConnections, editMode, configViewerVisible,
-            editModeToggled, configViewerToggled } = this.props;
-    return (
-      <div className={classNames('topology', {
-        'topology--edit-mode': editMode,
-        'topology--expanded': !configViewerVisible
-      })}>
-        <div className="topology__body">
-          <div className="topology__layer topology__layer--background">
-            {layout && Object.keys(layout).map(name =>
-              <Container key={name} name={name}/>)}
-          </div>
-          <div className="topology__layer topology__layer--foreground">
-            <div className="topology__header"/>
-            <div className="topology__body" ref={this.ref}>
-              <ReactResizeDetector handleWidth handleHeight
-                onResize={this.resize}
-                refreshMode="debounce"
-                refreshRate={500}
-              />
-              {dimensions && layout &&
-                <div className="topology__layer">
-                  {connections.map(connection =>
-                    <Connection key={connection.key} {...connection}/>
-                  )}
-                  {Object.keys(icons).map(key =>
-                    <Icon key={key} name={key} hoveredIcon={this.hoveredIcon}/>
-                  )}
-                  <DragLayerCanvas
-                    dimensions={dimensions}
-                    canvasRef={this.canvasRef}
-                  />
-                  <CustomDragLayer
-                    hoveredIcon={this.hoveredIcon}
-                    canvasRef={this.canvasRef}
-                  />
-                  <LoadingOverlay items={[
-                    { isFetching: isFetchingIcons, label: 'Fetching Icons...' },
-                    { isFetching: isFetchingVnfs, label: 'Fetching Vnfs...' },
-                    { isFetching: isFetchingConnections,
-                      label: 'Fetching Connections...' }
-                  ]}/>
-                </div>
-              }
-            </div>
-          </div>
-          <LoadingOverlay items={[
-            { isFetching: isFetchingLayout, label: 'Fetching Layout...' }
-          ]}/>
+  return (
+    <LayoutContextProvider>
+      <div className="topology">
+        <div className="header">
+          <span className="header__title-text">Select a topology...</span>
         </div>
-        <div className="topology__footer">
-          <div className="topology__footer-content">
-            <ToggleButton
-              handleToggle={editModeToggled}
-              checked={editMode}
-              label="Edit Topology"
-              />
-            <ToggleButton
-              handleToggle={configViewerToggled}
-              checked={configViewerVisible}
-              label="Show Device Config"
-              />
-            {dimensions && <IconSizeSlider/>}
+        <div className="component__layer">
+          {layouts.data?.map(({ name }) =>
+            <Container key={name} name={name} />
+          )}
+        </div>
+        <div className="component__layer topology__body-placeholder">
+          <div className="topology__body" ref={ref}>
+            <ReactResizeDetector handleWidth handleHeight
+              onResize={resize}
+              refreshMode="debounce"
+              refreshRate={500}
+            />
+              {icons.data && vnfs && connections.data?.map(
+                ({ keypath, endpoint1Device, endpoint2Device }) =>
+                  <Connection
+                    key={`${endpoint1Device} - ${endpoint2Device}`}
+                    keypath={keypath}
+                    aEndDevice={endpoint1Device}
+                    zEndDevice={endpoint2Device}
+                  />
+              )}
+              {vnfs && icons.data?.map(({ id, name }) =>
+                  <Icon key={name} name={name} />
+              )}
+              <DragLayerCanvas canvasRef={canvasRef} />
+              <CustomDragLayer canvasRef={canvasRef} />
           </div>
-          <div className={classNames('container__layer', 'container__overlay', {
-            'container__overlay--inactive': draggedItem &&
-              draggedItem.icon !== 'new-network-service'
-          })}/>
         </div>
       </div>
-    );
-  }
-}
+      <LoadingOverlay items={{
+        'Layouts':      fetchStatus(layouts),
+        'Icons':        fetchStatus(icons),
+        'Zoomed Icons': fetchStatus(zoomedIcons),
+        'Connections':  fetchStatus(connections),
+        'Platforms':    fetchStatus(platforms),
+        'VNFs':         fetchStatus(vnfs)
+      }}/>
+    </LayoutContextProvider>
+  );
+});
 
-
-export default connect(mapStateToProps, mapDispatchToProps)(Topology);
+export default TopologyBody;

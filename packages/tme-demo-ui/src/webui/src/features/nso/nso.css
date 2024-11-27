@@ -1,54 +1,9 @@
-.btn-reset {
-  background: inherit;
-  border: none;
-  color: inherit;
-  font-size: inherit;
-  cursor: pointer;
-}
-
-.nso-btn {
-  background: var(--primary);
-  border: 1px solid var(--primary);
-  border-radius: 1rem;
-  color: White;
-  font-size: 0.875rem;
-  font-weight: 300;
-  line-height: 2;
-  outline: none;
-  padding: 0rem 1rem;
-  cursor: pointer;
-}
-
-.nso-btn__spacer {
-  width: 1rem;
-}
-
-.nso-btn--alt {
-  background: transparent;
-  color: var(--primary);
-}
-
-.nso-btn--header {
-  width: 6em;
-}
-
-.nso-btn--inactive, .nso-btn--disabled {
-  background: var(--disabled);
-  border: 1px solid var(--disabled);
-  color: White;
-}
-
-.nso-btn--disabled {
-  cursor: not-allowed;
-  pointer-events: none;
-}
-
 .nso-background {
   display: flex;
   flex-flow: column nowrap;
   height: 100vh;
-  background-image: url("pattern1.png");
 }
+
 
 .nso-body {
   height: 100%;
@@ -71,26 +26,33 @@
 }
 
 .nso-body__overlay {
-  background: White;
+  background: #00000066;
   height: 100%;
   left: 0px;
   opacity: 0;
   position: absolute;
   top: 0px;
   width: 100%;
-  transition: opacity 500ms ease-out;
+  transition: opacity 1000ms ease-out, z-index 1ms 1000ms;
+  z-index: 0;
 }
 
 .nso-body__overlay--visible {
-  opacity: 0.7;
-  z-index: 5;
+  opacity: 1;
+  z-index: 1;
+  transition: opacity 1000ms ease-out, z-index 1ms 0ms;
 }
 
 
 .nso-header {
-  box-shadow: rgba(0, 0, 0, 0.25) 0px 5px 5px 0px;
+  align-items: center;
+  background: linear-gradient(90deg, rgb(55, 60, 66) 0.29%, rgb(15, 17, 20) 100%, rgb(15, 18, 20) 100%);
+  box-sizing: border-box;
+  color: White;
+  display: flex;
+  height: 56px;
   left: 0px;
-  line-height: 1;
+  padding: 10px 1rem;
   top: 0px;
   user-select: none;
   width: 100%;
@@ -100,239 +62,184 @@
   -webkit-user-select: none;
 }
 
-.nso-header__inner {
-  background: White;
-  display: flex;
-  height: 70px;
-  margin: 0px auto;
-  padding: 0px 1rem;
-}
-
 .nso-header__link {
-  align-self: center;
+  align-items: center;
+  border: 2px solid transparent;
+  display: flex;
+  margin-right: auto;
+  text-decoration: none;
 }
 
 .nso-header__cisco-logo {
-  display: block;
-  margin-left: 6px;
-  margin-right: 2rem;
-  width: 60px;
-}
-
-.nso-header__left {
-  align-self: center;
-  line-height: normal;
+  padding-left: 6px;
+  margin-right: 10px;
+  width: 38px;
 }
 
 .nso-header__title {
-  color: var(--header);
-  font-size: 1.25rem;
+  color: var(--background);
+  font-size: 1.1875rem;
 }
+
+.nso-header__utilities {
+  align-items: center;
+  display: flex;
+  flex-direction: row;
+  gap: 12px;
+  margin: 0 6px;
+}
+
+.nso-header__divider {
+  background: #F7F7F7;
+  width: 1px;
+  height: 24px;
+}
+
+.nso-header__user-menu {
+  display: inherit;
+  margin-left: 10px;
+}
+
+.nso-header__user-menu > button {
+  padding: 0 0.5rem;
+}
+
+.nso-drop-down {
+  color: black;
+  display: none;
+  position: absolute;
+}
+
+.nso-drop-down--open {
+  display: block;
+  position: relative;
+}
+
+.nso-drop-down__overlay {
+  background: transparent;
+  height: 100%;
+  left: 0px;
+  position: fixed;
+  top: 0px;
+  width: 100%;
+}
+
+.nso-drop-down__menu {
+  background: var(--background);
+  border: 2px solid var(--border);
+  border-radius: 6px;
+  box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.05);
+  display: flex;
+  flex-direction: column;
+  overflow: auto;
+  overscroll-behavior: none;
+  padding: 0.25rem 0;
+  position: absolute;
+  right: 0px;
+  top: 48px;
+}
+
+.nso-drop-down__menu-item {
+  padding: 0.5rem 10px;
+}
+
+.nso-user-profile {
+  align-items: center;
+  color: var(--primary-text);
+  display: flex;
+  flex-direction: row;
+  gap: 22px;
+  padding: 0 22px;
+  white-space: nowrap;
+}
+
+.nso-user-profile__content {
+  padding: 0.25rem;
+}
+
+.nso-user-profile__heading {
+  font-size: 0.75rem;
+  line-height: 20px;
+  padding: 0 0.25rem;
+}
+
+.nso-user-profile__text {
+  font-size: 0.88rem;
+  font-weight: 600;
+  line-height: 1.428;
+  padding: 0 0.25rem;
+}
+
+
 
 .nso-header__version {
   color: var(--disabled);
   font-size: 0.5625rem;
 }
 
-.nso-header__right {
-  display: flex;
-  margin-left: auto;
-}
-
-.nso-header__item {
-  align-self: center;
-  font-size: 0.875rem;
-  margin: 0.5rem;
-}
-
-
-.nso-footer {
-  line-height: 1;
-}
-
-.nso-footer__toggle-btn {
-  background-color: var(--background);
-  border-style: solid none none none;
-  border-top: 1px solid var(--border);
-  display: flex;
-  height: 0px;
-  justify-content: center;
-  outline: none;
-  overflow: hidden;
-  padding: 0px;
-  transition: height 0.3s ease 0s;
-  width: 100%;
-}
-
-.nso-footer__toggle-btn--closed {
-  height: 1.25rem;
-}
-
-.nso-footer__toggle-btn-text {
-  align-self: center;
-  color: var(--primary);
-  font-size: 1rem;
-  padding: 0 1rem;
-}
-
-.nso-footer__toggle-btn-text--down {
-  transform: rotate(180deg);
-}
-
-.nso-footer__sc-menu {
-  background: var(--background);
-  display: flex;
-  height: 2.5rem;
-  justify-content: center;
-  transition: height 0.3s ease 0s;
-}
-
-.nso-footer__sc-menu--closed {
-  height: 0rem;
-}
-
-.nso-footer__sc-menu-toggle-btn {
-  background: var(--background);
-  border-style: none;
-  display: flex;
-  justify-content: flex-end;
-  outline: none;
-  overflow: hidden;
-  padding: 0px;
-  transition: height 0.3s ease 0s;
-  flex-grow: 1;
-}
-
-.nso-footer__sc-item {
-  background-color: White;
-  cursor: pointer;
-  color: var(--primary);
-  display: flex;
-  overflow: hidden;
-  text-decoration: none;
-  width: 6.25rem;
-}
-
-.nso-footer__sc-item--current {
-  background-color: var(--primary);
-  color: White;
-}
-
-.nso-footer__sc-letter {
-  padding: 0.25rem;
-  font-size: 1.75rem;
-  align-self: center;
-}
-
-.nso-footer__sc-text {
-  padding: 0.3rem;
-  font-size: 0.625rem;
-  align-self: center;
-}
-
-
-.nso-user-menu {
-  color: var(--primary);
-  position: relative;
-}
-
-.nso-user-menu__user {
-  background: none;
-  min-width: 5rem;
-  outline: none;
-}
-
-.nso-user-menu__popup {
-  display: none;
-  position: absolute;
-  right: 5.3rem;
-  top: 2.5rem;
-}
-
-.nso-user-menu__popup--open {
-  display: block;
-}
-
-.nso-user-menu__overlay {
-  background: transparent;
-  left: 0px;
-  height: 100%;
-  position: fixed;
-  top: 0px;
-  width: 100%;
-}
-
-.nso-user-menu__arrow {
-  background: White;
-  width: 1.2rem;
-  height: 1.2rem;
-  left: 2.75rem;
-  position: absolute;
-  transform: translate(-50%, -50%) rotate(45deg);
-}
-
-.nso-user-menu__arrow--shadow {
-  box-shadow: #888888 0px 0px 3px 0px;
-}
-
-.nso-user-menu__popup-inner {
-  background: White;
-  box-shadow: #888888 0px 0px 3px 0px;
-  padding: 1rem 0px;
-  position: absolute;
-  width: 5.5rem;
-}
-
-.nso-user-menu__logout {
-  display: block;
-  padding: 0.1rem 1rem;
-}
-
-.nso-user-menu__logout:hover {
-  background: var(--primary);
-  color: White;
-  cursor: pointer;
-}
-
 
 .nso-modal__content {
   background: White;
   border: 0.0625rem solid var(--border);
-  border-radius: 0.25rem;
-  bottom: auto;
-  box-shadow: rgba(0, 0, 0, 0.2) 0 0 1rem 0;
+  border-radius: 0.5rem;
+  box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.12);
   color: var(--header);
-  left: 50%;
-  margin-right: -50%;
-  max-width: 60%;
+  display: flex;
+  flex-direction: column;
+  min-height: 422px;
+  min-width: 576px;
+  max-width: calc(100% - 3rem);
+  max-height: calc(100% - 3rem);
   outline: none;
-  padding: 2rem 1.5rem;
-  position: absolute;
-  right: auto;
-  top: 50%;
-  transform: translate(-50%, -50%);
 }
 
 .nso-modal__overlay {
-  background: rgba(255, 255, 255, 0.7);
+  background: #00000066;
   bottom: 0;
   left: 0;
   position: fixed;
   right: 0;
   top: 0;
   z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .nso-modal__title {
-  font-size: 1.25rem;
-  margin-bottom: 1rem;
+  padding: 1.5rem 1.5rem 1rem 1.5rem;
+  font-size: 1.5rem;
+  font-weight: 700;
+  line-height: 1.428;
+  color: var(--heading-text);
+  flex: 0 0 auto;
 }
 
 .nso-modal__body {
-  font-size: 0.75rem;
+  font-size: 0.875rem;
+  flex: 1 1 auto;
+  color: var(--primary-text);
+  padding: 0 1.5rem 1.5rem 1.5rem;
 }
 
 .nso-modal__footer {
-  margin-top: 2rem;
-  display: flex;
+  padding: 1.5rem;
+  flex: 0 0 auto;
+  text-align: right;
+  line-height: 1.5;
 }
+
+
+.ReactModal__Overlay {
+    opacity: 0;
+    transition: opacity 1000ms ease-in-out;
+}
+
+.ReactModal__Overlay--after-open{
+    opacity: 1;
+}
+
+.ReactModal__Overlay--before-close{
+    opacity: 0;
+}
+

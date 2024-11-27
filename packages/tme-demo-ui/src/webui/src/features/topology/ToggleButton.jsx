@@ -32,9 +32,7 @@ class ToggleButton extends PureComponent {
           />
           <span className="toggle__switch" />
         </label>
-        <div className="topology-footer__label">
-          <span className="topology-footer__label-text">{label}</span>
-        </div>
+        <span className="footer__text">{label}</span>
       </Fragment>
     );
   }

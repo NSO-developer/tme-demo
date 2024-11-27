@@ -1,9 +1,7 @@
-import * as Colours from './Colours';
-
-export const TITLE = 'TME Demo';
+export const TITLE = 'Crosswork Network Services Orchestrator | TME Demo';
 
 export const COMMIT_MANAGER_URL = '/webui-one/CommitManager';
-const CONFIGURATION_EDITOR_URL = '/webui-one/ConfigurationEditor';
+export const CONFIGURATION_EDITOR_URL = '/webui-one/ConfigurationEditor';
 export const CONFIGURATION_EDITOR_EDIT_URL = `${CONFIGURATION_EDITOR_URL}/edit-config/containers/widgets`;
 export const CONFIGURATION_EDITOR_ACTIONS_URL = `${CONFIGURATION_EDITOR_URL}/actions/none/widgets`;
 export const DASHBOARD_URL = '/webui-one/Dashboard';

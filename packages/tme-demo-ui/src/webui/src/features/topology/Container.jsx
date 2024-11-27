@@ -1,141 +1,113 @@
 import React from 'react';
-import { PureComponent } from 'react';
-import { connect } from 'react-redux';
+import { useContext } from 'react';
+import { useSelector, useDispatch } from 'react-redux';
+import { useDrop } from 'react-dnd';
 import classNames from 'classnames';
-import { DropTarget } from 'react-dnd';
-
 import { NETWORK_SERVICE } from '../../constants/ItemTypes';
-import * as IconTypes from '../../constants/Icons';
 
-import Btn from '../icons/BtnWithTooltip';
+import * as IconTypes from 'constants/Icons';
 
-import { getDraggedItem, getDimensions, getLayout,
-         getZoomedContainer, getVisibleUnderlays } from '../../reducers';
-import { newNetworkServiceToggled,
-         underlayToggled } from '../../actions/uiState';
-import { containerZoomToggled } from '../../actions/uiSizing';
+import InlineBtn from '../common/buttons/InlineBtn';
 
-import { pxCoordToSafePc } from '../../utils/UiUtils';
+import { getDraggedItem, getVisibleUnderlays, getZoomedContainer,
+         underlayToggled, containerZoomToggled } from './topologySlice';
+import { LayoutContext } from './LayoutContext';
 
+import { getOpenServiceName } from '../menu/menuSlice';
 
-const mapStateToProps = (state, props) => {
-  const layout = getLayout(state)[props.name];
-  const name = layout.parentName || props.name;
-  const draggedItem = getDraggedItem(state);
-  return {
-    name,
-    draggedIcon: draggedItem && draggedItem.icon ? draggedItem : undefined,
-    dimensions: getDimensions(state),
-    layout,
-    zoomedContainer: getZoomedContainer(state),
-    underlayVisible: getVisibleUnderlays(state).includes(name)
-  };
-};
+const getNetworkServiceDefaults = (tenant, container, pos) => [
+    { path: 'ns-info', value: `${tenant}-`, prefix: true },
+    { path: 'type', value: IconTypes.SERVICE_CHAIN },
+    { path: 'container', value: container },
+    { path: 'coord/x', value: pos.x },
+    { path: 'coord/y', value: pos.y }
+];
 
-const mapDispatchToProps = { newNetworkServiceToggled,
-                             underlayToggled, containerZoomToggled };
+function Container({ name }) {
+  console.debug('Container Render');
 
-const dropTarget = {
-  drop({ name, layout, dimensions, newNetworkServiceToggled }, monitor) {
-    const { x, y } = monitor.getClientOffset();
-    newNetworkServiceToggled(name,
-      pxCoordToSafePc(x - dimensions.left, y - dimensions.top,
-        layout, dimensions)
-    );
-  }
-};
+  const dispatch = useDispatch();
+  const layout = useContext(LayoutContext);
 
-@DropTarget(NETWORK_SERVICE, dropTarget, (connect, monitor) => ({
-  connectDropTarget: connect.dropTarget(),
-  isOver: monitor.isOver(),
-  canDrop: monitor.canDrop()
-}))
-class Container extends PureComponent {
-  render() {
-    console.debug('Container Render');
-    const { name, layout, draggedIcon, connectDropTarget, isOver,
-            zoomedContainer, underlayToggled, containerZoomToggled,
-            underlayVisible } = this.props;
-    const { index, title, pc } = layout;
-    const width = pc.backgroundWidth;
+  const zoomedContainer = useSelector((state) => getZoomedContainer(state));
+  const draggedItem = useSelector((state) => getDraggedItem(state));
+  const underlayVisible = useSelector(
+    (state) => getVisibleUnderlays(state).includes(name));
+  const openServiceName = useSelector((state) => getOpenServiceName(state));
 
-    return (
+  const container = layout.containers[name];
+
+  const { index, title, pc : { backgroundWidth: width } } = container;
+
+  const [ collectedProps, drop ] = useDrop(() => ({
+    accept: NETWORK_SERVICE,
+    drop: (item, monitor) => {
+      const { x, y } = monitor.getClientOffset();
+      console.log(x);
+      console.log(layout.dimensions);
+      return ({ itemDefaults: getNetworkServiceDefaults(
+        openServiceName, name, layout.pxToPc({
+          x: x - layout.dimensions.left,
+          y: y - layout.dimensions.top
+        }, name)) });
+    },
+    collect: (monitor) => ({
+      isOver: monitor.isOver()
+    })
+  }), [ layout ]);
+
+  const { isOver } = collectedProps;
+
+  return (
+    <div
+      className="container"
+      style={{ width: `${width}%` }}
+    >
       <div
-        className="container"
-        style={{ width: `${width}%` }}
+        className={classNames('component__layer', {
+          'container__background': (index % 2 === 0),
+          'container__background-alt': (index % 2 !== 0),
+          'container__background-not-first': (index !== 0 && width > 0)
+        })}
       >
-        <div
-          className={classNames('container__layer', {
-            'container__background': (index % 2 === 0),
-            'container__background--alt': (index % 2 !== 0),
-            'container__background--not-first': (index !== 0 && width > 0)
-          })}
-        >
-          <div className="container__header">
-            <div className="container__title">
-              <span className="container__title-text">{title}</span>
-              <div
-                className={classNames('inline-round-btn',
-                  'inline-round-btn--toggle-underlay', {
-                  'inline-round-btn--hidden': underlayVisible
-                })}
-                onClick={() => underlayToggled(name)}
-              >
-                <Btn
-                  type={IconTypes.BTN_SHOW_UNDERLAY}
-                  tooltip="Show underlay devices"
-                />
-              </div>
-              <div
-                className={classNames('inline-round-btn',
-                  'inline-round-btn--toggle-underlay', {
-                  'inline-round-btn--hidden': !underlayVisible
-                })}
-                onClick={() => underlayToggled(name)}
-              >
-                <Btn
-                  type={IconTypes.BTN_HIDE_UNDERLAY}
-                  tooltip="Hide underlay devices"
-                />
-              </div>
-              <div
-                className={classNames('inline-round-btn',
-                  'inline-round-btn--zoom', {
-                  'inline-round-btn--hidden': zoomedContainer
-                })}
-                onClick={() => containerZoomToggled(name)}
-              >
-                <Btn type={IconTypes.BTN_ZOOM_IN} tooltip="Zoom in"/>
-              </div>
-              <div
-                className={classNames('inline-round-btn',
-                  'inline-round-btn--zoom', {
-                  'inline-round-btn--hidden': !zoomedContainer
-                })}
-                onClick={() => containerZoomToggled(name)}
-              >
-                <Btn type={IconTypes.BTN_ZOOM_OUT} tooltip="Zoom out"/>
-              </div>
-            </div>
+        <div className="header">
+            <span className="header__title-text">{title}</span>
+            <InlineBtn
+              icon={IconTypes.BTN_SHOW_UNDERLAY}
+              hidden={underlayVisible}
+              tooltip={'Show underlay devices'}
+              onClick={() => dispatch(underlayToggled(name))}
+            />
+            <InlineBtn
+              icon={IconTypes.BTN_HIDE_UNDERLAY}
+              hidden={!underlayVisible}
+              tooltip={'Hide underlay devices'}
+              onClick={() => dispatch(underlayToggled(name))}
+            />
+            <InlineBtn
+              icon={IconTypes.BTN_ZOOM_IN}
+              hidden={zoomedContainer}
+              tooltip={'Zoom in'}
+              onClick={() => dispatch(containerZoomToggled(name))}
+            />
+            <InlineBtn
+              icon={IconTypes.BTN_ZOOM_OUT}
+              hidden={!zoomedContainer}
+              tooltip={'Zoom out'}
+              onClick={() => dispatch(containerZoomToggled(name))}
+            />
           </div>
-        </div>
-        {connectDropTarget(
-          <div className={classNames(
-            'container__layer', 'container__overlay', {
-            'container__overlay--inactive':
-              draggedIcon && draggedIcon.container !== name &&
-              draggedIcon.icon !== 'new-network-service',
-            'container__overlay--active-not-first': (index !== 0) &&
-              draggedIcon && draggedIcon.container === name &&
-              draggedIcon.icon !== 'new-network-service',
-            'container__overlay--dragging':
-              draggedIcon && draggedIcon.icon === 'new-network-service',
-            'container__overlay--hovered': isOver
-          })}
-          />)}
       </div>
-    );
-  }
+      {drop(<div className={classNames(
+        'component__layer', 'container__overlay', {
+        'container__overlay--inactive':
+          draggedItem?.container && draggedItem?.container !== name,
+        'container__overlay--dragging':
+          draggedItem && draggedItem?.icon === 'new-item',
+        'container__overlay--hovered': isOver
+      })}/>)}
+    </div>
+  );
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(Container);
+export default Container;

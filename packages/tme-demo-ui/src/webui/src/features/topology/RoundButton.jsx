@@ -2,29 +2,25 @@ import React from 'react';
 import { forwardRef } from 'react';
 import classNames from 'classnames';
 
-import * as IconTypes from '../../constants/Icons';
-import * as Colours from '../../constants/Colours';
+import * as IconTypes from 'constants/Icons';
 
-import Btn from '../icons/BtnWithTooltip';
+import Btn from '../common/buttons/BtnWithTooltip';
 
 
-export default forwardRef((props, ref) => {
+const RoundButton = forwardRef(function RoundButton(props, ref) {
   const { onClick, onMouseDown, pcX, pcY, type, size,
-    active, expanded, disabled, tooltip } = props;
+    active, tooltip } = props;
   const iconScale = type === IconTypes.BTN_DRAG ? 0.5 : 0.66;
-  const actualSize = size * (active && !disabled ? 2 : 1);
+  const actualSize = size * (active ? 2 : 1);
 
   // It would be easier to inherit the background colour from the connection,
   // but this doesn't work well in Chrome with transitions
   return (
     <div
       className={classNames('topology__round-btn', {
-        'topology__round-btn--add': type === IconTypes.BTN_ADD,
-        'topology__round-btn--delete': type === IconTypes.BTN_DELETE,
-        'topology__round-btn--hidden': type !== IconTypes.BTN_DRAG && !active,
-        'topology__round-btn--enabled': active && !disabled,
-        'topology__round-btn--disabled': active && disabled,
-        'topology__round-btn--expanded': expanded
+        'btn--delete': type === IconTypes.BTN_DELETE,
+        'btn--hidden': type !== IconTypes.BTN_DRAG && !active,
+        'btn--active': active
       })}
       ref={ref}
       onClick={onClick}
@@ -40,7 +36,7 @@ export default forwardRef((props, ref) => {
       <div
         className="topology__round-btn-svg-container"
         style={{
-          opacity: (active && !disabled) | 0,
+          opacity: active | 0,
           padding: actualSize * (1 - iconScale) / 2,
         }}
       >
@@ -49,3 +45,5 @@ export default forwardRef((props, ref) => {
     </div>
   );
 });
+
+export default RoundButton;

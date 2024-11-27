@@ -1,0 +1,38 @@
+.terminal__viewer {
+  opacity: 1;
+  transition: z-index 500ms, opacity 500ms;
+  z-index: 10;
+}
+
+.terminal__viewer--hidden {
+  opacity: 0;
+  z-index: -1;
+}
+
+.terminal__viewer-body {
+  display: flex;
+  flex-direction: column;
+}
+
+.terminal__viewer-background {
+  background: var(--background);
+  opacity: 0.95;
+}
+
+.terminal {
+  box-sizing: border-box;
+  height: 100%;
+  overflow: scroll;
+  padding: 1rem;
+  width: 100%;
+}
+
+.terminal--hidden {
+  height: 0;
+  padding: 0;
+  visibility: hidden;
+}
+
+.terminal__text {
+  margin: 0;
+}

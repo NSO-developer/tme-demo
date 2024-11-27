@@ -1,5 +1,5 @@
 import React from 'react';
-import { STROKE, GENERIC, BACKGROUND } from '../../constants/Colours';
+import { STROKE, GENERIC, BACKGROUND } from '../../../constants/Colours';
 
 export default function({ size, colour }) {
   const background = colour ? colour : BACKGROUND;

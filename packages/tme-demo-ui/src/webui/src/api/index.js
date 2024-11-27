@@ -1,182 +1,264 @@
 import { COMMIT_MANAGER_URL, LOGIN_URL } from '../constants/Layout';
+import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
 import { writeTransactionToggled, commitInProgressToggled,
-         handleError } from '../actions/uiState';
-import { fetchAll } from '../actions';
+         getCommitInProgress, handleError } from '../features/nso/nsoSlice';
 
-class JsonRpc {
-  constructor(store) {
-    this.id = 0;
-    this.thWrite = undefined;
-    this.pendingThWrite = undefined;
-    this.committing = false;
-    this.thRead = undefined;
-    this.store = undefined;
-  }
 
-  setStore(store) {
-    this.store = store;
-  }
+export function findWriteTransaction(transactions, actionPath) {
+  return transactions?.find(trans => trans.mode === 'read_write' &&
+    trans.actionPath === actionPath)?.th;
+}
 
-  async request(method, params) {
-    const response = await fetch(`/jsonrpc/${method}`, {
-      method: 'post',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        jsonrpc: '2.0',
-        id: ++this.id,
-        method: method,
-        params: params
-      }),
-      credentials: 'same-origin'
-    });
+function rewriteKeys(path) {
+  return path.replace(/{([^}]* [^}]*)}/g, '"$1"');
+}
 
-    if (!response.ok) {
-      throw new Error(`Json-Rpc request failed: Status [${response.status
-        }] ${response.statusText}`);
+const getJsonRpcBaseQuery = () => {
+  let id = 0;
+  let pendingTrans = undefined;
+  let cometId = undefined;
+  const baseQuery = fetchBaseQuery({ baseUrl: '/jsonrpc' });
+  let subscription = undefined;
+  let selector = undefined;
+
+  const getTransType = method =>
+    [ 'create',
+      'delete',
+      'set_value',
+      'get_trans_changes',
+      'delete_trans',
+      'validate_commit',
+      'commit' ].includes(method) ? 'read_write' :
+    [ 'query',
+      'get_value',
+      'action' ].includes(method) ? 'read' : undefined;
+
+
+  const getTransaction = async (
+    transType, actionPath, dispatch, api, allowNew
+  ) => {
+    if (!transType) {
+      return undefined;
     }
 
-    const json = await response.json();
+    if (!subscription) {
+      subscription = dispatch(getTrans.initiate(undefined));
+    }
+    await subscription;
 
-    if (json.error) {
-      const error = json.error;
+    if (!selector) {
+      selector = getTrans.select();
+    }
+    const { data } = selector(api.getState());
+
+    const writeTrans = findWriteTransaction(data, actionPath);
+    if (writeTrans) {
+      dispatch(writeTransactionToggled(true));
+      return writeTrans;
+    } else if (transType === 'read_write' && !allowNew) {
+      return undefined;
+    }
+
+    const readTrans = data?.find(trans => !trans.actionPath);
+    if (transType === 'read' && readTrans) {
+      return readTrans.th;
+    }
+
+    if (!pendingTrans) {
+      pendingTrans = dispatch(newTrans.initiate({ mode: transType, actionPath }));
+    }
+    const result = await pendingTrans;
+    pendingTrans = undefined;
+    if (transType === 'read_write') {
+      dispatch(writeTransactionToggled(true));
+    }
+    return result.data;
+  };
+
+  const getComet = async (method, dispatch) => {
+    if (![
+      'comet',
+      'subscribe_cdboper',
+      'subscribe_changes'
+    ].includes(method)) {
+      return undefined;
+    }
+    if ([
+      'subscribe_cdboper',
+      'subscribe_changes'
+    ].includes(method) && !cometId) {
+      dispatch(jsonRpcApi.endpoints.comet.initiate());
+    } else if (!cometId) {
+      cometId = `main-1.${String(Math.random()).substring(2)}`;
+    }
+    return cometId;
+  };
+
+  return async ({ method, actionPath, params }, api) => {
+    const comet = { comet_id: await getComet(method, api.dispatch) };
+
+    const transType = getTransType(method);
+    const th = await getTransaction(
+      transType, actionPath, api.dispatch, api,
+      [ 'create', 'delete', 'set_value' ].includes(method)
+    );
+
+    if (transType && !th) {
+      return {};
+    }
+
+    const trans = { th };
+
+    if ([ 'commit', 'delete_trans' ].includes(method)) {
+      await api.dispatch(jsonRpcApi.util.updateQueryData('getTrans', undefined,
+        draft => draft.filter(({ th }) => th !== trans.th)
+      ));
+    }
+
+    const path = { path: params?.path && rewriteKeys(params.path) };
+
+    const json = await baseQuery({
+      url: method,
+      method: 'POST',
+      body: {
+        jsonrpc: '2.0',
+        id: ++id,
+        method: method,
+        params: {
+          ...trans,
+          ...comet,
+          ...path,
+          ...params
+        }
+      },
+    }, api);
+
+    if (json.data?.error) {
+      const error = json.data.error;
       if (typeof error.type === 'string' &&
-          error.type === 'session.invalid_sessionid') {
+          error.type === 'session.invalid_sessionid' ||
+          method === 'comet' && error.code === -32000) {
         window.location.assign(LOGIN_URL);
 
-      } else if ( error.message === 'Validation failed') {
+      } else if (error.message === 'Validation failed') {
         window.location.assign(COMMIT_MANAGER_URL);
 
+      } else if (typeof error.type === 'string' &&
+          error.type === 'data.not_found') {
+        null;
+
       } else {
+        api.dispatch(handleError(error.message));
         throw new Error(`Json-Rpc response error: ${error.message +
           (error.data ? `\n${JSON.stringify(error.data)}` : '')}`);
       }
     }
 
-    return json.result;
-  }
-
-  async exists(path) {
-    const th = await this.read();
-    const params = { th, path };
-    const result = await this.request('exists', params);
-    return result.exists;
-  }
-
-  async getValue(path) {
-    const th = await this.read();
-    const params = { th, path };
-    return this.request('get_value', params);
-  }
-
-  async getValues(params) {
-    const th = await this.read();
-    params = { th: th, ...params };
-    return this.request('get_values', params);
-  }
-
-  async getListKeys(params) {
-    const th = await this.read();
-    params = { th: th, ...params };
-    return this.request('get_list_keys', params);
-  }
-
-  async query(params) {
-    const th = await this.read();
-    params = { th: th, result_as: 'string', ...params };
-    return this.request('query', params);
-  }
-
-  async runAction(params) {
-    const th = await this.read();
-    params = { th: th, ...params };
-    const json = await this.request('run_action', params);
-    return json.reduce((accumulator, { name, value }) => {
-      accumulator[name] = value;
-      return accumulator;
-    }, {});
-  }
-
-  async read() {
-    const db = 'running';
-
-    if (this.thWrite && !this.committing) { return this.thWrite; }
-    if (this.thRead) { return this.thRead; }
-
-    const res = await this.request('get_trans');
-    const readTrans = res.trans.filter(c =>
-      c.db === db && c.mode === 'read');
-    const writeTrans = res.trans.filter(c =>
-      c.db === db && c.mode === 'read_write');
-
-    if (writeTrans.length > 0 && !this.committing) {
-      this.thWrite = writeTrans[0].th;
-      this.store.dispatch(writeTransactionToggled(true));
-      return writeTrans[0].th;
+    if ([ 'commit', 'delete_trans' ].includes(method)) {
+      await subscription.unsubscribe();
+      subscription = undefined;
     }
 
-    if (readTrans.length > 0) {
-      this.thRead = readTrans[0].th;
-      return readTrans[0].th;
-    }
+    return {
+      data: json.data
+    };
+  };
+};
 
-    const newTrans = await this.request('new_trans', {db: db, mode: 'read'});
-    this.thRead = newTrans.th;
+export const jsonRpcApi = createApi({
+  reducerPath: 'jsonRpcApi',
+  baseQuery: getJsonRpcBaseQuery(),
+  tagTypes: [ 'trans', 'data', 'changes', 'device-list' ],
+  keepUnusedDataFor: 300,
+  invalidationBehavior: 'immediately',
+  endpoints: (build) => ({
 
-    return this.thRead;
-  }
+    getTrans: build.query({
+      query: () => ({ method: 'get_trans' }),
+      providesTags: [ 'trans' ],
+      transformResponse: (response) => response.result.trans.filter(
+        trans => ['running', 'cs_trans'].includes(trans.db)).map(
+          trans_running => ({
+            th: trans_running.th,
+            mode: trans_running.mode,
+            actionPath: trans_running.action_path
+        }))
+    }),
 
-  async write() {
-    if (this.thWrite) { return this.thWrite; }
+    getTransChanges: build.query({
+      query: () => ({
+        method: 'get_trans_changes',
+        params: { output: 'compact' }
+      }),
+      providesTags: [ 'changes' ],
+      transformResponse: response => response?.result?.changes?.length || 0
+    }),
 
-    if (this.pendingThWrite) {
-      await this.pendingThWrite;
-    } else {
-      this.pendingThWrite = await this.request('new_trans', {
-        db: 'running',
-        conf_mode: 'private',
-        mode: 'read_write',
-        tag: 'webui-one'
-      });
-    }
+    newTrans: build.mutation({
+      query: ({ mode, actionPath }) => ({
+        method: 'new_trans',
+        params: {
+          db: 'running',
+          conf_mode: 'private',
+          mode,
+          tag: 'webui-one',
+          action_path: actionPath
+        }
+      }),
+      async onQueryStarted({ mode, actionPath }, { dispatch, queryFulfilled }) {
+        const { data: th } = await queryFulfilled;
+        dispatch(jsonRpcApi.util.updateQueryData(
+          'getTrans', undefined, (draftTrans) => {
+            draftTrans.push({ th, mode, actionPath });
+        }));
+      },
+      transformResponse: (repsonse) => repsonse.result.th
+    }),
 
-    this.thWrite = this.pendingThWrite.th;
-    this.pendingThWrite = undefined;
-    this.store.dispatch(writeTransactionToggled(true));
+    revert: build.mutation({
+      query: () => ({ method: 'delete_trans' }),
+      async onQueryStarted(args, { dispatch, queryFulfilled }) {
+        await queryFulfilled;
+        await dispatch(writeTransactionToggled(false));
+      },
+      invalidatesTags: [ 'trans', 'data' ]
+    }),
 
-    return this.thWrite;
-  }
+    apply: build.mutation({
+      async queryFn(_arg, _queryApi, _extraOptions, fetchWithBQ) {
+        await fetchWithBQ({ method: 'validate_commit' });
+        return fetchWithBQ({ method: 'commit' });
+      },
+      async onQueryStarted(args, { dispatch, queryFulfilled }) {
+        dispatch(commitInProgressToggled(true));
+        await queryFulfilled;
+        dispatch(writeTransactionToggled(false));
+        dispatch(commitInProgressToggled(false));
+      },
+      invalidatesTags: [ 'trans', 'device-list', 'changes' ]
+    }),
 
-  getWriteTransaction() {
-    return this.thWrite;
-  }
+    getSystemSetting: build.query({
+      query: (operation) => ({
+        method: 'get_system_setting',
+        params: { operation }
+      })
+    }),
 
-  apply = async () => {
-    try {
-      this.store.dispatch(commitInProgressToggled(true));
-      await this.request('validate_commit', {th: this.thWrite});
-      this.committing = true;
-      await this.request('commit', {th: this.thWrite});
-      this.thWrite = undefined;
-      this.committing = false;
-      this.store.dispatch(writeTransactionToggled(false));
-      this.store.dispatch(commitInProgressToggled(false));
-    } catch(error) {
-      this.committing = false;
-      this.store.dispatch(handleError('Error committing transaction', error));
-      this.store.dispatch(commitInProgressToggled(false));
-    }
-  }
+    logout: build.mutation({
+      query: () => ({
+        method: 'logout'
+      })
+    })
 
-  revert = async () => {
-    try {
-      await this.request('delete_trans', {th: this.thWrite});
-      this.thWrite = undefined;
-      this.store.dispatch(writeTransactionToggled(false));
-      this.store.dispatch(fetchAll());
-    } catch(error) {
-      this.store.dispatch(handleError('Error reverting transaction', error));
-    }
-  }
-}
+  })
+});
 
-export default new JsonRpc();
+const { endpoints: { newTrans, getTrans } } = jsonRpcApi;
+
+export const {
+  endpoints: { getTransChanges, getSystemSetting, logout },
+  useRevertMutation, useApplyMutation, useGetTransChangesQuery
+} = jsonRpcApi;
+
+export default jsonRpcApi.reducer;

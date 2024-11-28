@@ -3,7 +3,6 @@ FROM debian:bookworm AS deb-base
 RUN apt-get update \
   && echo 'debconf debconf/frontend select Noninteractive' | debconf-set-selections \
   && apt-get install -qy --no-install-recommends \
-     default-jre-headless \
      iputils-ping \
      less \
      libexpat1 \
@@ -17,6 +16,7 @@ RUN apt-get update \
      tcpdump \
      telnet \
      vim-tiny \
+     wget \
      xsltproc \
      xmlstarlet \
   && pip3 install --break-system-packages pyyaml \
@@ -29,6 +29,12 @@ RUN apt-get update \
   && groupadd ncsadmin \
   && usermod -a -G ncsadmin root
 
+RUN wget https://download.java.net/java/GA/jdk21.0.2/f2283984656d49d69e91c558476027ac/13/GPL/openjdk-21.0.2_linux-x64_bin.tar.gz; \
+  tar xvf openjdk-21.0.2_linux-x64_bin.tar.gz; \
+  mv jdk-21.0.2/ /usr/local/jdk-21; \
+  echo export JAVA_HOME=/usr/local/jdk-21 >> /etc/profile.d/jdk21.sh; \
+  echo export PATH=\$PATH:\$JAVA_HOME/bin >> /etc/profile.d/jdk21.sh; \
+  rm openjdk-21.0.2_linux-x64_bin.tar.gz;
 
 FROM deb-base AS nso-build
 
@@ -54,6 +60,10 @@ RUN curl -L -s https://github.com/hawk/lux/archive/refs/tags/lux-2.6.tar.gz | ta
 # Get latest Node.js (the version included with debian is too old)
 # RUN curl -fsSL https://deb.nodesource.com/setup_17.x | bash - \
 #  && apt-get install -qy --no-install-recommends nodejs
+
+# Get latest Node.js (the version included with debian is too old)
+RUN curl -fsSL https://deb.nodesource.com/setup_17.x | bash - \
+  && apt-get install -qy --no-install-recommends nodejs
 
 ARG NSO_INSTALL_FILE
 COPY $NSO_INSTALL_FILE /tmp/nso
@@ -148,7 +158,7 @@ COPY --from=nso-build /etc/ncs /etc/ncs/
 COPY --from=nso-build /opt/ncs /opt/ncs/
 COPY --from=nso-build /var/opt/ncs /var/opt/ncs
 
-EXPOSE 22 80 443 830
+EXPOSE 22 80 443 830 4000
 
 HEALTHCHECK --start-period=60s --interval=5s --retries=3 --timeout=5s CMD /opt/ncs/current/bin/ncs_cmd -c get_phase
 

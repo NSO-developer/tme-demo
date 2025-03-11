@@ -25,9 +25,7 @@ function TopologyViewer () {
   const dispatch = useDispatch();
 
   return (
-    <div className={classNames('topology__viewer', {
-      'topology__viewer--edit-mode': editMode
-    })}>
+    <div className="topology__viewer">
       <Topology/>
       <div className="footer">
         <ToggleButton

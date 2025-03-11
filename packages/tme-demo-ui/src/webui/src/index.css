@@ -176,8 +176,14 @@ table.tooltip > tbody > tr > td {
   max-width: 1200px;
   overflow: hidden;
   position: sticky;
+  transition: z-index 1ms 1000ms;
   top: 0px;
   width: 48%;
+  z-index: 0;
+}
+
+.centre-pane--edit-mode {
+  transition: z-index 1ms 0ms;
   z-index: 5;
 }
 

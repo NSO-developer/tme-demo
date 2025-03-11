@@ -7,10 +7,6 @@
   width: 100%;
 }
 
-.topology__viewer--edit-mode {
-  z-index: 5;
-}
-
 .component__layer {
   height: 100%;
   left: 0px;

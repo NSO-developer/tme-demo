@@ -397,8 +397,9 @@ button {
     }
   }
 
-  &.accordion--closed:last-child:not(:hover) {
+  &.accordion--closed:last-child {
     border-radius: 0 0 10px 10px;
+    overflow: hidden;
   }
 
   &.accordion--closed-fade > .accordion__header {

@@ -106,6 +106,7 @@ export function Component({ name }) {
       />
       <DroppableNodeList
         allowDrop={true}
+        disableCreate={true}
         accept={SWITCH}
         calculateName={(name, data) => {
           let compute = 0;

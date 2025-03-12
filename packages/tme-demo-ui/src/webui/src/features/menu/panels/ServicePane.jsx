@@ -39,7 +39,7 @@ function ServicePane({ keypath, children, title, label, ...rest }) {
 
   useEffect(() => dispatch(
     highlightedIconsUpdated({ highlightedIcons })
-  ), [ data ]);
+  ), [ highlightedIcons ]);
 
   const [ action ] = useActionMutation();
   const redeploy = useCallback(async (event) => {

@@ -218,7 +218,7 @@ export function useVnfVdus(nsInfo) {
         state: extractState(deploymentPlans.findLast(deploymentPlan => {
           const { status, parentName } = deploymentPlan;
           return (parentName === vmDevice.name && status === 'reached');
-        })?.name)
+        })?.name) || 'init'
       };
       return accumulator;
     }, {});
@@ -256,11 +256,11 @@ export function useNsInfoVnfs(nsInfo) {
           name: key, ...vnf.vmDevices[key]
         }));
       } else {
-        vmDevices = [{ name: 'init', status: 'init' }];
+        vmDevices = [{ name: 'init', state: 'init' }];
       }
 
       for (let i = 0; i < vnf.vmsScaling; i++) {
-        vmDevices.push({ name: `scale-out-${i}`, status: 'init' });
+        vmDevices.push({ name: `scale-out-${i}`, state: 'init' });
       }
 
       result.push({ ...vnf, linkToPrevious, vmDevices });

@@ -44,7 +44,6 @@ const NodeListWrapper = forwardRef(function NodeListWrapper({
 
   const openNewItem = () => {
     setNewItemOpen(true);
-
     dispatch(bodyOverlayToggled(true));
   };
 
@@ -115,8 +114,8 @@ const NodeListWrapper = forwardRef(function NodeListWrapper({
         transition: `min-height ${minHeight === 0 ? 1000 : 0}ms`
       }}
       >
-        {children}
         <LoadingOverlay items={fetching} ref={measuredRef}/>
+        {children}
       </div>
     </Fragment>
   );

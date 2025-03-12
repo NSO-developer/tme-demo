@@ -44,7 +44,7 @@ def _scale_out_deployed(event, th):
 
 class NetconfNotifSub(ncs.cdb.OperSubscriber):
     def init(self):
-        self.register('/ncs:devices/ncs:device/ncs:netconf-notifications/'
+        self.register('/ncs:devices/ncs:device/ncs:notifications/'
                       'ncs:received-notifications')
 
     def pre_iterate(self):

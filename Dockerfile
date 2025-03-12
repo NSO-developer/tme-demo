@@ -153,10 +153,11 @@ CMD ["/opt/ncs/run-nso.sh"]
 FROM deb-base AS nso-run
 
 COPY --from=nso-build /etc/profile.d /etc/profile.d
-COPY --from=nso-build /etc/init.d/ncs /etc/init.d/.
+COPY --from=nso-build /etc/logrotate.d/ncs /etc/logrotate.d/.
 COPY --from=nso-build /etc/ncs /etc/ncs/
 COPY --from=nso-build /opt/ncs /opt/ncs/
 COPY --from=nso-build /var/opt/ncs /var/opt/ncs
+COPY --from=nso-build /root /root
 
 EXPOSE 22 80 443 830 4000
 

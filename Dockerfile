@@ -85,24 +85,29 @@ WORKDIR /opt/ncs
 # /opt/ncs/packages: packages initially present here have been precompiled and
 # are left as is (not compiled again).
 
-# /build/local-packages: each file here contains the path to a local package
-# from the NSO installation. Each package is moved from the NSO installation
-# directory to /opt/ncs/packages. If the package is from examples.ncs, it is
-# compiled, otherwise it is a sample NED which has been precompiled and is left
-# as is (not compiled again).
+# /build/local-packages: each file in the sub-directories here contains the path
+# to a local package from the NSO installation. Each package is moved from the
+# NSO installation directory to /opt/ncs/packages. If the file is in the
+# copy-and-compile sub-directory, it is compiled, otherwise it should be a
+# sample NED which has been precompiled and is left as is (not compiled again).
 
 # /build/packages: this is the temporary location for the source packages. Each
 # package is moved to /opt/ncs/packages and compiled (and stripped).
 
 # /var/opt/ncs/packages: A symlink is created here to each package finally in
 # /opt/ncs/packages.
-RUN for local_pkg in $(ls /build/local-packages); \
+RUN for local_pkg in $(find /build/local-packages -type f); \
   do \
-    read -r pkg_path </build/local-packages/${local_pkg}; \
-    mv ${NCS_DIR}/${pkg_path} packages/${local_pkg}; \
-    if [ "${pkg_path#examples.ncs}" != "${pkg_path}" ]; then \
-      make -C packages/${local_pkg}/src || exit 1; \
-    fi; \
+    read -r pkg_path </${local_pkg}; \
+    mv ${NCS_DIR}/${pkg_path} packages/${local_pkg##*/}; \
+  done; \
+  ls -l packages;
+
+COPY /post-install-fixes /
+
+RUN for local_pkg in $(ls /build/local-packages/copy-and-compile); \
+  do \
+    make -C packages/${local_pkg}/src clean all || exit 1; \
   done; \
   for pkg_src in $(ls /build/packages); do \
     mv /build/packages/${pkg_src} packages; \
@@ -115,8 +120,6 @@ RUN for local_pkg in $(ls /build/local-packages); \
   for pkg in $(ls packages); do \
     ln -s /opt/ncs/packages/${pkg} /var/opt/ncs/packages; \
   done;
-
-COPY /post-install-fixes /
 
 # Remove stuff we don't need/want from the NSO installation \
 RUN rm -rf \

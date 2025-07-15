@@ -233,7 +233,7 @@ docker-wait-started:
 # The tme-demo (and tme-demo-ui) source package is already in the packages
 # directory and is compiled when the demo is built.
 
-local-packages = $(notdir $(wildcard system/build/local-packages/*))
+local-packages = $(notdir $(wildcard system/build/local-packages/*/*))
 included-packages = $(notdir $(wildcard system/opt/ncs/packages/*))
 all-required-packages = $(local-packages:%=packages/%) $(included-packages:%=packages/%)
 
@@ -249,7 +249,7 @@ packages/% :: system/opt/ncs/packages/%
 clean-packages:
 	@for pkg in $(all-required-packages); do \
 	  if [ -L $${pkg} ] || [ -d $${pkg} ]; then \
-	    cmd=$$([ -L $${pkg} ] && echo "rm " || echo "rm -r"); \
+	    cmd=$$([ -L $${pkg} ] && echo "rm" || echo "rm -rf"); \
 	    cmd="$${cmd} $${pkg}"; echo $${cmd}; eval $${cmd}; \
 	  fi; \
 	done;
@@ -260,10 +260,12 @@ clean-packages:
 
 .SECONDEXPANSION:
 
-packages/% :: $$(NCS_DIR)/examples.ncs/$$(subst examples.ncs/,,$$(file <system/build/local-packages/%))
+packages/% :: $$(NCS_DIR)/$$(or $$(file <system/build/local-packages/copy-and-compile/%), "invalid-path")
 	cp -r $< $@;
+	if [ -d post-install-fixes/opt/ncs/packages/$(@F) ]; then \
+	  cp -r post-install-fixes/opt/ncs/packages/$(@F)/* $@; \
+	fi;
 	$(MAKE) -C $@/src all
 
-packages/% :: $$(NCS_DIR)/$$(file <system/build/local-packages/%)
+packages/% :: $$(NCS_DIR)/$$(file <system/build/local-packages/symlink/%)
 	ln -s $< $@;
-

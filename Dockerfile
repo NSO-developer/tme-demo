@@ -29,12 +29,17 @@ RUN apt-get update \
   && groupadd ncsadmin \
   && usermod -a -G ncsadmin root
 
-RUN wget https://download.java.net/java/GA/jdk21.0.2/f2283984656d49d69e91c558476027ac/13/GPL/openjdk-21.0.2_linux-x64_bin.tar.gz; \
-  tar xvf openjdk-21.0.2_linux-x64_bin.tar.gz; \
-  mv jdk-21.0.2/ /usr/local/jdk-21; \
+RUN ARCH=$(uname -m); \
+  if [ "${ARCH}" = "x86_64" ]; then \
+    ARCH="x64"; \
+  fi; \
+  FILENAME=jdk-21_linux-${ARCH}_bin.tar.gz; \
+  wget https://download.oracle.com/java/21/latest/${FILENAME}; \
+  tar xvf ${FILENAME}; \
+  mv jdk-21*/ /usr/local/jdk-21; \
   echo export JAVA_HOME=/usr/local/jdk-21 >> /etc/profile.d/jdk21.sh; \
   echo export PATH=\$PATH:\$JAVA_HOME/bin >> /etc/profile.d/jdk21.sh; \
-  rm openjdk-21.0.2_linux-x64_bin.tar.gz;
+  rm ${FILENAME};
 
 FROM deb-base AS nso-build
 

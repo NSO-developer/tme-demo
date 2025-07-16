@@ -175,15 +175,15 @@ dist: stop clean
 CNT_NAME = tme-demo
 IMAGE_NAME = tme-demo
 
-nso_install_file = $(wildcard nso-install-file/nso-*.linux.x86_64.installer.bin)
+nso_install_file = $(wildcard nso-install-file/nso-*.linux.*.installer.bin)
 
 docker-build:
 	@if [ $(words $(nso_install_file)) -ne 1 ]; then \
 	  echo "Unable to find NSO installer binary"; \
 	  exit 1; \
 	fi
-	docker build --build-arg NSO_INSTALL_FILE=$(nso_install_file) --progress=plain --target nso-build -t $(IMAGE_NAME)-build .
-	docker build --build-arg NSO_INSTALL_FILE=$(nso_install_file) --progress=plain --target nso-run -t $(IMAGE_NAME) .
+	docker build --build-arg NSO_INSTALL_FILE=$(nso_install_file) --target nso-build -t $(IMAGE_NAME)-build .
+	docker build --build-arg NSO_INSTALL_FILE=$(nso_install_file) --target nso-run -t $(IMAGE_NAME) .
 
 docker-start: docker-run docker-wait-started
 
@@ -203,7 +203,7 @@ docker-shell:
 
 
 docker-run:
-	docker run -p 22:22/tcp -p 80:80/tcp -p 443:443/tcp -p 830:830/tcp -p 4000:4000 --name $(CNT_NAME) -td $(IMAGE_NAME)
+	docker run -p 22:22/tcp -p 80:80/tcp -p 443:443/tcp -p 830:830/tcp -p 4000:4000/tcp --name $(CNT_NAME) -td $(IMAGE_NAME)
 
 docker-wait-started:
 	@docker logs -f $(CNT_NAME) & LOGS_PID="$$!"; \

@@ -8,6 +8,7 @@ RUN apt-get update \
      libexpat1 \
      libxml2-utils \
      make \
+     nodejs \
      openssh-client \
      procps \
      python3 \
@@ -51,8 +52,6 @@ RUN apt-get update \
      curl \
      erlang \
      erlang-dev \
-     nodejs \
-     npm \
   && apt-get -qy autoremove \
   && apt-get clean \
   && rm -rf /var/lib/apt/lists/* /root/.cache
@@ -63,11 +62,7 @@ RUN curl -L -s https://github.com/hawk/lux/archive/refs/tags/lux-2.6.tar.gz | ta
   && rm -rf /tmp/lux
 
 # Get latest Node.js (the version included with debian is too old)
-# RUN curl -fsSL https://deb.nodesource.com/setup_17.x | bash - \
-#  && apt-get install -qy --no-install-recommends nodejs
-
-# Get latest Node.js (the version included with debian is too old)
-RUN curl -fsSL https://deb.nodesource.com/setup_17.x | bash - \
+RUN curl -fsSL https://deb.nodesource.com/setup_22.x | bash - \
   && apt-get install -qy --no-install-recommends nodejs
 
 ARG NSO_INSTALL_FILE

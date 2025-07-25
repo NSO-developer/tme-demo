@@ -1,0 +1,15 @@
+<config xmlns="http://tail-f.com/ns/config/1.0">
+  <tme-demo xmlns="http://example.com/tme-demo">
+  <tenant>
+    <name>ACME</name>
+    <l3vpn>
+      <route-distinguisher>771</route-distinguisher>
+      <qos-policy>GOLD</qos-policy>
+    </l3vpn>
+    <data-centre>
+      <vlan>501</vlan>
+      <ip-network>50.0.1.0/24</ip-network>
+    </data-centre>
+  </tenant>
+  </tme-demo>
+</config>

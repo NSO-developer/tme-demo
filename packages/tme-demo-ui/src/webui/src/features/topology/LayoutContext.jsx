@@ -29,9 +29,31 @@ export function useLayoutsQuery() {
   });
 }
 
+export function useZoomedLayoutsQuery() {
+  return useQueryQuery({
+    xpathExpr: '/webui:webui/webui:data-stores/tme-demo-ui:topology-layout/tme-demo-ui:zoomed',
+    selection: [
+      '../name',
+      'title',
+      'width' ]
+  });
+}
+
+export function getZoomedLayout(zoomedLayouts, name) {
+  return zoomedLayouts?.filter(
+    ({ parentName }) => parentName == name
+  ).map(
+    (zoomedLayout, index) => ({
+      name: `${zoomedLayout.parentName}-${index}`,
+      index,
+      ...zoomedLayout
+    })
+  );
+}
+
 const calculateLayout = (
-  basicLayout, dimensions,
-  iconHeightPc, iconWidthPc, zoomedContainerName, backgroundOffsetPc
+  basicLayout, dimensions, iconHeightPc, iconWidthPc,
+  zoomedContainerName, backgroundOffsetPc, zoomedLayouts
 ) => {
   console.debug('Reselect layout');
   if (!basicLayout || !dimensions) {
@@ -40,22 +62,23 @@ const calculateLayout = (
   let afterZoomed = false;
   let x = -iconWidthPc / 2;
   return basicLayout.reduce((accumulator,
-    { name, zoomed, title, connectionColour, width }, index) => {
+    { name, title, connectionColour, width }, index) => {
     const offset = backgroundOffsetPc / ((
       index === 0 || index === (basicLayout.length - 1)) ? 4 : 2);
-    const containerZoomed = zoomedContainerName === name;
-    if (containerZoomed) {
+    const zoomed = zoomedContainerName === name;
+    const zoomedLayout = getZoomedLayout(zoomedLayouts, name);
+    if (zoomed) {
       afterZoomed = true;
     }
     width = Number(width);
     const pc = zoomedContainerName ? {
-      left: containerZoomed ? iconWidthPc / 2 : afterZoomed ? 100 : 0,
-      right: containerZoomed ? 100 - iconWidthPc / 2 : afterZoomed ? 100 : 0,
+      left: zoomed ? iconWidthPc / 2 : afterZoomed ? 100 : 0,
+      right: zoomed ? 100 - iconWidthPc / 2 : afterZoomed ? 100 : 0,
       top: iconHeightPc / 2,
       bottom: 100 - iconHeightPc,
-      width: containerZoomed ? 100 - iconWidthPc : 0,
+      width: zoomed ? 100 - iconWidthPc : 0,
       height: 100 - iconHeightPc * 1.5,
-      backgroundWidth: containerZoomed && !zoomed ? 100 : 0
+      backgroundWidth: zoomed && zoomedLayout.length == 0 ? 100 : 0
     } : {
       left: x += iconWidthPc,
       right: x += width - iconWidthPc,
@@ -74,6 +97,15 @@ const calculateLayout = (
         bottom: Math.round(pc.bottom * dimensions.height / 100)
       }
     };
+    zoomedLayout?.forEach(( container, index ) => {
+      accumulator[container.name] = {
+        index, parentName: name,
+        title: container.title,
+        pc: {
+          backgroundWidth: zoomed ?container.width : 0
+        }
+      };
+    });
     return accumulator;
   }, {});
 };
@@ -85,6 +117,7 @@ export const LayoutContextProvider = React.memo(function Context({ children }) {
   const iconSize = useSelector((state) => getIconSize(state));
 
   const { data } = useLayoutsQuery();
+  const zoomedLayouts = useZoomedLayoutsQuery().data;
   const backgroundOffset = 'even';
 
   const context = useMemo(() => {
@@ -97,8 +130,9 @@ export const LayoutContextProvider = React.memo(function Context({ children }) {
       (backgroundOffset === 'odd' ? iconWidthPc : 0) -
       (backgroundOffset === 'even' ? iconWidthPc : 0);
 
-    const containers = calculateLayout(data, dimensions,
-      iconHeightPc, iconWidthPc, zoomedContainerName, backgroundOffsetPc);
+    const containers = calculateLayout(
+      data, dimensions, iconHeightPc, iconWidthPc,
+      zoomedContainerName, backgroundOffsetPc, zoomedLayouts);
 
     const pxToScreenPc = ({ x, y }) => ({
       pcX: x / width * 100,

@@ -11,7 +11,8 @@ import DragLayerCanvas from './DragLayerCanvas';
 import CustomDragLayer from './CustomDragLayer';
 import LoadingOverlay from '../common/LoadingOverlay';
 
-import { LayoutContextProvider, useLayoutsQuery } from './LayoutContext';
+import { LayoutContextProvider, getZoomedLayout,
+         useLayoutsQuery, useZoomedLayoutsQuery } from './LayoutContext';
 import { dimensionsChanged } from './topologySlice';
 import { fetchStatus } from 'api/query';
 
@@ -25,6 +26,7 @@ const TopologyBody = React.memo(function TopologyBody () {
   const canvasRef = useRef();
 
   const layouts = useLayoutsQuery();
+  const zoomedLayouts = useZoomedLayoutsQuery();
   const icons = useIconsQuery();
   const zoomedIcons = useZoomedIconsQuery();
   const connections = useConnectionsQuery();
@@ -46,8 +48,11 @@ const TopologyBody = React.memo(function TopologyBody () {
           <span className="header__title-text">Select a topology...</span>
         </div>
         <div className="component__layer">
-          {layouts.data?.map(({ name }) =>
-            <Container key={name} name={name} />
+          {layouts.data?.flatMap(({ name }) => [
+            name,
+            ...getZoomedLayout(zoomedLayouts.data, name).map(({ name }) => name)
+          ]).map(container =>
+            <Container key={container} name={container} />
           )}
         </div>
         <div className="component__layer topology__body-placeholder">
@@ -75,12 +80,13 @@ const TopologyBody = React.memo(function TopologyBody () {
         </div>
       </div>
       <LoadingOverlay items={{
-        'Layouts':      fetchStatus(layouts),
-        'Icons':        fetchStatus(icons),
-        'Zoomed Icons': fetchStatus(zoomedIcons),
-        'Connections':  fetchStatus(connections),
-        'Platforms':    fetchStatus(platforms),
-        'VNFs':         fetchStatus(vnfs)
+        'Layouts':        fetchStatus(layouts),
+        'Zoomed Layouts': fetchStatus(zoomedLayouts),
+        'Icons':          fetchStatus(icons),
+        'Zoomed Icons':   fetchStatus(zoomedIcons),
+        'Connections':    fetchStatus(connections),
+        'Platforms':      fetchStatus(platforms),
+        'VNFs':           fetchStatus(vnfs)
       }}/>
     </LayoutContextProvider>
   );

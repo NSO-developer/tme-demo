@@ -23,28 +23,28 @@ const getNetworkServiceDefaults = (tenant, container, pos) => [
     { path: 'coord/y', value: pos.y }
 ];
 
-function Container({ name }) {
+function Container(props) {
   console.debug('Container Render');
 
   const dispatch = useDispatch();
   const layout = useContext(LayoutContext);
 
+  const container = layout.containers[props.name];
+
+  const { parentName, index, title,
+          pc : { backgroundWidth: width } } = container;
+  const name = parentName || props.name;
+
   const zoomedContainer = useSelector((state) => getZoomedContainer(state));
   const draggedItem = useSelector((state) => getDraggedItem(state));
+  const openServiceName = useSelector((state) => getOpenServiceName(state));
   const underlayVisible = useSelector(
     (state) => getVisibleUnderlays(state).includes(name));
-  const openServiceName = useSelector((state) => getOpenServiceName(state));
-
-  const container = layout.containers[name];
-
-  const { index, title, pc : { backgroundWidth: width } } = container;
 
   const [ collectedProps, drop ] = useDrop(() => ({
     accept: NETWORK_SERVICE,
     drop: (item, monitor) => {
       const { x, y } = monitor.getClientOffset();
-      console.log(x);
-      console.log(layout.dimensions);
       return ({ itemDefaults: getNetworkServiceDefaults(
         openServiceName, name, layout.pxToPc({
           x: x - layout.dimensions.left,

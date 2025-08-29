@@ -11,6 +11,13 @@
         <x>1</x>
         <y>0.2</y>
       </coord>
+      <zoomed>
+        <container>branch</container>
+        <coord>
+          <x>0.35</x>
+          <y>0.275</y>
+        </coord>
+      </zoomed>
     </icon>
     <icon>
       <name>ce1</name>
@@ -21,6 +28,13 @@
         <x>0.5</x>
         <y>0.3</y>
       </coord>
+      <zoomed>
+        <container>branch</container>
+        <coord>
+          <x>0.5</x>
+          <y>0.275</y>
+        </coord>
+      </zoomed>
     </icon>
     <icon>
       <name>ce2</name>
@@ -31,6 +45,13 @@
         <x>0</x>
         <y>0.4</y>
       </coord>
+      <zoomed>
+        <container>branch</container>
+        <coord>
+          <x>0.65</x>
+          <y>0.275</y>
+        </coord>
+      </zoomed>
     </icon>
     <icon>
       <name>ce3</name>
@@ -41,6 +62,13 @@
         <x>0</x>
         <y>0.05</y>
       </coord>
+      <zoomed>
+        <container>branch</container>
+        <coord>
+          <x>0.5</x>
+          <y>0.05</y>
+        </coord>
+      </zoomed>
     </icon>
     <icon>
       <name>ce4</name>
@@ -51,6 +79,13 @@
         <x>1</x>
         <y>0.7</y>
       </coord>
+      <zoomed>
+        <container>branch</container>
+        <coord>
+          <x>0.425</x>
+          <y>0.725</y>
+        </coord>
+      </zoomed>
     </icon>
     <icon>
       <name>ce5</name>
@@ -61,6 +96,13 @@
         <x>0.5</x>
         <y>0.8</y>
       </coord>
+      <zoomed>
+        <container>branch</container>
+        <coord>
+          <x>0.575</x>
+          <y>0.725</y>
+        </coord>
+      </zoomed>
     </icon>
     <icon>
       <name>ce6</name>
@@ -71,6 +113,13 @@
         <x>0.5</x>
         <y>0.55</y>
       </coord>
+      <zoomed>
+        <container>branch</container>
+        <coord>
+          <x>0.5</x>
+          <y>0.5</y>
+        </coord>
+      </zoomed>
     </icon>
     <icon>
       <name>ce7</name>
@@ -81,6 +130,13 @@
         <x>0.0</x>
         <y>0.95</y>
       </coord>
+      <zoomed>
+        <container>branch</container>
+        <coord>
+          <x>0.5</x>
+          <y>0.95</y>
+        </coord>
+      </zoomed>
     </icon>
 
     <icon>
@@ -97,6 +153,13 @@
         <coord>
           <x>0.15</x>
           <y>0.2</y>
+        </coord>
+      </zoomed>
+      <zoomed>
+        <container>transport</container>
+        <coord>
+          <x>0.2</x>
+          <y>0.3</y>
         </coord>
       </zoomed>
     </icon>
@@ -116,6 +179,13 @@
           <y>0.2</y>
         </coord>
       </zoomed>
+      <zoomed>
+        <container>transport</container>
+        <coord>
+          <x>0.15</x>
+          <y>0.6</y>
+        </coord>
+      </zoomed>
     </icon>
     <icon>
       <name>dci2</name>
@@ -131,6 +201,13 @@
         <coord>
           <x>0.69</x>
           <y>0.2</y>
+        </coord>
+      </zoomed>
+      <zoomed>
+        <container>transport</container>
+        <coord>
+          <x>0.15</x>
+          <y>0.4</y>
         </coord>
       </zoomed>
     </icon>
@@ -150,6 +227,13 @@
           <y>0.2</y>
         </coord>
       </zoomed>
+      <zoomed>
+        <container>transport</container>
+        <coord>
+          <x>0.2</x>
+          <y>0.7</y>
+        </coord>
+      </zoomed>
     </icon>
 
     <icon>
@@ -161,6 +245,13 @@
         <x>0.4</x>
         <y>0.2</y>
       </coord>
+      <zoomed>
+        <container>transport</container>
+        <coord>
+          <x>0.35</x>
+          <y>0.4</y>
+        </coord>
+      </zoomed>
       <underlay>true</underlay>
     </icon>
     <icon>
@@ -172,6 +263,13 @@
         <x>0.6</x>
         <y>0.35</y>
       </coord>
+      <zoomed>
+        <container>transport</container>
+        <coord>
+          <x>0.65</x>
+          <y>0.4</y>
+        </coord>
+      </zoomed>
       <underlay>true</underlay>
     </icon>
     <icon>
@@ -183,6 +281,13 @@
         <x>0.6</x>
         <y>0.65</y>
       </coord>
+      <zoomed>
+        <container>transport</container>
+        <coord>
+          <x>0.65</x>
+          <y>0.6</y>
+        </coord>
+      </zoomed>
       <underlay>true</underlay>
     </icon>
     <icon>
@@ -194,6 +299,13 @@
         <x>0.4</x>
         <y>0.8</y>
       </coord>
+      <zoomed>
+        <container>transport</container>
+        <coord>
+          <x>0.35</x>
+          <y>0.6</y>
+        </coord>
+      </zoomed>
       <underlay>true</underlay>
     </icon>
     <icon>
@@ -205,6 +317,13 @@
         <x>1</x>
         <y>0.3</y>
       </coord>
+      <zoomed>
+        <container>transport</container>
+        <coord>
+          <x>0.9</x>
+          <y>0.2</y>
+        </coord>
+      </zoomed>
     </icon>
     <icon>
       <name>pe1</name>
@@ -215,6 +334,13 @@
         <x>1</x>
         <y>0.05</y>
       </coord>
+      <zoomed>
+        <container>transport</container>
+        <coord>
+          <x>0.4</x>
+          <y>0.1</y>
+        </coord>
+      </zoomed>
     </icon>
     <icon>
       <name>pe2</name>
@@ -225,6 +351,13 @@
         <x>1</x>
         <y>0.75</y>
       </coord>
+      <zoomed>
+        <container>transport</container>
+        <coord>
+          <x>0.4</x>
+          <y>0.9</y>
+        </coord>
+      </zoomed>
     </icon>
     <icon>
       <name>pe3</name>
@@ -235,6 +368,13 @@
         <x>1</x>
         <y>0.55</y>
       </coord>
+      <zoomed>
+        <container>transport</container>
+        <coord>
+          <x>0.9</x>
+          <y>0.8</y>
+        </coord>
+      </zoomed>
     </icon>
 
     <icon>

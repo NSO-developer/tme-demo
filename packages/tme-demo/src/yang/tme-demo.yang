@@ -421,6 +421,10 @@ module tme-demo {
           }
         }
       }
+
+      leaf touch-date {
+        type string;
+      }
     }
   }
 

@@ -14,6 +14,7 @@
     <qos>
       <qos-policy>{l3vpn/qos-policy}</qos-policy>
     </qos>
+    <touch-date>{touch-date}</touch-date>
   </l3vpn>
   </vpn>
 </config-template>

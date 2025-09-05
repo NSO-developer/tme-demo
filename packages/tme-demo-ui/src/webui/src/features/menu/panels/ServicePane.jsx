@@ -12,7 +12,7 @@ import { getOpenService, serviceToggled } from '../menuSlice';
 import { highlightedIconsUpdated } from 'features/topology/topologySlice';
 
 import { stopThenGoToUrl } from 'api/comet';
-import { useActionMutation, useGetValueQuery } from 'api/data';
+import { useSetValueMutation, useGetValueQuery } from 'api/data';
 
 
 function ServicePane({ keypath, children, title, label, ...rest }) {
@@ -41,13 +41,11 @@ function ServicePane({ keypath, children, title, label, ...rest }) {
     highlightedIconsUpdated({ highlightedIcons })
   ), [ highlightedIcons ]);
 
-  const [ action ] = useActionMutation();
+  const [ setValue ] = useSetValueMutation();
   const redeploy = useCallback(async (event) => {
     event.stopPropagation();
-    await action({
-      transType: 'read_write',
-      path: `${keypath}/touch`
-    });
+    const now = new Date(Date.now());
+    await setValue({ keypath, leaf: 'touch-date', value: now.toISOString() });
     dispatch(stopThenGoToUrl(COMMIT_MANAGER_URL));
   });
 
